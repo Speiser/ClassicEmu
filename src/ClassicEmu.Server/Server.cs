@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using ClassicEmu.Server.Structs;
 using ClassicEmu.Shared;
 
@@ -13,53 +15,77 @@ namespace ClassicEmu.Server
         private int _port;
         private TcpListener _listener;
 
-        public Server()
+        public Server(IPAddress ip, int port = 5001)
         {
-            _ip = IPAddress.Loopback;
-            _port = 5001;
+            _ip = ip;
+            _port = port;
             _listener = new TcpListener(_ip, _port);
+            this.IsActive = false;
         }
 
-        public void LogonProcess()
+        public bool IsActive { get; private set; }
+
+        public void Start()
         {
-            // http://arcemu.org/wiki/Logon_Process.
+            if (this.IsActive)
+                return;
+
             _listener.Start();
-            var client = _listener.AcceptTcpClient();
+            this.IsActive = true;
+            new Thread(this.WaitForConnection).Start();
+        }
+
+        public void Stop()
+        {
+            if (!this.IsActive)
+                return;
+
+            _listener.Stop();
+            this.IsActive = false;
+        }
+
+        private void WaitForConnection()
+        {
+            while (this.IsActive)
+            {
+                var client = _listener.AcceptTcpClient();
+                new Thread(() => this.LogonProcess(client)).Start();
+            }
+        }
+
+        // Based on http://arcemu.org/wiki/Logon_Process.
+        [Status("Server Logon Challenge Fails")]
+        private void LogonProcess(TcpClient client)
+        {
             var stream = client.GetStream();
-            var buffer = new byte[8192 * 10];
-            var len = stream.Read(buffer, 0, buffer.Length);
+
+            // Client Logon Challenge:
+            byte[] data = this.ReadStream(83, stream);
+            ClientLogonChallenge clc = LogonMessageCreator.CreateClientLogonChallenge(data);
+
+            // Server Logon Challenge:
+            byte[] slc = LogonMessageCreator.CreateServerLogonChallenge(clc);
+            stream.Write(slc, 0, slc.Length);
+
+            // Client Logon Proof:
+            byte[] recv = this.ReadStream(75, stream);
+            Console.WriteLine(Encoding.ASCII.GetString(recv));
+
+            // Server Logon Proof:
+        }
+
+        private byte[] ReadStream(int length, NetworkStream stream)
+        {
+            var buffer = new byte[length];
+            int len = stream.Read(buffer, 0, buffer.Length);
             var data = new byte[len];
+
             for (int i = 0; i < len; i++)
             {
                 data[i] = buffer[i];
             }
 
-            Console.WriteLine();
-            ClientLogonChallenge clc = new ClientLogonChallenge()
-            {
-                cmd = data[0],
-                error = data[1],
-                size = BitConverter.ToUInt16(new byte[2] { data[2], data[3] }, 0),
-                gamename = new byte[4] { data[4], data[5], data[6], data[7] },
-                version1 = data[8],
-                version2 = data[9],
-                version3 = data[10],
-                build = BitConverter.ToUInt16(new byte[2] { data[11], data[12] }, 0),
-                platform = new byte[4] { data[13], data[14], data[15], data[16] },
-                os = new byte[4] { data[17], data[18], data[19], data[20] },
-                country = new byte[4] { data[21], data[22], data[23], data[24] },
-                timezone_bias = BitConverter.ToUInt32(new byte[4] { data[25], data[26], data[27], data[28] }, 0),
-                ip = BitConverter.ToUInt32(new byte[4] { data[29], data[30], data[31], data[32] }, 0),
-                I_len = data[33],
-                I = new byte[data[33]]
-            };
-
-            for (int i = 0; i < clc.I_len; i++)
-            {
-                clc.I[i] = data[i + 34];
-            }
-
-            Console.WriteLine(clc.ToString());
+            return data;
         }
     }
 }
