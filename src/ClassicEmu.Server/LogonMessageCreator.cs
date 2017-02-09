@@ -1,9 +1,12 @@
 ﻿using ClassicEmu.Server.Structs;
 using ClassicEmu.Shared;
 using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace ClassicEmu.Server
@@ -43,19 +46,37 @@ namespace ClassicEmu.Server
         [Status("WIP")]
         public static byte[] CreateServerLogonChallenge(ClientLogonChallenge clc)
         {
+            SHA1 sha = SHA1.Create();
+
+            BigInteger _N = BigInteger.Parse("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7", NumberStyles.HexNumber);
+            BigInteger _s = BigInteger.Parse("4D66C5A48659D395362CCC29F879431", NumberStyles.HexNumber);
+            BigInteger _b = BigInteger.Parse("7B798871F29F435533227B798871F29F43553322", NumberStyles.HexNumber); // Server Private
+            BigInteger _g = new BigInteger(7);
+            BigInteger _k = new BigInteger(3);
+
+            BigInteger _x;
+            BigInteger _v; // Verifier
+            
+
+            string pw = (clc.I + ":" + "password").ToUpper();
+            byte[] pwHash = sha.ComputeHash(Encoding.UTF8.GetBytes(pw));
+            byte[] x = sha.ComputeHash((_s.ToByteArray().Reverse().Concat(pwHash)).ToArray());
+            _x = new BigInteger(x);
+            _v = BigInteger.ModPow(_g, BigInteger.Abs(_x), BigInteger.Abs(_N));
+            BigInteger _B = (_v * _k + BigInteger.ModPow(_g, _b, _N)) % _N; ;  // server public value
+
             ServerLogonChallenge slc = new ServerLogonChallenge()
             {
                 cmd = 0,
                 error = 0x00,
                 unk2 = 0,
-                B = new byte[32] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                B = _B.ToByteArray(),
                 g_len = 1,
                 g = 7,
                 N_len = 32,
-                N = Encoding.ASCII.GetBytes("894B645E89E1535BBDAD5B8B29065053"),    // changed size to 32
-                s = Encoding.ASCII.GetBytes("0801B18EBFBF5E8FAB3C82872A3E9BB7"),    // should be random
-                unk3 = Encoding.ASCII.GetBytes("0801B18EBFBF5E8FAB3C82872A3E9BB7"), // should be random
+                N = _N.ToByteArray(),
+                s = _s.ToByteArray(),
+                unk3 = _s.ToByteArray(),
                 unk4 = 0
             };
 

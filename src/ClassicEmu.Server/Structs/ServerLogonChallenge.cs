@@ -77,8 +77,8 @@ namespace ClassicEmu.Server.Structs
         {
             var bytes = new List<byte>();
             bytes.Add(cmd);
-            bytes.Add(error);
             bytes.Add(unk2);
+            bytes.Add(error);
             bytes.AddRange(B);
             bytes.Add(g_len);
             bytes.Add(g);
