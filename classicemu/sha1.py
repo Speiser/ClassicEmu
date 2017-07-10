@@ -1,5 +1,7 @@
 import hashlib
 
-def sha1(data):
-    return hashlib.sha1(data).digest()
+def hash_sha1(data):
+    h = hashlib.sha1()
+    h.update(data)
+    return h.digest()
 

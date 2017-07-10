@@ -1,5 +1,6 @@
-class ClientLogonChallenge:
+from serverlogonchallenge import ServerLogonChallenge
 
+class ClientLogonChallenge:
     cmd = None
     error = None
     size = None
@@ -65,9 +66,7 @@ class ClientLogonChallenge:
         self.I = bytes(p[34:(34 + int(p[33]))])
 
     def _work(self):
-        data = bytearray([
-            0, 0, 0, 175, 237, 70, 1, 54, 143, 6, 11, 41, 212, 191, 57, 14, 185, 18, 157, 234, 71, 59, 136, 26, 121, 72, 171, 34, 72, 107, 149, 215, 31, 173, 57, 1, 7, 32, 183, 155, 62, 42, 135, 130, 60, 171, 143, 94, 191, 191, 142, 177, 1, 8, 83, 80, 6, 41, 139, 91, 173, 189, 91, 83, 225, 137, 94, 100, 75, 137, 13, 88, 110, 73, 181, 89, 160, 168, 240, 35, 114, 102, 252, 103, 166, 34, 45, 31, 88, 131, 181, 174, 14, 165, 65, 28, 184, 81, 248, 101, 124, 107, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-        ])
-
-        self.connection.sendall(data)
+        slc = ServerLogonChallenge(self.I, self.I)
+        data = slc.get()
+        self.connection.sendall(bytearray(data))
         print('ServerLogonChallenge Sent.')
