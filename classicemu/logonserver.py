@@ -4,23 +4,23 @@ from config import CONFIG
 from helper import run_thread
 from clientlogin import ClientLogin
 
-class LoginServer:
+class LogonServer:
 
-    login_addr = CONFIG['LoginServer']['Address']
-    login_port = CONFIG['LoginServer']['Port']
+    logon_addr = CONFIG['LogonServer']['Address']
+    logon_port = CONFIG['LogonServer']['Port']
     realm_addr = CONFIG['RealmServer']['Address']
     realm_port = CONFIG['RealmServer']['Port']
-    loginserver_backlog = CONFIG['RealmServer']['Backlog']
+    logonserver_backlog = CONFIG['LogonServer']['Backlog']
     realm_backlog = CONFIG['RealmServer']['Backlog']
 
     def __init__(self):
         self.active = False
         self.realms = {}
 
-        self.loginserver_ep = (self.login_addr, self.login_port)
+        self.logonserver_ep = (self.logon_addr, self.logon_port)
         self.realmserver_ep = (self.realm_addr, self.realm_port)
 
-        self.loginserver_backlog = self.loginserver_backlog
+        self.logonserver_backlog = self.logonserver_backlog
         self.realmserver_backlog = self.realm_backlog
 
     def start(self):
@@ -36,8 +36,8 @@ class LoginServer:
     def _client_listen(self):
         self.client_socket = socket.socket()
         self.client_socket.settimeout(1)
-        self.client_socket.bind(self.loginserver_ep)
-        self.client_socket.listen(self.loginserver_backlog)
+        self.client_socket.bind(self.logonserver_ep)
+        self.client_socket.listen(self.logonserver_backlog)
         print('Client socket initialized.')
 
     def _realm_listen(self):

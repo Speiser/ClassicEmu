@@ -1,5 +1,5 @@
 CONFIG = {
-    'LoginServer': {
+    'LogonServer': {
         'Address': '127.0.0.1',
         'Port': 5001,
         'Backlog': 8
