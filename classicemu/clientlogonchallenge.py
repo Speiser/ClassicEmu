@@ -1,4 +1,5 @@
 from serverlogonchallenge import ServerLogonChallenge
+from srp6 import SRP6
 
 class ClientLogonChallenge:
     cmd = None
@@ -20,31 +21,9 @@ class ClientLogonChallenge:
     def __init__(self, packet, connection):
         self.packet = packet
         self.connection = connection
+        self.srp = None
         self._parse()
         self._work()
-
-    def __repr__(self):
-        p = self.packet
-        result = ''
-        result += 'cmd: ' + str(p[0]) + '\n'
-        result += 'error: ' + str(p[1]) + '\n'
-        result += 'size: ' + str(p[2:4]) + '\n'
-        result += 'gamename: ' + str(p[4:8]) + '\n'
-        result += 'version1: ' + str(p[8]) + '\n'
-        result += 'version2: ' + str(p[9]) + '\n'
-        result += 'version3: ' + str(p[10]) + '\n'
-        result += 'build: ' + str(p[11:13]) + '\n'
-        result += 'platform: ' + str(p[13:17]) + '\n'
-        result += 'os: ' + str(p[17:21]) + '\n'
-        result += 'country: ' + str(p[21:25]) + '\n'
-        result += 'timezone_bias: ' + str(p[25:29]) + '\n'
-        result += 'ip: ' + str(p[29:33]) + '\n'
-        result += 'I_len: ' + str(p[33]) + '\n'
-        result += 'I: ' + str(p[34:(34 + int(p[33]))]) + '\n'
-        return result
-
-    def __str__(self):
-        return self.__repr__()
 
     def _parse(self):
         p = self.packet
@@ -63,6 +42,8 @@ class ClientLogonChallenge:
         self.ip = bytes(p[29:33])
         self.I_len = bytes(p[33])
         self.I = bytes(p[34:(34 + int(p[33]))])
+        self.srp = SRP6(self.I, self.I)
 
     def _work(self):
-        self.connection.sendall(bytearray(ServerLogonChallenge(self.I, self.I).get()))
+        # Currently the password == username.
+        self.connection.sendall(bytearray(ServerLogonChallenge(self.srp).get()))

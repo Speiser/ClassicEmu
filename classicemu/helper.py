@@ -9,10 +9,11 @@ def print_packet(data):
         temp = data[index:(index + 16)]
         data_str = _get_hex(temp)
         ascii_str = _get_ascii(temp)
-        dump += '{:<47} {}\n'.format(data_str, ascii_str)
+        dump += '    {:<47} {}\n'.format(data_str, ascii_str)
         index += 16
 
-    print('\n' + dump)
+    print('\n  Packet length: ' + str(len(data)))
+    print(dump)
 
 def run_thread(action):
     thread = threading.Thread(target = action)

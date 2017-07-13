@@ -1,4 +1,5 @@
 from serverlogonproof import ServerLogonProof
+from srp6 import SRP6
 
 class ClientLogonProof:
     cmd = None
@@ -8,20 +9,20 @@ class ClientLogonProof:
     number_of_keys = None
     unk = None
 
-    def __init__(self, packet, connection):
+    def __init__(self, packet, connection, srp):
         self.packet = packet
         self.connection = connection
+        self.srp = srp
         self._parse()
         self._work()
 
     def _parse(self):
-        # Dont care about the rest.
-        # Just pretending to have the same password on the server.
+        # Rest can be ignored.
+        self.A = bytes(self.packet[1:33])
         self.M1 = bytes(self.packet[33:53])
 
     def _work(self):
-        if self.M1 is None:
-            self._parse()
-        data = bytearray(ServerLogonProof(self.M1).get())
+        self.srp.A = self.A
+        data = bytearray(ServerLogonProof(self.srp).get())
         self.connection.sendall(data)
     
