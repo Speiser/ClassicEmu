@@ -18,7 +18,6 @@ class ClientLogonChallenge:
     I = None
 
     def __init__(self, packet, connection):
-        print('ClientLogonChallenge Received.')
         self.packet = packet
         self.connection = connection
         self._parse()
@@ -66,7 +65,4 @@ class ClientLogonChallenge:
         self.I = bytes(p[34:(34 + int(p[33]))])
 
     def _work(self):
-        slc = ServerLogonChallenge(self.I, self.I)
-        data = slc.get()
-        self.connection.sendall(bytearray(data))
-        print('ServerLogonChallenge Sent.')
+        self.connection.sendall(bytearray(ServerLogonChallenge(self.I, self.I).get()))

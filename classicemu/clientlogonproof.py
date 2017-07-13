@@ -1,20 +1,27 @@
+from serverlogonproof import ServerLogonProof
+
 class ClientLogonProof:
+    cmd = None
+    A = None
+    M1 = None
+    crc_hash = None
+    number_of_keys = None
+    unk = None
+
     def __init__(self, packet, connection):
-        print('ClientLogonProof Received.')
         self.packet = packet
         self.connection = connection
         self._parse()
-        # self._work()
+        self._work()
 
     def _parse(self):
-        pass
+        # Dont care about the rest.
+        # Just pretending to have the same password on the server.
+        self.M1 = bytes(self.packet[33:53])
 
     def _work(self):
-        data = bytearray([
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-        ])
-        print(data)
+        if self.M1 is None:
+            self._parse()
 
-        self.connection.sendall(data)
-        print('ServerLogonProof Sent.')
+        self.connection.sendall(bytearray(ServerLogonProof(self.M1).get()))
     

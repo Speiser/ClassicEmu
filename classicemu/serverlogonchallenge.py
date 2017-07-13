@@ -17,7 +17,7 @@ class ServerLogonChallenge:
     unk4 = 0
 
     def __init__(self, username, password):
-        x = self._x(username, username)
+        x = self._x(username, password)
         ex = int.from_bytes(x, byteorder='little')
         v = pow(self.g, ex, self.N)
         b = [
@@ -31,7 +31,7 @@ class ServerLogonChallenge:
         self.B = B.to_bytes(32, byteorder='little')
 
     def _x(self, I, P):
-        temp = hash_sha1(I.upper() + b":" + P)
+        temp = hash_sha1(I.upper() + b":" + P.upper())
         return hash_sha1(self.s + temp)
 
     def get(self):

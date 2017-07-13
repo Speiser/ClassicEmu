@@ -15,12 +15,12 @@ class ClientLogin:
             try:
                 packet = self.connection.recv(1024)
                 if not packet:
-                    print('Connection closed: ' + self.address)
+                    print(f'!! [{self.address}] - Connection Closed')
                     break
-                print(packet)
+                # print(packet)
                 self._handle_packet(packet)
             except ConnectionError:
-                print('Lost connection: ' + self.address)
+                print(f'!! [{self.address}] - Lost Connection')
                 break
             except socket.timeout:
                 pass
@@ -28,13 +28,18 @@ class ClientLogin:
     def _handle_packet(self, packet):
         if self.state == ClientState.Init:
             self.state = ClientState.ClientLogonChallenge
+            print(f'-> [{self.address}] - Client Logon Challenge')
             ClientLogonChallenge(packet, self.connection)
             self.state = ClientState.ServerLogonChallenge
+            print(f'<- [{self.address}] - Server Logon Challenge')
 
         elif self.state == ClientState.ServerLogonChallenge:
             self.state = ClientState.ClientLogonProof
+            print(f'-> [{self.address}] - Client Logon Proof')
             ClientLogonProof(packet, self.connection)
+            print(f'<- [{self.address}] - Server Logon Proof')
             self.state = ClientState.Authenticated
+            print(f'!! [{self.address}] - Client Authenticated')
 
         elif self.state == ClientState.Authenticated:
             pass
