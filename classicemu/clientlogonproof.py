@@ -22,6 +22,6 @@ class ClientLogonProof:
     def _work(self):
         if self.M1 is None:
             self._parse()
-
-        self.connection.sendall(bytearray(ServerLogonProof(self.M1).get()))
+        data = bytearray(ServerLogonProof(self.M1).get())
+        self.connection.sendall(data)
     

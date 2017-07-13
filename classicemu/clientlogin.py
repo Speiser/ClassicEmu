@@ -3,6 +3,7 @@ import socket
 from clientstate import ClientState
 from clientlogonchallenge import ClientLogonChallenge
 from clientlogonproof import ClientLogonProof
+from helper import print_packet
 
 class ClientLogin:
     def __init__(self, connection, address):
@@ -14,10 +15,12 @@ class ClientLogin:
         while True:
             try:
                 packet = self.connection.recv(1024)
-                if not packet:
+                if packet is None:
                     print(f'!! [{self.address}] - Connection Closed')
                     break
-                # print(packet)
+                if not packet:
+                    continue
+                print_packet(packet)
                 self._handle_packet(packet)
             except ConnectionError:
                 print(f'!! [{self.address}] - Lost Connection')
@@ -42,4 +45,5 @@ class ClientLogin:
             print(f'!! [{self.address}] - Client Authenticated')
 
         elif self.state == ClientState.Authenticated:
+            print("YES")
             pass

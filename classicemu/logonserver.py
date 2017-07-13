@@ -18,35 +18,36 @@ class LogonServer:
         self.realms = {}
 
         self.logonserver_ep = (self.logon_addr, self.logon_port)
-        self.logonserver_string = (f'{self.logon_addr}:{self.logon_port}')
         self.realmserver_ep = (self.realm_addr, self.realm_port)
 
         self.logonserver_backlog = self.logonserver_backlog
         self.realmserver_backlog = self.realm_backlog
+        
+        self.logonserver_string = (f'{self.logon_addr}:{self.logon_port}')
+        self.realmserver_string = (f'{self.realm_addr}:{self.realm_port}')
 
     def start(self):
         self._client_listen()
-        # self._realm_listen()
+        self._realm_listen()
         self.active = True
         self._accept_clients()
 
     def close(self):
         self.active = False
-        pass
 
     def _client_listen(self):
         self.client_socket = socket.socket()
         self.client_socket.settimeout(1)
         self.client_socket.bind(self.logonserver_ep)
         self.client_socket.listen(self.logonserver_backlog)
-        print(f'!! [{self.logonserver_string}] - Client socket initialized.')
+        print(f'!! [{self.logonserver_string}] - Client Socket Initialized')
 
     def _realm_listen(self):
         self.realm_socket = socket.socket()
         self.realm_socket.settimeout(1)
         self.realm_socket.bind(self.realmserver_ep)
         self.realm_socket.listen(self.realmserver_backlog)
-        print('Realm socket initialized.')
+        print(f'!! [{self.realmserver_string}] - Realm Socket Initialized')
 
     def _accept_clients(self):
         print(f'!! [{self.logonserver_string}] - Accepting Clients')
@@ -58,6 +59,5 @@ class LogonServer:
                 pass
 
     def _client_work(self, connection, address):
-        address_string = f'{address[0]}:{address[1]}'
-        login = ClientLogin(connection, address_string)
+        login = ClientLogin(connection, f'{address[0]}:{address[1]}')
         run_thread(login.handle_connection)

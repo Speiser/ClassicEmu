@@ -2,7 +2,6 @@ class ServerLogonProof:
     cmd = 1
     error = 0
     M2 = None
-    accountflags = [0, 0, 0, 0]
 
     def __init__(self, clientM1):
         self.M2 = clientM1
@@ -11,7 +10,8 @@ class ServerLogonProof:
         data = [self.cmd, self.error]
         for m in self.M2:
             data.append(m)
-        for f in self.accountflags:
-            data.append(f)
+        data.append(0)
+        data.append(0)
+        data.append(0)
+        data.append(0)
         return data
-        
