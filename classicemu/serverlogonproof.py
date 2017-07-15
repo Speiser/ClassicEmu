@@ -5,7 +5,7 @@ class ServerLogonProof:
 
     def __init__(self, srp):
         self.srp = srp
-        
+
     def get(self, M1):
         if self.srp.getM(M1):
             data = [1, 0]

@@ -1,6 +1,7 @@
 from serverlogonproof import ServerLogonProof
 from srp6 import SRP6
 
+
 class ClientLogonProof:
     cmd = None
     A = None
@@ -26,4 +27,3 @@ class ClientLogonProof:
         data = bytearray(ServerLogonProof(self.srp).get(self.M1))
         self.connection.sendall(data)
         self.failed = (len(data) == 3)
-    

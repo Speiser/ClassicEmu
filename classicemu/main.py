@@ -3,6 +3,7 @@ import sys
 
 from logonserver import LogonServer
 
+
 os.system('cls')
 ls = LogonServer()
 try:
@@ -10,14 +11,8 @@ try:
 except KeyboardInterrupt:
     sys.exit()
 
-
 """
-Sent: 119 bytes.
-Received: 42 bytes.
-Sent: 26 bytes.
-Received: 75 bytes.
-Sent: 10 bytes.
-Received: 5 bytes.
-Sent: 10 bytes.
-Received: 5 bytes.
+    Summary.
+    :param name: text
+    :returns: returns
 """

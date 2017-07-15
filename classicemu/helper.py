@@ -2,6 +2,7 @@ import binascii
 import string
 import threading
 
+
 def print_packet(data):
     dump = ''
     index = 0
@@ -15,9 +16,11 @@ def print_packet(data):
     print('\n  Packet length: ' + str(len(data)))
     print(dump)
 
+
 def run_thread(action):
-    thread = threading.Thread(target = action)
+    thread = threading.Thread(target=action)
     thread.start()
+
 
 def _get_hex(data):
     hexdump = binascii.hexlify(data).decode('ascii')
@@ -28,11 +31,12 @@ def _get_hex(data):
         index += 2
     return spaced_hexdump.strip()
 
+
 def _get_ascii(data):
     asciidump = ''
     for char in data:
         char = chr(char)
-        if char in string.printable and not char in '\n\r\t':
+        if char in string.printable and char not in '\n\r\t':
             asciidump += char
         else:
             asciidump += '.'

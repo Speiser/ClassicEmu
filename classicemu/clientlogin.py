@@ -6,6 +6,7 @@ from clientlogonproof import ClientLogonProof
 from helper import print_packet
 from srp6 import SRP6
 
+
 class ClientLogin:
     def __init__(self, connection, address):
         self.connection = connection

@@ -1,6 +1,7 @@
 from serverlogonchallenge import ServerLogonChallenge
 from srp6 import SRP6
 
+
 class ClientLogonChallenge:
     cmd = None
     error = None

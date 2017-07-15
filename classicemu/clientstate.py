@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ClientState(Enum):
     Init = 0
     ClientLogonChallenge = 1
