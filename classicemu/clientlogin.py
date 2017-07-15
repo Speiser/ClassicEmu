@@ -12,9 +12,10 @@ class ClientLogin:
         self.address = address
         self.state = ClientState.Init
         self.srp = None
+        self.connected = True
 
     def handle_connection(self):
-        while True:
+        while self.connected:
             try:
                 packet = self.connection.recv(1024)
                 if packet is None:
@@ -43,10 +44,15 @@ class ClientLogin:
             self.state = ClientState.ClientLogonProof
             print(f'-> [{self.address}] - Client Logon Proof')
             print_packet(packet)
-            ClientLogonProof(packet, self.connection, self.srp)
+            clp = ClientLogonProof(packet, self.connection, self.srp)
             print(f'<- [{self.address}] - Server Logon Proof')
-            self.state = ClientState.Authenticated
-            print(f'!! [{self.address}] - Client Authenticated')
+            if clp.failed:
+                self.connected = False
+                self.state = ClientState.Disconnected
+                print(f'<- [{self.address}] - Client Authentification Failed')
+            else:
+                self.state = ClientState.Authenticated
+                print(f'!! [{self.address}] - Client Authenticated')
 
         elif self.state == ClientState.Authenticated:
             print(f'-> [{self.address}] - Packet Received')

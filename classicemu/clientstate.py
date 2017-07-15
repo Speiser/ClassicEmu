@@ -7,3 +7,4 @@ class ClientState(Enum):
     ClientLogonProof = 3
     ServerLogonProof = 4
     Authenticated = 5
+    Disconnected = 6

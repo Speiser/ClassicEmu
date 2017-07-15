@@ -23,7 +23,7 @@ class ServerLogonChallenge:
         data.append(self.g_len)
         data.append(self.srp.g)
         data.append(self.N_len)
-        for b in self.srp.N.to_bytes(32, byteorder='little'):
+        for b in self.srp.N.to_bytes(32, byteorder='little').rstrip(b'\x00'):
             data.append(b)
         for b in self.srp.s:
             data.append(b)

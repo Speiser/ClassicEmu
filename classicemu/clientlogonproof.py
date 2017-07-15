@@ -23,6 +23,7 @@ class ClientLogonProof:
 
     def _work(self):
         self.srp.A = self.A
-        data = bytearray(ServerLogonProof(self.srp).get())
+        data = bytearray(ServerLogonProof(self.srp).get(self.M1))
         self.connection.sendall(data)
+        self.failed = (len(data) == 3)
     

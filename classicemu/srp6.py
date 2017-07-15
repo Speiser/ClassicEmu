@@ -101,20 +101,19 @@ class SRP6:
     def __init__(self, username, password):
         self.I = username
         self.P = password
-        self.b = int.from_bytes(os.urandom(19), "little") % self.N
+        self.b = int.from_bytes(os.urandom(152), "little") % self.N
         self._x()
-        ex = int.from_bytes(self.x, byteorder='little')
-        self.v = pow(self.g, ex, self.N)
-        
-        # ib = int.from_bytes(self.b, byteorder='little')
-        B = 3 * self.v + (pow(self.g, self.b, self.N))
-        self.B = B.to_bytes(32, byteorder='little')
+        self.v = pow(self.g, int.from_bytes(self.x, byteorder='little'), self.N)
+
+        gmod = pow(self.g, self.b, self.N)
+        B = ((3 * self.v) + gmod) % self.N
+        self.B = int.to_bytes(B, 32, byteorder='little')
 
     def _x(self):
-        temp = hash_sha1(self.I.upper() + b":" + self.P.upper())
+        temp = hash_sha1(self.I + b':' + self.P)
         self.x = hash_sha1(self.s + temp)
 
-    def getM(self):
+    def getM(self, M1):
         """
         A = g^a
         B = kv + g^b
@@ -134,26 +133,55 @@ class SRP6:
         # u = H(A, B)
         self.u = hash_sha1(self.A + self.B)
 
-        # S = (A * v^u) ^ b % N (https://www.ietf.org/rfc/rfc2945.txt)
-        # temp_b = int.from_bytes(self.b, byteorder='little')
+        # S = (A * (v^u) % N) ^ b % N
         temp_A = int.from_bytes(self.A, byteorder='little')
         temp_u = int.from_bytes(self.u, byteorder='little')
         self.S = pow((temp_A * pow(self.v, temp_u, self.N)), self.b, self.N)
+        S_bytes = self.S.to_bytes(40, byteorder='little')
+        self.K = hash_sha1(S_bytes)
 
-        # up = self.b * (math.log(temp_A) + temp_u * math.log(self.v))
-        # self.S = math.exp(up)
-        #    e^ b(ln(A) + u ln(v))    % N
-        print('Sessionkey: ' + str(self.S))
-        self.K = hash_sha1(self.S.to_bytes(32, byteorder='little'))
+        check = self._getM(M1)
+        return check
 
-        ####### M
-        hn = hash_sha1(self.N.to_bytes(32, byteorder='little'))
-        hg = hash_sha1(bytes(self.g))
-        hi = hash_sha1(self.I.upper())
-        temp = []
-        for i in range(len(hn)):
-            temp.append(hn[i] ^ hg[i])
+
+    def _getM(self, M1):
+        # https://github.com/arcemu/arcemu/blob/master/src/arcemu-logonserver/AuthSocket.cpp#L345
+        t = self.S.to_bytes(40, byteorder='little')
+        t1 = []
+        vK = []
+        for i in range(40):
+            vK.append(0)
+
+        for i in range(16):
+            t1.append(t[i * 2])
+
+        t1_hash = hash_sha1(bytes(t1))
+
+        for i in range(20):
+            vK[i * 2] = t1_hash[i]
+
+        for i in range(16):
+            t1[i] = t[i * 2 + 1]
+
+        t1_hash = hash_sha1(bytes(t1))
+
+        for i in range(20):
+            vK[i * 2 + 1] = t1_hash[i]
+
+        sessionkey = bytes(vK)
+
+        N_hash = hash_sha1(self.N.to_bytes(32, byteorder='little').rstrip(b'\x00'))
+        g_hash = hash_sha1(self.g.to_bytes(32, byteorder='little').rstrip(b'\x00'))
+        t3 = []
+        for i in range(20):
+            t3.append(N_hash[i] ^ g_hash[i])
+
+        t4 = hash_sha1(self.I)
         
-        self.M = hash_sha1(bytes(temp) + hi + self.s + self.A + self.B + self.S.to_bytes(40, byteorder='little'))
-        print(len(self.M))
-        return self.M
+        c_proof = hash_sha1(bytes(t3) + t4 + self.s + self.A + self.B + sessionkey)
+
+        if M1 != c_proof:
+            return False
+
+        self.M = hash_sha1(self.A + c_proof + sessionkey + bytes(0))
+        return True
