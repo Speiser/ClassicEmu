@@ -57,5 +57,5 @@ class ClientLogin:
         elif self.state == ClientState.Authenticated:
             print(f'-> [{self.address}] - Packet Received')
             print_packet(packet)
-            pass
-
+            fake_realm = bytes([16, 7, 0, 0, 0, 0, 0, 0, 2, 0])
+            self.connection.sendall(fake_realm)

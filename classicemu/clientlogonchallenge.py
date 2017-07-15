@@ -46,4 +46,5 @@ class ClientLogonChallenge:
 
     def _work(self):
         # Currently the password == username.
-        self.connection.sendall(bytearray(ServerLogonChallenge(self.srp).get()))
+        data = bytearray(ServerLogonChallenge(self.srp).get())
+        self.connection.sendall(data)
