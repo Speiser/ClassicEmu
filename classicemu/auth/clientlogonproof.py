@@ -1,5 +1,5 @@
-from serverlogonproof import ServerLogonProof
-from srp6 import SRP6
+from classicemu.auth.serverlogonproof import ServerLogonProof
+from classicemu.crypto.srp6 import SRP6
 
 
 class ClientLogonProof:

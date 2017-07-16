@@ -1,5 +1,5 @@
-from sha1 import hash_sha1
-from srp6 import SRP6
+from classicemu.crypto.sha1 import hash_sha1
+from classicemu.crypto.srp6 import SRP6
 
 
 class ServerLogonChallenge:

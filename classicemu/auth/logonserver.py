@@ -1,8 +1,8 @@
 import socket
 
-from config import CONFIG
-from helper import run_thread
-from clientlogin import ClientLogin
+from classicemu.auth.clientlogin import ClientLogin
+from classicemu.common.config import CONFIG
+from classicemu.common.helper import run_thread
 
 
 class LogonServer:

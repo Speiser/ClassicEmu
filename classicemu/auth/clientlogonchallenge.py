@@ -1,5 +1,5 @@
-from serverlogonchallenge import ServerLogonChallenge
-from srp6 import SRP6
+from classicemu.auth.serverlogonchallenge import ServerLogonChallenge
+from classicemu.crypto.srp6 import SRP6
 
 
 class ClientLogonChallenge:

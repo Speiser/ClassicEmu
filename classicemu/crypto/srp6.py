@@ -62,7 +62,7 @@ proof is incorrect, it must abort without showing its own proof of K.
 import math
 import os
 
-from sha1 import hash_sha1
+from classicemu.crypto.sha1 import hash_sha1
 
 
 class SRP6:

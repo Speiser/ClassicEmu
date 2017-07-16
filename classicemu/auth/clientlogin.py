@@ -1,10 +1,10 @@
 import socket
 
-from clientstate import ClientState
-from clientlogonchallenge import ClientLogonChallenge
-from clientlogonproof import ClientLogonProof
-from helper import print_packet
-from srp6 import SRP6
+from classicemu.auth.clientstate import ClientState
+from classicemu.auth.clientlogonchallenge import ClientLogonChallenge
+from classicemu.auth.clientlogonproof import ClientLogonProof
+from classicemu.common.helper import print_packet
+from classicemu.crypto.srp6 import SRP6
 
 
 class ClientLogin:
