@@ -58,5 +58,52 @@ class ClientLogin:
         elif self.state == ClientState.Authenticated:
             print(f'-> [{self.address}] - Packet Received')
             print_packet(packet)
-            fake_realm = bytes([16, 7, 0, 0, 0, 0, 0, 0, 2, 0])
-            self.connection.sendall(fake_realm)
+            self.send_realm_packet()
+
+    def send_realm_packet(self):
+        # get all realms from config...
+        # ...
+
+        ## 2: RealmInfo_Server
+        type_b = int.to_bytes(0, 4, byteorder='little')
+        flags = 0x00
+        name = b'Test Server\0'
+        addr_port = b'127.0.0.1:5001\0'
+        population = b'\x00\x00\x00\x00'
+        num_chars = 0x00
+        time_zone = 0x00
+        unknown = 0x00
+        RealmInfo_Server = []
+        for i in type_b:
+            RealmInfo_Server.append(i)
+        RealmInfo_Server.append(flags)
+        for i in name:
+            RealmInfo_Server.append(i)
+        for i in addr_port:
+            RealmInfo_Server.append(i)
+        for i in population:
+            RealmInfo_Server.append(i)
+        RealmInfo_Server.append(num_chars)
+        RealmInfo_Server.append(time_zone)
+        RealmInfo_Server.append(unknown)
+
+        ## 3: RealmFooter_Server
+        unk_ = int.to_bytes(0, 2, byteorder='little')
+        RealmFooter_Server = [unk_[0], unk_[1]]
+
+        ## 1: RealmHeader_Server
+        cmd = 0x10
+        length = 7 + len(RealmInfo_Server)
+        length_b = int.to_bytes(length, 2, byteorder='little')
+        unk = int.to_bytes(0, 4, byteorder='little')
+        num_realms = 0x01
+        RealmHeader_Server = [cmd]
+        for i in length_b:
+            RealmHeader_Server.append(i)
+        for i in unk:
+            RealmHeader_Server.append(i)
+        RealmHeader_Server.append(num_realms)
+
+        self.connection.sendall(bytes(RealmHeader_Server))
+        self.connection.sendall(bytes(RealmInfo_Server))
+        self.connection.sendall(bytes(RealmFooter_Server))
