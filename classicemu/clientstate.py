@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ClientState(Enum):
+    """ The client´s current state. """
     Init = 0
     ClientLogonChallenge = 1
     ServerLogonChallenge = 2

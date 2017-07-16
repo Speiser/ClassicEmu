@@ -9,6 +9,10 @@ from srp6 import SRP6
 
 class ClientLogin:
     def __init__(self, connection, address):
+        """ Initalizes a new instance of the ClientLogin class.
+        :param connection: The connection socket.
+        :param address: The client address.
+        """
         self.connection = connection
         self.address = address
         self.state = ClientState.Init
@@ -16,6 +20,7 @@ class ClientLogin:
         self.connected = True
 
     def handle_connection(self):
+        """ Reads clients packets and calls self._handle_packet. """
         while self.connected:
             try:
                 packet = self.connection.recv(1024)
@@ -32,6 +37,9 @@ class ClientLogin:
                 pass
 
     def _handle_packet(self, packet):
+        """ Handles incoming packets based on the current ClientState.
+        :param packet: Incoming packet.
+        """
         if self.state == ClientState.Init:
             self.state = ClientState.ClientLogonChallenge
             print(f'-> [{self.address}] - Client Logon Challenge')
@@ -61,10 +69,11 @@ class ClientLogin:
             self.send_realm_packet()
 
     def send_realm_packet(self):
+        """ Creates the RealmInfo and sends it to the client. """
         # get all realms from config...
         # ...
 
-        ## 2: RealmInfo_Server
+        """ 2: RealmInfo_Server """
         type_b = int.to_bytes(0, 4, byteorder='little')
         flags = 0x00
         name = b'Test Server\0'
@@ -87,11 +96,11 @@ class ClientLogin:
         RealmInfo_Server.append(time_zone)
         RealmInfo_Server.append(unknown)
 
-        ## 3: RealmFooter_Server
+        """ 3: RealmFooter_Server """
         unk_ = int.to_bytes(0, 2, byteorder='little')
         RealmFooter_Server = [unk_[0], unk_[1]]
 
-        ## 1: RealmHeader_Server
+        """ 1: RealmHeader_Server """
         cmd = 0x10
         length = 7 + len(RealmInfo_Server)
         length_b = int.to_bytes(length, 2, byteorder='little')

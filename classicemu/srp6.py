@@ -112,6 +112,10 @@ class SRP6:
     M = None
 
     def __init__(self, username, password):
+        """ Initializes a new instance of the SRP6 class.
+        :param username: The client´s identifier.
+        :param password: The client´s password.
+        """
         self.I = username
         self.P = password
         self.b = int.from_bytes(os.urandom(152), "little") % self.N
@@ -124,11 +128,16 @@ class SRP6:
         self.B = int.to_bytes(B, 32, byteorder='little')
 
     def _x(self):
+        """ Generates x and sets it. """
         temp = hash_sha1(self.I + b':' + self.P)
         self.x = hash_sha1(self.s + temp)
 
     def getM(self, M1):
-        """
+        """ Calculates the server proof.
+        :param M1: The client proof.
+        :returns: A value indicating whether the
+                  client proof is correct or not.
+
         A = g^a
         B = kv + g^b
         u = H(A, B)
@@ -159,7 +168,14 @@ class SRP6:
         return check
 
     def _set_client_proof(self, M1):
-        # https://github.com/arcemu/arcemu/blob/master/src/arcemu-logonserver/AuthSocket.cpp#L345
+        """ Calculates the server proof.
+        :param M1: The client proof.
+        :returns: A value indicating whether the
+                  client proof is correct or not.
+
+        Source transpiled from:
+        https://github.com/arcemu/arcemu/blob/master/src/arcemu-logonserver/AuthSocket.cpp#L345
+        """
         t = self.S.to_bytes(40, byteorder='little')
         t1 = []
         vK = []

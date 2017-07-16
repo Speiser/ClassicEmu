@@ -10,9 +10,3 @@ try:
     ls.start()
 except KeyboardInterrupt:
     sys.exit()
-
-"""
-    Summary.
-    :param name: text
-    :returns: returns
-"""

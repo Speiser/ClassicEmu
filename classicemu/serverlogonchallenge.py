@@ -13,9 +13,15 @@ class ServerLogonChallenge:
     unk4 = 0
 
     def __init__(self, srp):
+        """ Initializes a new instance of the ServerLogonChallenge.
+        :param srp: The client´s srp instance.
+        """
         self.srp = srp
 
     def get(self):
+        """ Returns the serverlogonchallenge.
+        :returns: The serverlogonchallenge.
+        """
         data = []
         data.append(self.cmd)
         data.append(self.error)
