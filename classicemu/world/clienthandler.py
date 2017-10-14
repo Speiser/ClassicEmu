@@ -2,6 +2,7 @@ import os
 import socket
 
 from classicemu.common.helper import print_packet
+from classicemu.common.opcodes import OPCODE
 
 
 class ClientHandler:
@@ -32,8 +33,8 @@ class ClientHandler:
         print_packet(packet)
 
     def _send_authchallenge(self):
-        auth_salt = os.urandom(4)
-        enum = int.to_bytes(0x1EC, 2, byteorder='little')
-        data = enum + auth_salt
-        packet = bytes(len(data)) + data
+        seed = os.urandom(4)
+        enum = int.to_bytes(OPCODE.SMSG_AUTH_CHALLENGE.value, 2, byteorder='little')
+        data = enum + seed
+        packet = int.to_bytes(len(data), 2, byteorder='little') + data
         self.connection.sendall(packet)
