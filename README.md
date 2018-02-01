@@ -1,7 +1,11 @@
 # ClassicEmu
-ClassicEmu is an Open Source Authentication Server for World of Warcraft (1.12.1) written in Python.  
+ClassicEmu is an Open Source Server for World of Warcraft (1.12.1) written in Python.  
 This is a "proof of concept" project.  
 For specifications and other helpful resources check the `/doc` folder.
+
+## Status
+LoginServer working  
+WorldServer WIP
 
 ## Dependencies
 + Python 3.6
@@ -10,7 +14,8 @@ For specifications and other helpful resources check the `/doc` folder.
 ```
 git clone https://github.com/Speiser/ClassicEmu.git
 cd ClassicEmu
-python main.py
+python main.py login
+python main.py world
 ```
 + Change realmlist.wtf to `set realmlist 127.0.0.1`
 + Start the game

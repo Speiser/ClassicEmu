@@ -2,24 +2,29 @@
 The goal of this document is to describe the authentication process.
 
 ## Overview
-- Client connects to Authentication Server (AS)
-- Client sends `ClientLogonChallenge`
-- AS responds with `ServerLogonChallenge`
-- Client sends `ClientLogonProof`
-- AS responds with `ServerLogonProof`
-- Client is authenticated
-- Client sends `ClientRealmList`
-- AS responds with `ServerRealmList`
-- (not implemented) Client chooses a realm and connects to World Server (WS)
-- (not implemented) WS responds with `ServerAuthenticationChallenge`
-- (not implemented) Client sends `ClientAuthenticationSession`
-- (not implemented) WS requests `ClientSessionInfo` from AS
-- (not implemented) AS responds with `ClientSessionInfo`
-- Client is authenticated on WS (and his realm)
+- [x] Client connects to Authentication Server (AS)
+- [x] Client sends `ClientLogonChallenge`
+- [x] AS responds with `ServerLogonChallenge`
+- [x] Client sends `ClientLogonProof`
+- [x] AS responds with `ServerLogonProof`
+- [x] Client is authenticated
+- [x] Client sends `ClientRealmList`
+- [x] AS responds with `ServerRealmList`
+- [x] Client chooses a realm and connects to World Server (WS)
+- [ ] WS responds with `ServerAuthenticationChallenge`
+- [ ] Client sends `ClientAuthenticationSession`
+- [ ] WS requests `ClientSessionInfo` from AS
+- [ ] AS responds with `ClientSessionInfo`
+- [ ] Client is authenticated on WS (and his realm)
+
+
+## Servers
+- [x] Authentication Server [Implementation](https://github.com/Speiser/ClassicEmu/blob/master/classicemu/auth/logonserver.py)
+- [ ] World Server [Implementation](https://github.com/Speiser/ClassicEmu/blob/master/classicemu/world/worldserver.py)
 
 ## Messages
 ### ClientLogonChallenge
-This message starts the authentication process. [Implementation](https://github.com/Speiser/ClassicEmu/blob/master/classicemu/auth/clientlogonchallenge.py)
+This message starts the authentication process and is sent after the client initiates his connection to the authentication server. This message contains the username (important) and some details about the client and its environment. [Implementation](https://github.com/Speiser/ClassicEmu/blob/master/classicemu/auth/clientlogonchallenge.py)
 
 #### Struct
 ```
@@ -64,7 +69,9 @@ This message is the response to the `ClientLogonChallenge`. [Implementation](htt
 | uint8   | unk4        |     1 | ?                   |
 ```
 
-# WIP
-
-### Sources
-http://arcemu.org/
+### ClientLogonProof
+### ServerLogonProof
+### ClientRealmList
+### ServerRealmList
+### ServerAuthenticationChallenge
+### ClientAuthenticationSession

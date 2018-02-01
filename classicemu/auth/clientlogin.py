@@ -77,7 +77,7 @@ class ClientLogin:
         type_b = int.to_bytes(0, 4, byteorder='little')
         flags = 0x00
         name = b'Test Server\0'
-        addr_port = b'127.0.0.1:5001\0'
+        addr_port = b'127.0.0.1:13250\0'
         population = b'\x00\x00\x00\x00'
         num_chars = 0x00
         time_zone = 0x00
