@@ -11,7 +11,7 @@ namespace Classic.Auth
         private ClientState state;
         public LoginClient(TcpClient client) : base(client)
         {
-            Logger.Log($"[{this.ClientInfo}] <> connected");
+            this.Log("-- connected");
             this.state = ClientState.Init;
         }
 
@@ -19,35 +19,34 @@ namespace Classic.Auth
 
         protected override void HandlePacket(byte[] packet)
         {
-            Logger.LogPacket(packet);
+            this.LogPacket(packet);
             switch (this.state)
             {
                 case (ClientState.Init):
-                    this.state = ClientState.ClientLogonChallenge;
-                    Logger.Log($"[{this.ClientInfo}] -> ClientLogonChallenge");
+                    this.state = ClientState.LogonChallenge;
+                    this.Log("-> ClientLogonChallenge");
                     new ClientLogonChallenge(packet, this).Execute();
-                    this.state = ClientState.ServerLogonChallenge;
-                    Logger.Log($"[{this.ClientInfo}] <- ServerLogonChallenge");
+                    this.Log("<- ServerLogonChallenge");
                     break;
-                case (ClientState.ServerLogonChallenge):
-                    this.state = ClientState.ClientLogonProof;
-                    Logger.Log($"[{this.ClientInfo}] -> ClientLogonProof");
+                case (ClientState.LogonChallenge):
+                    this.state = ClientState.LogonProof;
+                    this.Log("-> ClientLogonProof");
                     var success = new ClientLogonProof(packet, this).Execute();
-                    Logger.Log($"[{this.ClientInfo}] <- ServerLogonProof {(success ? "successful" : "failed")}");
+                    this.Log($"<- ServerLogonProof {(success ? "successful" : "failed")}");
                     if (success)
                     {
                         this.state = ClientState.Authenticated;
-                        Logger.Log($"[{this.ClientInfo}] <> Client authenticated");
+                        this.Log("-- Client authenticated");
                     }
                     else
                     {
                         this.state = ClientState.Disconnected;
                         this.isConnected = false;
-                        Logger.Log($"[{this.ClientInfo}] <> Client authentication failed");
+                        this.Log("-- Client authentication failed");
                     }
                     break;
                 case (ClientState.Authenticated):
-                    Logger.Log("REALMLIST WOOHOHHO");
+                    this.Log("<- Realmlist sent");
                     new ServerRealmList().Send(this);
                     break;
             }

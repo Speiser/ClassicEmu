@@ -1,4 +1,6 @@
 ﻿using Classic.Auth;
+using Classic.World;
+using System.Threading;
 
 namespace Classic
 {
@@ -6,7 +8,9 @@ namespace Classic
     {
         static void Main(string[] args)
         {
-            new AuthenticationServer().Start();
+            new Thread(() => new AuthenticationServer().Start()).Start();
+            new WorldServer().Start();
+            // while (true) Thread.Sleep(100);
         }
     }
 }

@@ -12,9 +12,7 @@ namespace Classic.Auth
 
         protected override void ProcessClient(TcpClient client)
         {
-            new Thread(() => {
-                 new LoginClient(client).HandleConnection();
-            }).Start();
+            new Thread(() => new LoginClient(client).HandleConnection()).Start();
         }
     }
 } // asdfghjk

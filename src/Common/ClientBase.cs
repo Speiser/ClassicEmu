@@ -10,6 +10,7 @@ namespace Classic.Common
         protected bool isConnected; // TODO: Replace with cancellationtoken
         private TcpClient client;
         private NetworkStream stream;
+
         public ClientBase(TcpClient client)
         {
             this.client = client;
@@ -30,7 +31,7 @@ namespace Classic.Common
 
                 if (length == 0)
                 {
-                    Logger.Log($"[{this.ClientInfo}] <> disconnected");
+                    this.Log($"-- disconnected");
                     this.isConnected = false;
                     break;
                 }
@@ -45,6 +46,16 @@ namespace Classic.Common
                 throw new InvalidOperationException($"Client {this.ClientInfo} is not connected.");
 
             this.stream.Write(data, 0, data.Length);
+        }
+
+        protected void Log(string message)
+        {
+            Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
+        }
+
+        protected void LogPacket(byte[] packet)
+        {
+            Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] Packet received {packet.Length} bytes");
         }
 
         protected abstract void HandlePacket(byte[] packet);
