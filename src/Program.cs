@@ -10,7 +10,6 @@ namespace Classic
         {
             new Thread(() => new AuthenticationServer().Start()).Start();
             new WorldServer().Start();
-            // while (true) Thread.Sleep(100);
         }
     }
 }

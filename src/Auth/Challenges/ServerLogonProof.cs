@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Classic.Common;
 using Classic.Cryptography;
+using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
@@ -23,6 +24,7 @@ namespace Classic.Auth.Challenges
     public class ServerLogonProof
     {
         private readonly SecureRemotePasswordProtocol srp;
+
         public ServerLogonProof(SecureRemotePasswordProtocol srp)
         {
             this.srp = srp;
@@ -34,7 +36,7 @@ namespace Classic.Auth.Challenges
             {
                 var response = new S_ServerLogonProof
                 {
-                    cmd = 1,
+                    cmd = (byte)LOGIN_PROOF,
                     error = 0,
                     M = this.srp.M,
                     unk1 = 0,

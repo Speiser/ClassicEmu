@@ -1,6 +1,7 @@
 ﻿using Classic.Common;
 using System.Runtime.InteropServices;
 using System.Text;
+using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
@@ -59,7 +60,7 @@ namespace Classic.Auth.Challenges
 
             var header = new S_RealmHeader
             {
-                cmd = 16,
+                cmd = (byte)REALMLIST,
                 size = (ushort)(Marshal.SizeOf(info) + 7),
                 unk1 = default(uint),
                 num_realms = 1

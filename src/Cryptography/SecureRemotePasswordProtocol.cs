@@ -10,7 +10,7 @@ namespace Classic.Cryptography
     public class SecureRemotePasswordProtocol
     {
         public const int g = 7;
-        
+
         /// <summary>
         /// The salt, a "random" value.
         /// </summary>
@@ -51,17 +51,26 @@ namespace Classic.Cryptography
             this.I = username;
             this.P = password;
             this.b = this.Generateb();
+
+            if (this.b < 0)
+                this.b += this.N;
+
             this.x = this.Calculatex();
 
             var intx = new BigInteger(this.x);
 
-            if (intx < 0)
-                throw new ArgumentException("this.x was negative.");
-
             this.v = BigInteger.ModPow(g, intx, this.N);
 
+            if (this.v < 0)
+                this.v += this.N;
+
             var gmod = BigInteger.ModPow(g, this.b, this.N);
-            this.B = (((3 * this.v) + gmod) % this.N).ToByteArray();
+            var tempB = (((3 * this.v) + gmod) % this.N);
+
+            if (tempB < 0)
+                tempB += this.N;
+
+            this.B = tempB.ToByteArray();
         }
 
         /// <summary>
@@ -109,9 +118,20 @@ namespace Classic.Cryptography
         {
             this.A = clientPublicValue;
 
+            var tempA = new BigInteger(this.A);
+
+            if (tempA < 0)
+            {
+                tempA += this.N;
+                this.A = tempA.ToByteArray();
+            }
+
             // u = H(A, B)
             this.u = this.sha.ComputeHash(this.A.Concat(this.B).ToArray());
             this.S = this.CalculateSessionKey();
+
+            if (this.S < 0)
+                this.S += this.N;
 
             var sessionKeyAsByte = this.S.ToByteArray();
             this.K = this.sha.ComputeHash(sessionKeyAsByte);
@@ -165,20 +185,23 @@ namespace Classic.Cryptography
             var intA = new BigInteger(this.A);
             var intu = new BigInteger(this.u);
 
+            if (intu < 0)
+                intu += this.N;
+
             // (v^u) % N
-            var innerModPow = BigInteger.ModPow(this.v, BigInteger.Abs(intu), this.N);
+            var innerModPow = BigInteger.ModPow(this.v, intu, this.N);
             return BigInteger.ModPow((intA * innerModPow), this.b, this.N);
         }
 
         private BigInteger Generateb()
         {
             var random = new BigInteger(Random.GetBytes(152));
-            return BigInteger.Abs(random) % this.N;
+            return random % this.N;
         }
 
         private byte[] Calculatex()
         {
-            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:{this.P}"));
+            var temp = this.sha.ComputeHash(Encoding.UTF8.GetBytes($"{this.I}:{this.I}".ToUpper()));
             return this.sha.ComputeHash(this.s.Concat(temp).ToArray());
         }
     }

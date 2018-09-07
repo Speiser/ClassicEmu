@@ -55,7 +55,7 @@ namespace Classic.Common
 
         protected void LogPacket(byte[] packet)
         {
-            Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] Packet received {packet.Length} bytes");
+            this.Log($"Packet received {packet.Length} bytes");
         }
 
         protected abstract void HandlePacket(byte[] packet);

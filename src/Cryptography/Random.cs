@@ -9,7 +9,11 @@ namespace Classic.Cryptography
         public static byte[] GetBytes(int size)
         {
             var bytes = new byte[size];
-            rng.GetBytes(bytes);
+            rng.GetNonZeroBytes(bytes);
+
+            //if (bytes[0] == 0)
+            //    bytes[0] = 1; // only allow positive values
+
             return bytes;
         }
     }

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Classic.Common;
 using Classic.Cryptography;
+using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
@@ -44,7 +45,7 @@ namespace Classic.Auth.Challenges
         {
             var response = new S_ServerLogonChallenge()
             {
-                cmd = 0,
+                cmd = (byte)LOGIN_CHALL,
                 error = 0,
                 unk2 = 0,
                 B = this.srp.B,
