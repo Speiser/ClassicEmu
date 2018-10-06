@@ -1,3 +1,4 @@
+using System;
 using System.Net.Sockets;
 
 using Classic.Auth.Challenges;
@@ -46,6 +47,8 @@ namespace Classic.Auth
                     }
                     break;
                 case (ClientState.Authenticated):
+                    if (!DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP)))
+                        throw new ArgumentException($"Could not add user {this.SRP.I} to the db.");
                     this.Log("<- Realmlist sent");
                     new ServerRealmList().Send(this);
                     break;

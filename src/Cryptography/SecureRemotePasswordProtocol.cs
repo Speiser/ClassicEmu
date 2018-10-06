@@ -14,7 +14,7 @@ namespace Classic.Cryptography
         /// <summary>
         /// The salt, a "random" value.
         /// </summary>
-        public readonly byte[] s = new byte[] {
+        public readonly byte[] s = {
             0xF4, 0x3C, 0xAA, 0x7B, 0x24, 0x39, 0x81, 0x44,
             0xBF, 0xA5, 0xB5, 0x0C, 0x0E, 0x07, 0x8C, 0x41,
             0x03, 0x04, 0x5B, 0x6E, 0x57, 0x5F, 0x37, 0x87,
@@ -58,6 +58,9 @@ namespace Classic.Cryptography
             this.x = this.Calculatex();
 
             var intx = new BigInteger(this.x);
+
+            //if (intx < 0)
+            //    intx += this.N;
 
             this.v = BigInteger.ModPow(g, intx, this.N);
 
@@ -190,7 +193,7 @@ namespace Classic.Cryptography
 
             // (v^u) % N
             var innerModPow = BigInteger.ModPow(this.v, intu, this.N);
-            return BigInteger.ModPow((intA * innerModPow), this.b, this.N);
+            return BigInteger.ModPow(intA * innerModPow, this.b, this.N);
         }
 
         private BigInteger Generateb()
@@ -201,7 +204,7 @@ namespace Classic.Cryptography
 
         private byte[] Calculatex()
         {
-            var temp = this.sha.ComputeHash(Encoding.UTF8.GetBytes($"{this.I}:{this.I}".ToUpper()));
+            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:{this.I}".ToUpper()));
             return this.sha.ComputeHash(this.s.Concat(temp).ToArray());
         }
     }

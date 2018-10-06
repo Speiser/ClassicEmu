@@ -15,4 +15,4 @@ namespace Classic.Auth
             new Thread(() => new LoginClient(client).HandleConnection()).Start();
         }
     }
-} // asdfghjk
+}

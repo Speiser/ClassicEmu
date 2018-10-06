@@ -8,8 +8,8 @@ namespace Classic.Common
     public abstract class ClientBase
     {
         protected bool isConnected; // TODO: Replace with cancellationtoken
-        private TcpClient client;
-        private NetworkStream stream;
+        private readonly TcpClient client;
+        private readonly NetworkStream stream;
 
         public ClientBase(TcpClient client)
         {

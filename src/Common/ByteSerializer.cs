@@ -7,6 +7,7 @@ namespace Classic.Common
     {
         public static byte[] Serialize<T>(T item)
         {
+            // TODO: BinaryWriter??
             int rawSize = Marshal.SizeOf(typeof(T));
             IntPtr buffer = Marshal.AllocHGlobal(rawSize);
             Marshal.StructureToPtr(item, buffer, false);

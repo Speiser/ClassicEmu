@@ -7,7 +7,7 @@ namespace Classic.Auth.Challenges
         public ClientLogonProof(byte[] packet, LoginClient client) : base(packet, client) { }
         
         /// <summary>
-        /// Exectues the <see cref="ClientLogonProof"/>.
+        /// Executes the <see cref="ClientLogonProof"/>.
         /// </summary>
         /// <returns>
         /// TRUE: If provided client proof was correct.

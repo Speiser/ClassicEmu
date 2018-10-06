@@ -10,10 +10,6 @@ namespace Classic.Cryptography
         {
             var bytes = new byte[size];
             rng.GetNonZeroBytes(bytes);
-
-            //if (bytes[0] == 0)
-            //    bytes[0] = 1; // only allow positive values
-
             return bytes;
         }
     }

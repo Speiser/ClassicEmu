@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using Classic.Cryptography;
 
 namespace Classic.World
 {
@@ -12,18 +13,22 @@ namespace Classic.World
         public WorldClient(TcpClient client) : base(client)
         {
             this.Log("-- connected");
+            this.Crypt = new AuthCrypt();
             this.Send(new ServerAuthenticationChallenge().Get());
         }
+
+        public AuthCrypt Crypt { get; }
 
         protected override void HandlePacket(byte[] packet)
         {
             this.LogClientPacket(packet);
 
             if (packet.Length == 14) return;
+
             var x = new ClientAuthenticationSession(packet);
             Console.WriteLine(x);
 
-            this.Send(new ServerAuthenticationResponse().Get());
+            this.Send(new ServerAuthenticationResponse(this.Crypt).Get(x));
         }
 
         private void LogClientPacket(byte[] packet)
