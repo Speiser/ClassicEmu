@@ -40,9 +40,27 @@ namespace Classic.Common
             return this;
         }
 
+        public PacketWriter WriteUInt64(ulong value)
+        {
+            this.writer.Write(value);
+            return this;
+        }
+
         public PacketWriter WriteBytes(params byte[] values)
         {
             this.writer.Write(values);
+            return this;
+        }
+
+        public PacketWriter WriteInt32(int value)
+        {
+            this.writer.Write(value);
+            return this;
+        }
+
+        public PacketWriter WriteFloat(float value)
+        {
+            this.writer.Write(value);
             return this;
         }
 

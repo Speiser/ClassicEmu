@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using Classic.Auth.Challenges;
 using Classic.Common;
 using Classic.Cryptography;
+using Classic.Data;
 
 namespace Classic.Auth
 {

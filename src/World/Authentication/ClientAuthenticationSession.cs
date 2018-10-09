@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Classic.Common;
 using static Classic.World.Opcode;
 
 namespace Classic.World.Authentication
@@ -32,41 +33,25 @@ namespace Classic.World.Authentication
 
         public ClientAuthenticationSession(byte[] packet)
         {
-            using (var packetStream = new MemoryStream(packet))
+            using (var reader = new PacketReader(packet))
             {
-                using (var packetReader = new BinaryReader(packetStream))
-                {
-                    // TODO: I can probably extract the read len + cmd part.
-                    var lengthBytes = packetReader.ReadBytes(2);
-                    Array.Reverse(lengthBytes); // len is bigendian
+                len = reader.ReadUInt16Reverse();
 
-                    len = (ushort)BitConverter.ToInt16(lengthBytes);
+                if (len != packet.Length - 2)
+                    throw new ArgumentOutOfRangeException(nameof(packet), "Packet length mismatch");
 
-                    if (len != packet.Length - 2)
-                        throw new ArgumentOutOfRangeException(nameof(packet), "Packet length mismatch");
+                cmd = reader.ReadUInt16();
 
-                    cmd = packetReader.ReadUInt16();
+                if (cmd != (ushort)CMSG_AUTH_SESSION)
+                    throw new ArgumentOutOfRangeException(nameof(packet), "Packet length mismatch");
 
-                    if (cmd != (ushort)CMSG_AUTH_SESSION)
-                        throw new ArgumentOutOfRangeException(nameof(packet), "Packet length mismatch");
-
-                    unk1 = packetReader.ReadUInt16();
-                    build = packetReader.ReadUInt32();
-                    session = packetReader.ReadUInt32();
-
-                    // parse acc name
-                    var account = new List<byte>();
-                    while (packetReader.PeekChar() != 0)
-                    {
-                        account.Add(packetReader.ReadByte());
-                    }
-
-                    packetReader.ReadByte(); // skip the "\0"
-                    account_name = Encoding.ASCII.GetString(account.ToArray());
-                    seed = packetReader.ReadUInt32();
-                    digest = packetReader.ReadBytes(20);
-                    addon_size = packetReader.ReadUInt32();
-                }
+                unk1 = reader.ReadUInt16();
+                build = reader.ReadUInt32();
+                session = reader.ReadUInt32();
+                account_name = reader.ReadString();
+                seed = reader.ReadUInt32();
+                digest = reader.ReadBytes(20);
+                addon_size = reader.ReadUInt32();
             }
         }
 

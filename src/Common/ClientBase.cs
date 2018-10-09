@@ -26,6 +26,7 @@ namespace Classic.Common
         {
             while (this.isConnected)
             {
+                // TODO try catch
                 var buffer = new byte[1024];
                 var length = this.stream.Read(buffer, 0, buffer.Length);
 

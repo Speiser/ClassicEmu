@@ -1,15 +1,15 @@
-﻿using Classic.Common;
-using Classic.World.Authentication;
-using System;
-using System.IO;
+﻿using System;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Text;
+using Classic.Common;
 using Classic.Cryptography;
+using Classic.Data;
+using Classic.World.Authentication;
+using Classic.World.Character;
 using static Classic.World.Opcode;
 
 namespace Classic.World
 {
+    // TODO: CMSG_PLAYER_LOGIN
     public class WorldClient : ClientBase
     {
         private bool authenticated;
@@ -21,48 +21,50 @@ namespace Classic.World
             this.Send(ServerAuthenticationChallenge.Create());
         }
 
+        public User User { get; private set; }
+
         public AuthCrypt Crypt { get; }
 
         protected override void HandlePacket(byte[] packet)
         {
-            if (!this.authenticated)
+            var opcode = this.LogPacket(packet);
+
+            // TODO: replace with Handler dict?
+            // TODO: NAMING CONVENTION FOR PACKETS
+            switch (opcode)
             {
-                this.HandleAuthentication(packet);
-                return;
+                case CMSG_AUTH_SESSION:
+                    if (this.authenticated) throw new InvalidOperationException($"{nameof(CMSG_AUTH_SESSION)} Already authed");
+                    this.authenticated = true;
+                    var receivedClientProof = new ClientAuthenticationSession(packet);
+                    this.SendPacket(
+                        new ServerAuthenticationResponse(this.Crypt).Get(receivedClientProof),
+                        SMSG_AUTH_RESPONSE);
+                    DataStore.Users.TryGetValue(receivedClientProof.account_name, out var user);
+                    this.User = user;
+                    break;
+                case CMSG_CHAR_ENUM:
+                    this.SendPacket(new CharacterEnum().GetCharacters(this.User), SMSG_CHAR_ENUM);
+                    break;
+                case CMSG_CHAR_CREATE:
+                    var character = new CharacterCreateRequest().Read(packet);
+                    this.User.Characters.Add(character);
+                    this.SendPacket(new CharacterCreateResponse().Get(), SMSG_CHAR_CREATE);
+                    break;
+                default:
+                    this.Log($"UNHANDLED CMD {opcode}");
+                    break;
             }
-
-            this.LogClientPacket(packet);
-
-            var (length, opcode) = DecodePacket(packet);
-
-            this.Log($"{opcode} - {length} bytes");
-
-            if (packet.Length == 14) return;
         }
 
-        private void HandleAuthentication(byte[] packet)
-        {
-            var receivedClientProof = new ClientAuthenticationSession(packet);
-            this.SendPacket(
-                new ServerAuthenticationResponse(this.Crypt).Get(receivedClientProof),
-                SMSG_AUTH_RESPONSE);
-            this.authenticated = true;
-        }
-
-        public void SendPacket(byte[] data, Opcode opcode)
+        private void SendPacket(byte[] data, Opcode opcode)
         {
             var header = this.Encode(data.Length, (int)opcode);
-
-            this.SendPacket(new WorldPacket(header, data));
-        }
-
-        public void SendPacket(WorldPacket packet)
-        {
-            this.Send(packet.ToByteArray());
+            this.Send(new WorldPacket(header, data).ToByteArray());
         }
 
         // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
-        public byte[] Encode(int size, int opcode)
+        private byte[] Encode(int size, int opcode)
         {
             int index = 0;
             int newSize = size + 2;
@@ -102,24 +104,14 @@ namespace Classic.World
             return (length, (Opcode)opcode);
         }
 
-        private void LogClientPacket(byte[] packet)
+        private Opcode LogPacket(byte[] packet)
         {
-            using (var packetStream = new MemoryStream(packet))
-            {
-                using (var packetReader = new BinaryReader(packetStream))
-                {
-                    // TODO: I can probably extract the read len + cmd part.
-                    var lengthBytes = packetReader.ReadBytes(2);
-                    Array.Reverse(lengthBytes); // len is bigendian
-
-                    var len = (ushort)BitConverter.ToInt16(lengthBytes);
-
-                    var cmd = packetReader.ReadUInt16();
-
-                    this.Log($"Packet received - Len {len} - Cmd {cmd}");
-                    this.Log(Encoding.ASCII.GetString(packet));
-                }
-            }
+            // Copy so that the original packet is not corrupted
+            var copy = new byte[packet.Length];
+            Array.Copy(packet, copy, copy.Length);
+            var (length, opcode) = this.DecodePacket(copy);
+            this.Log($"{opcode} - {length} bytes");
+            return opcode;
         }
     }
 }
