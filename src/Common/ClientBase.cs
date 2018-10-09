@@ -49,7 +49,7 @@ namespace Classic.Common
             this.stream.Write(data, 0, data.Length);
         }
 
-        protected void Log(string message)
+        public void Log(string message)
         {
             Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
         }

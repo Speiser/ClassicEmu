@@ -5,11 +5,11 @@ using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Authentication;
 using Classic.World.Character;
+using Classic.World.Player;
 using static Classic.World.Opcode;
 
 namespace Classic.World
 {
-    // TODO: CMSG_PLAYER_LOGIN
     public class WorldClient : ClientBase
     {
         private bool authenticated;
@@ -50,6 +50,10 @@ namespace Classic.World
                     var character = new CharacterCreateRequest().Read(packet);
                     this.User.Characters.Add(character);
                     this.SendPacket(new CharacterCreateResponse().Get(), SMSG_CHAR_CREATE);
+                    break;
+                case CMSG_PLAYER_LOGIN:
+                    // TODO Store playerhandler instance somewhere on worldserver
+                    new PlayerHandler(packet, this);
                     break;
                 default:
                     this.Log($"UNHANDLED CMD {opcode}");
