@@ -43,41 +43,23 @@ namespace Classic.World.Authentication
 
             if (!calculatedDigest.SequenceEqual(recv.digest))
             {
-                // TODO: Calculating this correctly should NOT be necessary atm.
                 throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
                 //return [SMSG_AUTH_RESPONSE, 21]
             }
 
             this.crypt.SetKey(user.SessionKey);
 
-
-            byte[] temp = BitConverter.GetBytes((ushort)5);
-            Array.Reverse(temp); // Converting temp to big endian.
-
             using (var ms = new MemoryStream())
             {
                 using (var bw = new BinaryWriter(ms))
                 {
-                    // Auth failed
-                    bw.Write((ushort)SMSG_AUTH_RESPONSE);
-                    bw.Write((ushort)1); // Size
-                    bw.Write((byte)0x0D);
+                    // Packet data
+                    bw.Write((byte)12); // Result (12 = AUTH_OK)
+                    bw.Write((uint)0);  // Next 3 are billing info
+                    bw.Write((byte)0);
+                    bw.Write((uint)0);
+
                     return ms.ToArray();
-
-                    //// Encrypt first 4 bytes of header
-                    //// Packet header
-                    //bw.Write(temp); // Size without header?
-                    //bw.Write((ushort)SMSG_AUTH_RESPONSE); // Opcode
-                    //bw.Write((byte)0); // Random uint16
-                    //bw.Write((byte)0);
-
-                    //// Packet data
-                    //bw.Write((byte)12); // Result (12 = AUTH_OK)
-                    //bw.Write((uint)0);  // Next 3 are billing info
-                    //bw.Write((byte)0);
-                    //bw.Write((uint)0);
-
-                    //return this.crypt.EncryptSend(ms.ToArray(), 4);
                 }
             }
         }

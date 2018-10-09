@@ -1,15 +1,18 @@
-﻿namespace Classic.World
+﻿using System.Linq;
+
+namespace Classic.World
 {
     public class WorldPacket
     {
-        public WorldPacket(Opcode opcode, byte[] data)
+        public WorldPacket(byte[] header, byte[] data)
         {
-            this.Opcode = opcode;
+            this.Header = header;
             this.Data = data;
         }
 
-        public Opcode Opcode { get; }
-        public byte[] Header { get; private set; }
+        public byte[] Header { get; }
         public byte[] Data { get; }
+
+        public byte[] ToByteArray() => this.Header.Concat(this.Data).ToArray();
     }
 }

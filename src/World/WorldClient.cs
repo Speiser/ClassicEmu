@@ -3,13 +3,17 @@ using Classic.World.Authentication;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Classic.Cryptography;
+using static Classic.World.Opcode;
 
 namespace Classic.World
 {
     public class WorldClient : ClientBase
     {
+        private bool authenticated;
+
         public WorldClient(TcpClient client) : base(client)
         {
             this.Log("-- connected");
@@ -21,6 +25,12 @@ namespace Classic.World
 
         protected override void HandlePacket(byte[] packet)
         {
+            if (!this.authenticated)
+            {
+                this.HandleAuthentication(packet);
+                return;
+            }
+
             this.LogClientPacket(packet);
 
             var (length, opcode) = DecodePacket(packet);
@@ -28,17 +38,50 @@ namespace Classic.World
             this.Log($"{opcode} - {length} bytes");
 
             if (packet.Length == 14) return;
+        }
 
-            var x = new ClientAuthenticationSession(packet);
-            Console.WriteLine(x);
+        private void HandleAuthentication(byte[] packet)
+        {
+            var receivedClientProof = new ClientAuthenticationSession(packet);
+            this.SendPacket(
+                new ServerAuthenticationResponse(this.Crypt).Get(receivedClientProof),
+                SMSG_AUTH_RESPONSE);
+            this.authenticated = true;
+        }
 
-            this.Send(new ServerAuthenticationResponse(this.Crypt).Get(x));
+        public void SendPacket(byte[] data, Opcode opcode)
+        {
+            var header = this.Encode(data.Length, (int)opcode);
+
+            this.SendPacket(new WorldPacket(header, data));
         }
 
         public void SendPacket(WorldPacket packet)
         {
+            this.Send(packet.ToByteArray());
         }
 
+        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
+        public byte[] Encode(int size, int opcode)
+        {
+            int index = 0;
+            int newSize = size + 2;
+            byte[] header = new byte[4];
+            if (newSize > 0x7FFF)
+                header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
+
+            header[index++] = (byte)(0xFF & (newSize >> 8));
+            header[index++] = (byte)(0xFF & (newSize >> 0));
+            header[index++] = (byte)(0xFF & opcode);
+            header[index] = (byte)(0xFF & (opcode >> 8));
+
+            if (this.Crypt.IsInitialized) header = this.Crypt.Encrypt(header);
+
+            return header;
+        }
+
+        // Based on
+        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L31
         private (ushort length, Opcode opcode) DecodePacket(byte[] packet)
         {
             ushort length;
