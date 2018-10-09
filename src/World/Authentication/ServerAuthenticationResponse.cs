@@ -28,30 +28,27 @@ namespace Classic.World.Authentication
                 throw new ArgumentException($"No user with name {recv.account_name} found in db.");
             }
 
-            #region UNNECESSARY (CURRENTLY)
             ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
             ////: if player is already connected return [SMSG_AUTH_RESPONSE, 13]
 
-            //var authSeed = new byte[] { 0x33, 0x18, 0x34, 0xC8 }; // From ServerAuthChallenge
-            //var sha = new SHA1CryptoServiceProvider();
+            var sha = new SHA1CryptoServiceProvider();
 
-            //var calculatedDigest = sha.ComputeHash(
-            //    Encoding.ASCII.GetBytes(recv.account_name)
-            //        .Concat(new byte[] { 0, 0, 0, 0 })
-            //        .Concat(BitConverter.GetBytes(recv.seed))
-            //        .Concat(authSeed)
-            //        .Concat(user.SessionKey.ToByteArray())
-            //        .ToArray());
+            var calculatedDigest = sha.ComputeHash(
+                Encoding.ASCII.GetBytes(recv.account_name)
+                    .Concat(new byte[] { 0, 0, 0, 0 })
+                    .Concat(BitConverter.GetBytes(recv.seed))
+                    .Concat(ServerAuthenticationChallenge.AuthSeed)
+                    .Concat(user.SessionKey)
+                    .ToArray());
 
-            //if (calculatedDigest != recv.digest)
-            //{
-            //    // TODO: Calculating this correctly should NOT be necessary atm.
-            //    throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
-            //    //return [SMSG_AUTH_RESPONSE, 21]
-            //}
-            #endregion
+            if (!calculatedDigest.SequenceEqual(recv.digest))
+            {
+                // TODO: Calculating this correctly should NOT be necessary atm.
+                throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
+                //return [SMSG_AUTH_RESPONSE, 21]
+            }
 
-            this.crypt.SetKey(user.SessionKey.ToByteArray()); // should be len 40
+            this.crypt.SetKey(user.SessionKey);
 
 
             byte[] temp = BitConverter.GetBytes((ushort)5);
@@ -62,9 +59,8 @@ namespace Classic.World.Authentication
                 using (var bw = new BinaryWriter(ms))
                 {
                     // Auth failed
-                    bw.Write(temp); // Size
                     bw.Write((ushort)SMSG_AUTH_RESPONSE);
-                    bw.Write((ushort)0);
+                    bw.Write((ushort)1); // Size
                     bw.Write((byte)0x0D);
                     return ms.ToArray();
 

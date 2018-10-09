@@ -58,10 +58,7 @@ namespace Classic.Cryptography
         /// </summary>
         public byte[] B { get; }
 
-        /// <summary>
-        /// Gets the session key.
-        /// </summary>
-        public BigInteger S { get; private set; }
+        public byte[] SessionKey { get; private set; }
 
         /// <summary>
         /// The hashed session key, hashed with SHA1.
@@ -91,9 +88,8 @@ namespace Classic.Cryptography
             // u = H(A, B)
             // u is the so called "Random scrambling parameter".
             var u = this.sha.ComputeHash(this.A.Concat(this.B).ToArray()).ToPositiveBigInteger();
-            this.S = this.CalculateSessionKey(u);
 
-            var sessionKeyAsByte = this.S.ToProperByteArray();
+            var sessionKeyAsByte = this.CalculateSessionKey(u).ToProperByteArray();
             this.K = this.sha.ComputeHash(sessionKeyAsByte);
             
             var vK = new int[40];
@@ -115,7 +111,7 @@ namespace Classic.Cryptography
             for (int i = 0; i < 20; i++)
                 vK[i * 2 + 1] = t1_hash[i];
 
-            var sessionKey = Array.ConvertAll(vK, Convert.ToByte);
+            this.SessionKey = Array.ConvertAll(vK, Convert.ToByte);
 
             var safePrimeHash = this.sha.ComputeHash(this.N.ToByteArray().Take(32).ToArray());
             var gHash = this.sha.ComputeHash(new BigInteger(g).ToByteArray());
@@ -130,12 +126,12 @@ namespace Classic.Cryptography
             var computedClientProof =
                 this.sha.ComputeHash(
                     // t3 + t4 + salt + A + B + sessionKey
-                    t3Bytes.Concat(t4).Concat(this.s).Concat(this.A).Concat(this.B).Concat(sessionKey).ToArray());
+                    t3Bytes.Concat(t4).Concat(this.s).Concat(this.A).Concat(this.B).Concat(this.SessionKey).ToArray());
 
             if (!computedClientProof.SequenceEqual(clientProof))
                 return false;
 
-            this.M = this.sha.ComputeHash(this.A.Concat(clientProof).Concat(sessionKey).ToArray());
+            this.M = this.sha.ComputeHash(this.A.Concat(clientProof).Concat(this.SessionKey).ToArray());
             return true;
         }
 

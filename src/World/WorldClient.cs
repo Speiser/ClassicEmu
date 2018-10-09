@@ -23,6 +23,10 @@ namespace Classic.World
         {
             this.LogClientPacket(packet);
 
+            var (length, opcode) = DecodePacket(packet);
+
+            this.Log($"{opcode} - {length} bytes");
+
             if (packet.Length == 14) return;
 
             var x = new ClientAuthenticationSession(packet);
@@ -33,6 +37,26 @@ namespace Classic.World
 
         public void SendPacket(WorldPacket packet)
         {
+        }
+
+        private (ushort length, Opcode opcode) DecodePacket(byte[] packet)
+        {
+            ushort length;
+            short opcode;
+
+            if (this.Crypt.IsInitialized)
+            {
+                this.Crypt.Decrypt(packet, 6);
+                length = BitConverter.ToUInt16(new [] { packet[1], packet[0] });
+                opcode = BitConverter.ToInt16(new[] { packet[2], packet[3] });
+            }
+            else
+            {
+                length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
+                opcode = BitConverter.ToInt16(packet, 2);
+            }
+
+            return (length, (Opcode)opcode);
         }
 
         private void LogClientPacket(byte[] packet)

@@ -12,6 +12,6 @@ namespace Classic.Common
         }
 
         public string Identifier => this.srp.I;
-        public BigInteger SessionKey => this.srp.S;
+        public byte[] SessionKey => this.srp.SessionKey;
     }
 }
