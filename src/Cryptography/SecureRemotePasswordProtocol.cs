@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using Classic.Common;
 
 namespace Classic.Cryptography
 {
@@ -14,12 +15,7 @@ namespace Classic.Cryptography
         /// <summary>
         /// The salt, a "random" value.
         /// </summary>
-        public readonly byte[] s = {
-            0xF4, 0x3C, 0xAA, 0x7B, 0x24, 0x39, 0x81, 0x44,
-            0xBF, 0xA5, 0xB5, 0x0C, 0x0E, 0x07, 0x8C, 0x41,
-            0x03, 0x04, 0x5B, 0x6E, 0x57, 0x5F, 0x37, 0x87,
-            0x31, 0x9F, 0xC4, 0xF8, 0x0D, 0x35, 0x94, 0x29
-        };
+        public readonly byte[] s;
 
         private readonly SHA1 sha = new SHA1CryptoServiceProvider();
 
@@ -33,47 +29,23 @@ namespace Classic.Cryptography
         /// </summary>
         private readonly BigInteger v;
 
-        /// <summary>
-        /// The combined hash of salt + Identifier:Password.
-        /// SHA1(s | SHA1(I | ":" | P))
-        /// </summary>
-        private readonly byte[] x;
-
-        /// <summary>
-        /// The so called "Random scrambling parameter".
-        /// </summary>
-        private byte[] u;
-
         public SecureRemotePasswordProtocol(string username, string password)
         {
-            // TODO: Verify that N is a "good" value
             this.N = BigInteger.Parse("62100066509156017342069496140902949863249758336000796928566441170293728648119");
             this.I = username;
-            this.P = password;
-            this.b = this.Generateb();
+            this.b = this.GetRandom(19);
+            this.s = this.GetRandom(32).ToProperByteArray();
 
-            if (this.b < 0)
-                this.b += this.N;
+            // The combined hash of salt + Identifier:Password.
+            // SHA1(s | SHA1(I | ":" | P))
+            var x = this.GetHashedCredentials(password);
 
-            this.x = this.Calculatex();
-
-            var intx = new BigInteger(this.x);
-
-            //if (intx < 0)
-            //    intx += this.N;
-
-            this.v = BigInteger.ModPow(g, intx, this.N);
-
-            if (this.v < 0)
-                this.v += this.N;
+            this.v = BigInteger.ModPow(g, x, this.N);
 
             var gmod = BigInteger.ModPow(g, this.b, this.N);
-            var tempB = (((3 * this.v) + gmod) % this.N);
+            var tempB = (3 * this.v + gmod) % this.N;
 
-            if (tempB < 0)
-                tempB += this.N;
-
-            this.B = tempB.ToByteArray();
+            this.B = tempB.ToProperByteArray();
         }
 
         /// <summary>
@@ -112,31 +84,16 @@ namespace Classic.Cryptography
         /// </summary>
         public string I { get; }
 
-        /// <summary>
-        /// Gets the cleartext password.
-        /// </summary>
-        public string P { get; }
-
         public bool ValidateClientProof(byte[] clientPublicValue, byte[] clientProof)
         {
             this.A = clientPublicValue;
 
-            var tempA = new BigInteger(this.A);
-
-            if (tempA < 0)
-            {
-                tempA += this.N;
-                this.A = tempA.ToByteArray();
-            }
-
             // u = H(A, B)
-            this.u = this.sha.ComputeHash(this.A.Concat(this.B).ToArray());
-            this.S = this.CalculateSessionKey();
+            // u is the so called "Random scrambling parameter".
+            var u = this.sha.ComputeHash(this.A.Concat(this.B).ToArray()).ToPositiveBigInteger();
+            this.S = this.CalculateSessionKey(u);
 
-            if (this.S < 0)
-                this.S += this.N;
-
-            var sessionKeyAsByte = this.S.ToByteArray();
+            var sessionKeyAsByte = this.S.ToProperByteArray();
             this.K = this.sha.ComputeHash(sessionKeyAsByte);
             
             var vK = new int[40];
@@ -182,30 +139,25 @@ namespace Classic.Cryptography
             return true;
         }
 
-        private BigInteger CalculateSessionKey()
+        private BigInteger CalculateSessionKey(BigInteger u)
         {
             // S = (A * (v^u) % N) ^ b % N
             var intA = new BigInteger(this.A);
-            var intu = new BigInteger(this.u);
-
-            if (intu < 0)
-                intu += this.N;
 
             // (v^u) % N
-            var innerModPow = BigInteger.ModPow(this.v, intu, this.N);
+            var innerModPow = BigInteger.ModPow(this.v, u, this.N);
             return BigInteger.ModPow(intA * innerModPow, this.b, this.N);
         }
 
-        private BigInteger Generateb()
-        {
-            var random = new BigInteger(Random.GetBytes(152));
-            return random % this.N;
-        }
+        private BigInteger GetRandom(int length)
+            => Random.GetBytes(length).ToPositiveBigInteger() % this.N;
 
-        private byte[] Calculatex()
+        private BigInteger GetHashedCredentials(string password)
         {
-            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:{this.I}".ToUpper()));
-            return this.sha.ComputeHash(this.s.Concat(temp).ToArray());
+            // TODO: At some point ill use the correct password
+            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:admin".ToUpper()));
+            var hash = this.sha.ComputeHash(this.s.Concat(temp).ToArray());
+            return hash.ToPositiveBigInteger();
         }
     }
 }

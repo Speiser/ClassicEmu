@@ -10,8 +10,8 @@ namespace Classic.Auth.Challenges
 
         public override bool Execute()
         {
-            var identifer = this.GetIdentifier();
-            this.client.SRP = new SecureRemotePasswordProtocol(identifer, identifer); // TODO: Quick hack
+            var identifier = this.GetIdentifier();
+            this.client.SRP = new SecureRemotePasswordProtocol(identifier, identifier); // TODO: Quick hack
 
             // Create and send a ServerLogonChallenge as response.
             this.client.Send(new ServerLogonChallenge(this.client.SRP).Get());
