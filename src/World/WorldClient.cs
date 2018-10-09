@@ -14,7 +14,7 @@ namespace Classic.World
         {
             this.Log("-- connected");
             this.Crypt = new AuthCrypt();
-            this.Send(new ServerAuthenticationChallenge().Get());
+            this.Send(ServerAuthenticationChallenge.Create());
         }
 
         public AuthCrypt Crypt { get; }
@@ -29,6 +29,10 @@ namespace Classic.World
             Console.WriteLine(x);
 
             this.Send(new ServerAuthenticationResponse(this.Crypt).Get(x));
+        }
+
+        public void SendPacket(WorldPacket packet)
+        {
         }
 
         private void LogClientPacket(byte[] packet)

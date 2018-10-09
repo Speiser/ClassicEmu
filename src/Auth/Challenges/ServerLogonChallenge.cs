@@ -1,37 +1,9 @@
-using System.Linq;
-using System.Runtime.InteropServices;
 using Classic.Common;
 using Classic.Cryptography;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 119)]
-    internal struct S_ServerLogonChallenge
-    {
-        public byte cmd;
-        public byte error;
-        public byte unk2;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public byte[] B;
-        public byte g_len;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
-        public byte[] g;
-        public byte N_len;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public byte[] N;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public byte[] s;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] unk3;
-        public byte unk4;
-    }
-
     public class ServerLogonChallenge
     {
         private readonly SecureRemotePasswordProtocol srp;
@@ -43,25 +15,24 @@ namespace Classic.Auth.Challenges
 
         public byte[] Get()
         {
-            var response = new S_ServerLogonChallenge()
+            using (var packet = new PacketWriter())
             {
-                cmd = (byte)LOGIN_CHALL,
-                error = 0,
-                unk2 = 0,
-                B = this.srp.B,
-                g_len = 1,
-                g = new byte[] { SecureRemotePasswordProtocol.g },
-                N_len = 32,
-                N = this.srp.N.ToByteArray().Take(32).ToArray(),
-                s = this.srp.s,
-                unk3 = new byte[] {
-                    0x2A, 0xD5, 0x48, 0xCC, 0x9B, 0x9D, 0xA1, 0x99,
-                    0xCC, 0x04, 0x7A, 0x60, 0x91, 0x15, 0x6C, 0x51
-                },
-                unk4 = 0
-            };
-
-            return ByteSerializer.Serialize(response);
+                return packet
+                    .WriteUInt8(/* cmd   */ (byte)LOGIN_CHALL)
+                    .WriteUInt8(/* error */ 0)
+                    .WriteUInt8(/* unk2  */ 0)
+                    .WriteBytes(/* B[32] */ this.srp.B)
+                    .WriteUInt8(/* g_len */ 1)
+                    .WriteUInt8(/* g[1]  */ SecureRemotePasswordProtocol.g)
+                    .WriteUInt8(/* N_len */ 32)
+                    .WriteBytes(/* N[32] */ this.srp.N.ToProperByteArray())
+                    .WriteBytes(/* s     */ this.srp.s)
+                    .WriteBytes(/* unk3  */
+                        0x2A, 0xD5, 0x48, 0xCC, 0x9B, 0x9D, 0xA1, 0x99,
+                        0xCC, 0x04, 0x7A, 0x60, 0x91, 0x15, 0x6C, 0x51)
+                    .WriteUInt8(/* unk4  */ 0)
+                    .Build();
+            }
         }
     }
 }

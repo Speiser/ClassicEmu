@@ -14,18 +14,13 @@ namespace Classic.Cryptography
         private int recv_i = 0;
         private int recv_j = 0;
 
-        private const int CRYPTED_SEND_LEN = 4;
-        private const int CRYPTED_RECV_LEN = 6;
-
         public bool IsInitialized { get; private set; }
 
         public byte[] Decrypt(byte[] data, int size)
         {
-            if (size < CRYPTED_RECV_LEN) throw new ArgumentNullException(nameof(size));
-
-            for (int i = 0; i < CRYPTED_RECV_LEN; i++)
+            for (int i = 0; i < size; i++)
             {
-                this.recv_i %= this.key.Length;
+                this.recv_i %= (byte)this.key.Length;
                 var x = (byte)((data[i] - this.recv_j) ^ this.key[this.recv_i]);
                 this.recv_i++;
                 this.recv_j = data[i];
@@ -35,14 +30,12 @@ namespace Classic.Cryptography
             return data;
         }
 
-        public byte[] EncryptSend(byte[] data, int size)
+        public byte[] Encrypt(byte[] data)
         {
-            if (size < CRYPTED_SEND_LEN) throw new ArgumentNullException(nameof(size));
-
-            for (int i = 0; i < CRYPTED_SEND_LEN; i++)
+            for (int i = 0; i < data.Length; i++)
             {
-                this.send_i %= this.key.Length;
-                var x = (byte)(data[i] ^ this.key[this.send_i] + this.send_j);
+                this.send_i %= (byte)this.key.Length;
+                var x = (byte)((data[i] ^ this.key[this.send_i]) + this.send_j);
                 this.send_i++;
                 data[i] = x;
                 this.send_j = x;
