@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Classic.Common;
 using Classic.Data;
+using Classic.Data.CharacterEnums;
 
 namespace Classic.World.Character
 {
     public class CharacterEnum
     {
+#if DEBUG
+        public const bool ADD_DEFAULT_ITEMS = true;
+#endif
+
         public byte[] GetEmpty()
         {
             return new PacketWriter().WriteUInt8(0).Build();
@@ -32,7 +38,7 @@ namespace Classic.World.Character
                         .WriteUInt8(c.HairStyle)
                         .WriteUInt8(c.HairColor)
                         .WriteUInt8(c.FacialHair)
-                        .WriteUInt8(1) // Character Level
+                        .WriteUInt8(60) // Character Level
                         .WriteInt32(0) // Map zone
                         .WriteInt32(0) // Map id
                         .WriteFloat(0f) // X coord
@@ -45,11 +51,27 @@ namespace Classic.World.Character
                         .WriteInt32(0) // Pet level
                         .WriteInt32(0); // Pet family
 
-                    // Inventory
-                    for (var i = 0; i < 20; i++)
+
+                    // Sulf 29698
+#if DEBUG
+                    if (ADD_DEFAULT_ITEMS)
                     {
-                        packet.WriteInt32(0); // Display id
-                        packet.WriteUInt8(0); // Inventory type
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30316, ItemSlot = ItemSlot.Head });
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30318, ItemSlot = ItemSlot.Shoulder });
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30315, ItemSlot = ItemSlot.Chest });
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30317, ItemSlot = ItemSlot.Leg });
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30319, ItemSlot = ItemSlot.Boots });
+                        c.Inventory.Add(new InventoryItem { DisplayID = 30321, ItemSlot = ItemSlot.Gloves });
+                    }
+#endif
+
+                    // Inventory
+                    for (byte i = 0; i < 20; i++)
+                    {
+                        var item = c.Inventory.FirstOrDefault(x => x.ItemSlot == i.AsEnum<ItemSlot>());
+
+                        packet.WriteInt32(item?.DisplayID ?? 0); // Display ID
+                        packet.WriteUInt8(i); // Inventory type
                     }
                 }
 

@@ -19,9 +19,9 @@ namespace Classic.World.Character
                 var character = new DCharacter
                 {
                     Name = reader.ReadString(),
-                    Race = reader.ReadByte().AsEnum<Races>(),
+                    Race = reader.ReadByte().AsEnum<Race>(),
                     Class = reader.ReadByte().AsEnum<Classes>(),
-                    Gender = reader.ReadByte().AsEnum<Genders>(),
+                    Gender = reader.ReadByte().AsEnum<Gender>(),
                     Skin = reader.ReadByte(),
                     Face = reader.ReadByte(),
                     HairStyle = reader.ReadByte(),

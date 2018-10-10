@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Classic.Data.CharacterEnums
+﻿namespace Classic.Data.CharacterEnums
 {
-    public enum Races
+    public enum Race
     {
         Human = 1,
         Orc = 2,
