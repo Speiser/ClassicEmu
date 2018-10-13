@@ -1,19 +1,15 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Sockets;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Authentication;
-using Classic.World.Character;
-using Classic.World.Player;
-using static Classic.World.Opcode;
 
 namespace Classic.World
 {
     public class WorldClient : ClientBase
     {
-        private bool authenticated;
-
         public WorldClient(TcpClient client) : base(client)
         {
             this.Log("-- connected");
@@ -21,7 +17,7 @@ namespace Classic.World
             this.Send(ServerAuthenticationChallenge.Create());
         }
 
-        public User User { get; private set; }
+        public User User { get; internal set; }
 
         public AuthCrypt Crypt { get; }
 
@@ -29,42 +25,15 @@ namespace Classic.World
         {
             var opcode = this.LogPacket(packet);
 
-            // TODO: replace with Handler dict?
-            // TODO: NAMING CONVENTION FOR PACKETS
-            switch (opcode)
-            {
-                case CMSG_AUTH_SESSION:
-                    if (this.authenticated) throw new InvalidOperationException($"{nameof(CMSG_AUTH_SESSION)} Already authed");
-                    this.authenticated = true;
-                    var receivedClientProof = new ClientAuthenticationSession(packet);
-                    this.SendPacket(
-                        new ServerAuthenticationResponse(this.Crypt).Get(receivedClientProof),
-                        SMSG_AUTH_RESPONSE);
-                    DataStore.Users.TryGetValue(receivedClientProof.account_name, out var user);
-                    this.User = user;
-                    break;
-                case CMSG_CHAR_ENUM:
-                    this.SendPacket(new CharacterEnum().GetCharacters(this.User), SMSG_CHAR_ENUM);
-                    break;
-                case CMSG_CHAR_CREATE:
-                    var character = new CharacterCreateRequest().Read(packet);
-                    this.User.Characters.Add(character);
-                    this.SendPacket(new CharacterCreateResponse().Get(), SMSG_CHAR_CREATE);
-                    break;
-                case CMSG_PLAYER_LOGIN:
-                    // TODO Store playerhandler instance somewhere on worldserver
-                    new PlayerHandler(packet, this);
-                    break;
-                default:
-                    this.Log($"UNHANDLED CMD {opcode}");
-                    break;
-            }
+            var handler = WorldPacketHandler.GetHandler(opcode);
+
+            handler(this, packet);
         }
 
-        private void SendPacket(byte[] data, Opcode opcode)
+        public void SendPacket(byte[] data, Opcode opcode)
         {
             var header = this.Encode(data.Length, (int)opcode);
-            this.Send(new WorldPacket(header, data).ToByteArray());
+            this.Send(header.Concat(data).ToArray());
         }
 
         // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
