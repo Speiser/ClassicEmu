@@ -11,6 +11,7 @@ namespace Classic.World.Handler
 {
     public class AuthenticationHandler
     {
+        [OpcodeHandler(CMSG_AUTH_SESSION)]
         public static void OnClientAuthenticationSession(WorldClient client, byte[] data)
         {
             var reader = new PacketReader(data);

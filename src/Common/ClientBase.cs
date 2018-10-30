@@ -8,12 +8,10 @@ namespace Classic.Common
     public abstract class ClientBase
     {
         protected bool isConnected; // TODO: Replace with cancellationtoken
-        private readonly TcpClient client;
         private readonly NetworkStream stream;
 
         public ClientBase(TcpClient client)
         {
-            this.client = client;
             this.stream = client.GetStream();
             this.isConnected = true;
             var endPoint = (IPEndPoint)client.Client.RemoteEndPoint;

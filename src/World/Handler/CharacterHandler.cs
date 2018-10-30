@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Classic.Common;
 using Classic.Data;
 using Classic.Data.CharacterEnums;
+using static Classic.World.Opcode;
 using DCharacter = Classic.Data.Character;
 
 namespace Classic.World.Handler
 {
     public class CharacterHandler
     {
+        [OpcodeHandler(CMSG_CHAR_ENUM)]
         public static void OnCharacterEnum(WorldClient client, byte[] data)
         {
 #if DEBUG
@@ -74,6 +73,7 @@ namespace Classic.World.Handler
             }
         }
 
+        [OpcodeHandler(CMSG_CHAR_CREATE)]
         public static void OnCharacterCreate(WorldClient client, byte[] data)
         {
             using (var reader = new PacketReader(data))

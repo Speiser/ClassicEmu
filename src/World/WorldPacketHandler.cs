@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 using Classic.Common;
 
 namespace Classic.World
@@ -10,15 +9,17 @@ namespace Classic.World
     {
         public delegate void PacketHandler(WorldClient client, byte[] data);
 
-        private static ConcurrentDictionary<Opcode, PacketHandler> PacketHandlers { get; }
-            = new ConcurrentDictionary<Opcode, PacketHandler>();
+        private static ImmutableDictionary<Opcode, PacketHandler> PacketHandlers;
 
-        public static void Register(Opcode opcode, PacketHandler handler)
+        public static void Initialize()
         {
-            if (!PacketHandlers.TryAdd(opcode, handler))
-            {
-                throw new InvalidOperationException($"Handler for {opcode} already registered.");
-            }
+            PacketHandlers = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                .Where(m => m.GetCustomAttributes<OpcodeHandlerAttribute>().Any())
+                .ToImmutableDictionary<MethodInfo, Opcode, PacketHandler>(
+                    m => m.GetCustomAttribute<OpcodeHandlerAttribute>().Opcode,
+                    m => (client, data) => m.Invoke(null, new object[] { client, data }));
         }
 
         public static PacketHandler GetHandler(Opcode opcode)
