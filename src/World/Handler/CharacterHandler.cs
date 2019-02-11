@@ -13,7 +13,7 @@ namespace Classic.World.Handler
         public static void OnCharacterEnum(WorldClient client, byte[] data)
         {
 #if DEBUG
-            const bool ADD_DEFAULT_ITEMS = true;
+            const bool ADD_DEFAULT_ITEMS = false;
 #endif
             using (var packet = new PacketWriter())
             {
@@ -32,7 +32,7 @@ namespace Classic.World.Handler
                         .WriteUInt8(c.HairStyle)
                         .WriteUInt8(c.HairColor)
                         .WriteUInt8(c.FacialHair)
-                        .WriteUInt8(60) // Character Level
+                        .WriteUInt8(1) // Character Level
                         .WriteInt32(0) // Map zone
                         .WriteInt32(0) // Map id
                         .WriteFloat(0f) // X coord
