@@ -1,17 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Classic.Common;
-using Classic.World.Authentication;
-using static Classic.World.Opcode;
+using Classic.World.Messages;
 
 namespace Classic.World.Handler
 {
     public class AuthenticationHandler
     {
-        [OpcodeHandler(CMSG_AUTH_SESSION)]
+        [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
         public static void OnClientAuthenticationSession(WorldClient client, byte[] data)
         {
             var reader = new PacketReader(data);
@@ -22,7 +20,7 @@ namespace Classic.World.Handler
 
             ushort cmd = reader.ReadUInt16();
 
-            if (cmd != (ushort)CMSG_AUTH_SESSION)
+            if (cmd != (ushort)Opcode.CMSG_AUTH_SESSION)
                 throw new ArgumentOutOfRangeException(nameof(data), "Packet length mismatch");
 
             ushort unk1 = reader.ReadUInt16();
@@ -50,7 +48,7 @@ namespace Classic.World.Handler
                 Encoding.ASCII.GetBytes(account_name)
                     .Concat(new byte[] { 0, 0, 0, 0 })
                     .Concat(BitConverter.GetBytes(seed))
-                    .Concat(ServerAuthenticationChallenge.AuthSeed)
+                    .Concat(SMSG_AUTH_CHALLENGE.AuthSeed)
                     .Concat(user.SessionKey)
                     .ToArray());
 
@@ -61,21 +59,7 @@ namespace Classic.World.Handler
             }
 
             client.Crypt.SetKey(user.SessionKey);
-
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    // Packet data
-                    bw.Write((byte)12); // Result (12 = AUTH_OK)
-                    bw.Write((uint)0);  // Next 3 are billing info
-                    bw.Write((byte)0);
-                    bw.Write((uint)0);
-
-                    client.SendPacket(ms.ToArray(), SMSG_AUTH_RESPONSE);
-                }
-            }
-
+            client.SendPacket(new SMSG_AUTH_RESPONSE());
             client.User = user;
         }
     }

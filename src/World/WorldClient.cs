@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Sockets;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
-using Classic.World.Authentication;
+using Classic.World.Messages;
 
 namespace Classic.World
 {
@@ -14,7 +13,7 @@ namespace Classic.World
         {
             this.Log("-- connected");
             this.Crypt = new AuthCrypt();
-            this.Send(ServerAuthenticationChallenge.Create());
+            this.Send(new SMSG_AUTH_CHALLENGE().Get());
         }
 
         public User User { get; internal set; }
@@ -30,29 +29,11 @@ namespace Classic.World
             handler(this, packet);
         }
 
-        public void SendPacket(byte[] data, Opcode opcode)
+        public void SendPacket(ServerMessageBase<Opcode> message)
         {
-            var header = this.Encode(data.Length, (int)opcode);
-            this.Send(header.Concat(data).ToArray());
-        }
-
-        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
-        private byte[] Encode(int size, int opcode)
-        {
-            int index = 0;
-            int newSize = size + 2;
-            byte[] header = new byte[4];
-            if (newSize > 0x7FFF)
-                header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
-
-            header[index++] = (byte)(0xFF & (newSize >> 8));
-            header[index++] = (byte)(0xFF & (newSize >> 0));
-            header[index++] = (byte)(0xFF & opcode);
-            header[index] = (byte)(0xFF & (opcode >> 8));
-
-            if (this.Crypt.IsInitialized) header = this.Crypt.Encrypt(header);
-
-            return header;
+            var data = this.Crypt.Encode(message);
+            this.Send(data);
+            message.Dispose();
         }
 
         // Based on
@@ -77,7 +58,7 @@ namespace Classic.World
             return (length, (Opcode)opcode);
         }
 
-        private Opcode LogPacket(byte[] packet)
+        private new Opcode LogPacket(byte[] packet)
         {
             // Copy so that the original packet is not corrupted
             var copy = new byte[packet.Length];

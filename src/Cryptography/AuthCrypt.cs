@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Classic.Common;
+using System.Linq;
 
 namespace Classic.Cryptography
 {
@@ -30,7 +29,28 @@ namespace Classic.Cryptography
             return data;
         }
 
-        public byte[] Encrypt(byte[] data)
+        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
+        public byte[] Encode(ServerMessageBase<World.Opcode> message)
+        {
+            var data = message.Get();
+            var index = 0;
+            var newSize = data.Length + 2;
+            var header = new byte[4];
+
+            if (newSize > 0x7FFF)
+                header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
+
+            header[index++] = (byte)(0xFF & (newSize >> 8));
+            header[index++] = (byte)(0xFF & (newSize >> 0));
+            header[index++] = (byte)(0xFF & (int)message.Opcode);
+            header[index] = (byte)(0xFF & ((int)message.Opcode >> 8));
+
+            if (this.IsInitialized) header = this.Encrypt(header);
+
+            return header.Concat(data).ToArray();
+        }
+
+        private byte[] Encrypt(byte[] data)
         {
             for (int i = 0; i < data.Length; i++)
             {
