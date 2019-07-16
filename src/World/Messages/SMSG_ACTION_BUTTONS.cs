@@ -2,15 +2,15 @@
 
 namespace Classic.World.Messages
 {
-    public class SMSG_ACCOUNT_DATA_TIMES : ServerMessageBase<Opcode>
+    public class SMSG_ACTION_BUTTONS : ServerMessageBase<Opcode>
     {
-        public SMSG_ACCOUNT_DATA_TIMES() : base(Opcode.SMSG_ACCOUNT_DATA_TIMES)
+        public SMSG_ACTION_BUTTONS() : base(Opcode.SMSG_ACTION_BUTTONS)
         {
         }
 
         public override byte[] Get()
         {
-            for (var i = 0; i < 32; i++)
+            for (var i = 0; i < 120; i++)
             {
                 this.Writer.WriteUInt32(0);
             }

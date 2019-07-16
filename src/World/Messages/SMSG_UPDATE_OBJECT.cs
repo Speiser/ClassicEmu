@@ -7,10 +7,12 @@ namespace Classic.World.Messages
     public class SMSG_UPDATE_OBJECT : ServerMessageBase<Opcode>
     {
         private readonly Character character;
+        private readonly bool create;
 
-        public SMSG_UPDATE_OBJECT(Character character) : base(Opcode.SMSG_UPDATE_OBJECT)
+        public SMSG_UPDATE_OBJECT(Character character, bool create = true) : base(Opcode.SMSG_UPDATE_OBJECT)
         {
             this.character = character;
+            this.create = create;
         }
 
         public override byte[] Get()
@@ -18,7 +20,7 @@ namespace Classic.World.Messages
             // Parts from https://subversion.assembla.com/svn/rift-net-reloaded/src/OpCodes/WS.Handlers.World.vb
             this.Writer
                 .WriteUInt32(1) // ObjectCount
-                .WriteUInt8(3)
+                .WriteUInt8((byte)(create ? 3 : 2))
                 .WriteUInt64(this.character.ID) // ObjectGuid
                 .WriteUInt8(4)  // ObjectType, 4 = Player
 

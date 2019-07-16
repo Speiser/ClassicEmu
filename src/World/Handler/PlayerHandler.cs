@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Classic.Common;
+using Classic.Data;
 using Classic.World.Messages;
 
 namespace Classic.World.Handler
@@ -24,23 +25,24 @@ namespace Classic.World.Handler
             client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD());
             client.SendPacket(new SMSG_ACCOUNT_DATA_TIMES());
 
-            // TODO: Server messages??
+            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
+            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
 
             client.SendPacket(new SMSG_SET_REST_START());
             client.SendPacket(new SMSG_BINDPOINTUPDATE());
             client.SendPacket(new SMSG_TUTORIAL_FLAGS());
             client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
 
-            // TODO: SMSG_INITIAL_SPELLS
-            // TODO: SMSG_ACTION_BUTTONS
-            // TODO: SMSG_INITIALIZE_FACTIONS
+            client.SendPacket(new SMSG_INITIAL_SPELLS());
+            client.SendPacket(new SMSG_ACTION_BUTTONS());
+            client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
             // TODO: SMSG_TRIGGER_CINEMATIC
 
             client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             client.SendPacket(new SMSG_INIT_WORLD_STATES());
             client.SendPacket(new SMSG_UPDATE_OBJECT(character));
 
-            // Client sends back CMSG_UPDATE_ACCOUNT_DATA
+            // Client sends back CMSG_UPDATE_ACCOUNT_DATA twice
         }
     }
 }
