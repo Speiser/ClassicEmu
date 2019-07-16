@@ -1,4 +1,5 @@
 ﻿using Classic.Common;
+using Classic.Data;
 
 namespace Classic.World.Messages
 {
@@ -9,11 +10,11 @@ namespace Classic.World.Messages
         }
 
         public override byte[] Get() => this.Writer
-            .WriteFloat(-8919.284180F) // MapX
-            .WriteFloat(-117.894028F) // MapY
-            .WriteFloat(82.339821F) // MapZ
-            .WriteUInt32(0) // MapID
-            .WriteUInt32(12) // ZoneID
+            .WriteFloat(Map.Default.X) // MapX
+            .WriteFloat(Map.Default.Y) // MapY
+            .WriteFloat(Map.Default.Z) // MapZ
+            .WriteUInt32((uint)Map.Default.ID) // MapID
+            .WriteUInt32((uint)Map.Default.Zone) // ZoneID
             .Build();
     }
 }

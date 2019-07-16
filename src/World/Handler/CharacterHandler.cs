@@ -32,7 +32,9 @@ namespace Classic.World.Handler
                     HairStyle = reader.ReadByte(),
                     HairColor = reader.ReadByte(),
                     FacialHair = reader.ReadByte(),
-                    OutfitId = reader.ReadByte()
+                    OutfitId = reader.ReadByte(),
+                    Level = 1,
+                    Map = Map.Default
                 };
 
                 client.User.Characters.Add(character);

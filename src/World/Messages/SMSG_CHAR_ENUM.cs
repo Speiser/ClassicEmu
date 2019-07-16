@@ -31,7 +31,7 @@ namespace Classic.World.Messages
                     .WriteUInt8(c.HairStyle)
                     .WriteUInt8(c.HairColor)
                     .WriteUInt8(c.FacialHair)
-                    .WriteUInt8(1) // Character Level
+                    .WriteUInt8(c.Level) // Character Level
                     .WriteInt32(0) // Map zone
                     .WriteInt32(0) // Map id
                     .WriteFloat(0f) // X coord
@@ -39,7 +39,7 @@ namespace Classic.World.Messages
                     .WriteFloat(0f) // Z coord
                     .WriteInt32(0) // Guild id
                     .WriteInt32(1) // unk?
-                    .WriteUInt8(0) // Reststate
+                    .WriteUInt8(3) // Reststate
                     .WriteInt32(0) // Pet model
                     .WriteInt32(0) // Pet level
                     .WriteInt32(0); // Pet family

@@ -1,4 +1,5 @@
 ﻿using Classic.Common;
+using Classic.Data;
 
 namespace Classic.World.Messages
 {
@@ -10,11 +11,11 @@ namespace Classic.World.Messages
 
         public override byte[] Get() => this.Writer
             // 0 -8919.284180 -117.894028 82.339821 = human starting area
-            .WriteInt32(0) // MapID
-            .WriteFloat(-8919.284180F) // MapX
-            .WriteFloat(-117.894028F) // MapY
-            .WriteFloat(82.339821F) // MapZ
-            .WriteFloat(1F) // MapO (Orientation)
+            .WriteInt32(Map.Default.ID) // MapID
+            .WriteFloat(Map.Default.X) // MapX
+            .WriteFloat(Map.Default.Y) // MapY
+            .WriteFloat(Map.Default.Z) // MapZ
+            .WriteFloat(Map.Default.Orientation) // MapO (Orientation)
             .Build();
     }
 }
