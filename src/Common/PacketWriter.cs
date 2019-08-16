@@ -52,6 +52,12 @@ namespace Classic.Common
             return this;
         }
 
+        public PacketWriter WriteByteArrayWithLength(byte[] value, int length)
+        {
+            this.writer.Write(value, 0, length);
+            return this;
+        }
+
         public PacketWriter WriteInt32(int value)
         {
             this.writer.Write(value);

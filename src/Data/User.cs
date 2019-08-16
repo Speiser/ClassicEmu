@@ -16,8 +16,8 @@ namespace Classic.Data
                 {
                     Class = Classes.Warrior,
                     Face = 1,
-                    FacialHair = 0,
-                    Gender = Gender.Female,
+                    FacialHair = 1,
+                    Gender = Gender.Male,
                     HairColor = 1,
                     HairStyle = 1,
                     Level = 1,
