@@ -21,7 +21,7 @@ namespace Classic.Data
                     HairColor = 1,
                     HairStyle = 1,
                     Level = 1,
-                    Map = Map.Default,
+                    Map = Map.StartingAreas[Race.Human],
                     Name = "Player",
                     OutfitId = 1,
                     Race = Race.Human,

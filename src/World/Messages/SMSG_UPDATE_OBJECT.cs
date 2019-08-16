@@ -8,50 +8,40 @@ namespace Classic.World.Messages
 {
     public class SMSG_UPDATE_OBJECT : ServerMessageBase<Opcode>
     {
-        private readonly Character character;
-        private readonly bool create;
+        public SMSG_UPDATE_OBJECT() : base(Opcode.SMSG_UPDATE_OBJECT) { }
 
-        public SMSG_UPDATE_OBJECT(Character character, bool create = true) : base(Opcode.SMSG_UPDATE_OBJECT)
+        public static SMSG_UPDATE_OBJECT CreateOwnPlayerObject(Character character)
         {
-            this.character = character;
-            this.create = create;
-        }
+            var update = new SMSG_UPDATE_OBJECT();
 
-        public override byte[] Get()
-        {
-            Writer.WriteUInt32(1); // blocks.Count
-            Writer.WriteUInt8(0); // hasTransport
+            update.Writer
+                .WriteUInt32(1) // blocks.Count
+                .WriteUInt8(0) // hasTransport
 
-            Writer.WriteUInt8((byte) ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF);
-            Writer.WriteBytes(character.ID.ToPackedUInt64()); // = Writer.WritePackedUInt64(character.Uid);
+                .WriteUInt8((byte) ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
+                .WriteBytes(character.ID.ToPackedUInt64()) // = update.Writer.WritePackedUInt64(character.Uid);
 
-            Writer.WriteUInt8((byte) TypeId.TypeidPlayer);
+                .WriteUInt8((byte) TypeId.TypeidPlayer)
+                .WriteUInt8((byte) (ObjectUpdateFlag.All |
+                                    ObjectUpdateFlag.HasPosition |
+                                    ObjectUpdateFlag.Living |
+                                    ObjectUpdateFlag.Self))
 
-            const ObjectUpdateFlag updateFlags = ObjectUpdateFlag.All |
-                                                 ObjectUpdateFlag.HasPosition |
-                                                 ObjectUpdateFlag.Living |
-                                                 ObjectUpdateFlag.Self;
+                .WriteUInt32((uint) MovementFlags.None)
+                .WriteUInt32((uint) Environment.TickCount)
 
-            Writer.WriteUInt8((byte) updateFlags);
+                .WriteMap(character.Map)
 
-            Writer.WriteUInt32((uint) MovementFlags.None);
-            Writer.WriteUInt32((uint) Environment.TickCount);
+                .WriteFloat(0) // ??
 
-            Writer.WriteFloat(character.Map.X);
-            Writer.WriteFloat(character.Map.Y);
-            Writer.WriteFloat(character.Map.Z);
-            Writer.WriteFloat(character.Map.Orientation);
+                .WriteFloat(2.5f) // WalkSpeed
+                .WriteFloat(7f * 1) // RunSpeed
+                .WriteFloat(2.5f) // Backwards WalkSpeed
+                .WriteFloat(4.7222f) // SwimSpeed
+                .WriteFloat(2.5f) // Backwards SwimSpeed
+                .WriteFloat(3.14f) // TurnSpeed
 
-            Writer.WriteFloat(0);
-
-            Writer.WriteFloat(2.5f); // WalkSpeed
-            Writer.WriteFloat(7f * 1); // RunSpeed
-            Writer.WriteFloat(2.5f); // Backwards WalkSpeed
-            Writer.WriteFloat(4.7222f); // SwimSpeed
-            Writer.WriteFloat(2.5f); // Backwards SwimSpeed
-            Writer.WriteFloat(3.14f); // TurnSpeed
-
-            Writer.WriteInt32(0x1);
+                .WriteInt32(0x1); // ??
 
             var entity = new PlayerEntity(character)
             {
@@ -59,11 +49,24 @@ namespace Classic.World.Messages
                 Guid = character.ID
             };
 
-            entity.WriteUpdateFields(Writer);
+            entity.WriteUpdateFields(update.Writer);
+            return update;
+        } 
 
-            return this.Writer.Build();
+        public override byte[] Get() => this.Writer.Build();
+    }
+    internal static class PacketWriterExtensions
+    {
+        public static PacketWriter WriteMap(this PacketWriter writer, Map map)
+        {
+            return writer
+                .WriteFloat(map.X)
+                .WriteFloat(map.Y)
+                .WriteFloat(map.Z)
+                .WriteFloat(map.Orientation);
         }
     }
+
     [Flags] internal enum MovementFlags
     {
         None = 0x00000000,
@@ -332,7 +335,7 @@ namespace Classic.World.Messages
 
 
             SetUpdateField((int) UnitFields.UNIT_FIELD_LEVEL, character.Level);
-            SetUpdateField((int) UnitFields.UNIT_FIELD_FACTIONTEMPLATE, (int)1); // int chrRaces.FactionId);
+            SetUpdateField((int) UnitFields.UNIT_FIELD_FACTIONTEMPLATE, (int) 1); // int chrRaces.FactionId);
 
             SetUpdateField((int) UnitFields.UNIT_FIELD_BYTES_0, BitConverter.ToUInt32(new[]
             {
@@ -367,7 +370,7 @@ namespace Classic.World.Messages
             // FLAG <GM>
             SetUpdateField((int) PlayerFields.PLAYER_FLAGS, 0x00000008);
 
-            SetUpdateField((int) UnitFields.UNIT_FIELD_BYTES_1, (byte)1); // byte character.StandState);
+            SetUpdateField((int) UnitFields.UNIT_FIELD_BYTES_1, (byte) 1); // byte character.StandState);
             SetUpdateField((int) UnitFields.UNIT_FIELD_BYTES_2, 0);
 
             SetUpdateField((int) PlayerFields.PLAYER_BYTES, BitConverter.ToUInt32(new[]
@@ -384,13 +387,13 @@ namespace Classic.World.Messages
                 0,
                 0,
                 3 //RestedState
-            }, 0));
+            }));
 
             SetUpdateField((int) PlayerFields.PLAYER_BYTES_3, (uint) character.Gender);
             SetUpdateField((int) PlayerFields.PLAYER_XP, 0);
             SetUpdateField((int) PlayerFields.PLAYER_NEXT_LEVEL_XP, 400);
             SetUpdateField((int) PlayerFields.PLAYER_SKILL_INFO_1_1, 26);
-            SetUpdateField((int) PlayerFields.PLAYER_FIELD_WATCHED_FACTION_INDEX, (int)0); // int character.WatchFaction);
+            SetUpdateField((int) PlayerFields.PLAYER_FIELD_WATCHED_FACTION_INDEX, (int) 1); // int character.WatchFaction);
 
             SkillGenerate();
         }

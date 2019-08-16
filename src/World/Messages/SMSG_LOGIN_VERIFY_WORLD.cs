@@ -10,7 +10,6 @@ namespace Classic.World.Messages
         }
 
         public override byte[] Get() => this.Writer
-            // 0 -8919.284180 -117.894028 82.339821 = human starting area
             .WriteInt32(Map.Default.ID) // MapID
             .WriteFloat(Map.Default.X) // MapX
             .WriteFloat(Map.Default.Y) // MapY

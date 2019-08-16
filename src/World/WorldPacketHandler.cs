@@ -26,7 +26,7 @@ namespace Classic.World
         {
             return PacketHandlers.TryGetValue(opcode, out var handler)
                 ? handler
-                : (client, data) => Logger.Log($"Unhandled cmd {opcode}.");
+                : (client, data) => Logger.Log($"Unhandled opcode {opcode}.");
         }
     }
 }

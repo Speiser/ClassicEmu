@@ -36,11 +36,11 @@ namespace Classic.World.Handler
             client.SendPacket(new SMSG_INITIAL_SPELLS());
             client.SendPacket(new SMSG_ACTION_BUTTONS());
             client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
-            // TODO: SMSG_TRIGGER_CINEMATIC
+            // TODO: SMSG_TRIGGER_CINEMATIC (Human_ID = 81??)
 
             client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             client.SendPacket(new SMSG_INIT_WORLD_STATES());
-            client.SendPacket(new SMSG_UPDATE_OBJECT(character));
+            client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character));
 
             // Client sends back CMSG_UPDATE_ACCOUNT_DATA twice
         }

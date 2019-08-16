@@ -11,7 +11,7 @@ namespace Classic.Common
         }
 
         public TOpcode Opcode { get; }
-        protected PacketWriter Writer { get; }
+        public PacketWriter Writer { get; }
 
         public abstract byte[] Get();
 

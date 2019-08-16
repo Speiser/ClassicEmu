@@ -1,4 +1,7 @@
-﻿namespace Classic.Data
+﻿using System.Collections.Generic;
+using Classic.Data.CharacterEnums;
+
+namespace Classic.Data
 {
     public class Map
     {
@@ -9,14 +12,11 @@
         public int ID { get; set; }
         public int Zone { get; set; }
 
-        public static Map Default => new Map
-        {
-            X = -8919.284180F,
-            Y = -117.894028F,
-            Z = 82.339821F,
-            Orientation = 1F,
-            ID = 7,
-            Zone = 12
+        public static Dictionary<Race, Map> StartingAreas = new Dictionary<Race, Map> {
+            // TODO: Load from file??
+            { Race.Human, new Map { X = -8949.95F, Y = -132.493F, Z = 83.5312F, Orientation = 1F, ID = 0, Zone = 12 }}
         };
+
+        public static Map Default => StartingAreas[Race.Human];
     }
 }
