@@ -21,7 +21,7 @@ namespace Classic.World.Messages
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte) ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-                .WriteBytes(character.ID.ToPackedUInt64()) // = update.Writer.WritePackedUInt64(character.Uid);
+                .WriteBytes(character.ID.ToPackedUInt64())
 
                 .WriteUInt8((byte) TypeId.TypeidPlayer)
                 .WriteUInt8((byte) (ObjectUpdateFlag.All |
@@ -37,13 +37,13 @@ namespace Classic.World.Messages
                 .WriteFloat(0) // ??
 
                 .WriteFloat(2.5f) // WalkSpeed
-                .WriteFloat(7f * 1) // RunSpeed
+                .WriteFloat(7f) // RunSpeed
                 .WriteFloat(2.5f) // Backwards WalkSpeed
-                .WriteFloat(4.7222f) // SwimSpeed
+                .WriteFloat(4.72f) // SwimSpeed
                 .WriteFloat(2.5f) // Backwards SwimSpeed
                 .WriteFloat(3.14f) // TurnSpeed
 
-                .WriteInt32(0x1); // ??
+                .WriteInt32(1); // ??
 
             player = new PlayerEntity(character)
             {
