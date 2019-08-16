@@ -41,8 +41,6 @@ namespace Classic.World.Handler
             client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             client.SendPacket(new SMSG_INIT_WORLD_STATES());
             client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character));
-
-            // Client sends back CMSG_UPDATE_ACCOUNT_DATA twice
         }
     }
 }
