@@ -12,7 +12,7 @@ namespace Classic.World.Messages
     {
         public SMSG_UPDATE_OBJECT() : base(Opcode.SMSG_UPDATE_OBJECT) { }
 
-        public static SMSG_UPDATE_OBJECT CreateOwnPlayerObject(Character character)
+        public static SMSG_UPDATE_OBJECT CreateOwnPlayerObject(Character character, out PlayerEntity player)
         {
             var update = new SMSG_UPDATE_OBJECT();
 
@@ -45,13 +45,13 @@ namespace Classic.World.Messages
 
                 .WriteInt32(0x1); // ??
 
-            var entity = new PlayerEntity(character)
+            player = new PlayerEntity(character)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
             };
 
-            entity.WriteUpdateFields(update.Writer);
+            player.WriteUpdateFields(update.Writer);
             return update;
         } 
 

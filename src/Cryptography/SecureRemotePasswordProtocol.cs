@@ -151,7 +151,7 @@ namespace Classic.Cryptography
         private BigInteger GetHashedCredentials(string password)
         {
             // TODO: At some point ill use the correct password
-            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:admin".ToUpper()));
+            var temp = this.sha.ComputeHash(Encoding.ASCII.GetBytes($"{this.I}:{this.I}".ToUpper()));
             var hash = this.sha.ComputeHash(this.s.Concat(temp).ToArray());
             return hash.ToPositiveBigInteger();
         }

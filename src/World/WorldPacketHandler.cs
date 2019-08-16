@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Classic.Common;
@@ -9,17 +10,23 @@ namespace Classic.World
     {
         public delegate void PacketHandler(WorldClient client, byte[] data);
 
-        private static ImmutableDictionary<Opcode, PacketHandler> PacketHandlers;
+        private static readonly Dictionary<Opcode, PacketHandler> PacketHandlers = new Dictionary<Opcode, PacketHandler>();
 
         public static void Initialize()
         {
-            PacketHandlers = Assembly.GetExecutingAssembly()
+            var methods = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
-                .Where(m => m.GetCustomAttributes<OpcodeHandlerAttribute>().Any())
-                .ToImmutableDictionary<MethodInfo, Opcode, PacketHandler>(
-                    m => m.GetCustomAttribute<OpcodeHandlerAttribute>().Opcode,
-                    m => (client, data) => m.Invoke(null, new object[] { client, data }));
+                .Where(m => m.GetCustomAttributes<OpcodeHandlerAttribute>().Any());
+
+            foreach (var method in methods)
+            {
+                var attributes = method.GetCustomAttributes<OpcodeHandlerAttribute>();
+                foreach (var attribute in attributes)
+                {
+                    PacketHandlers.Add(attribute.Opcode, (client, data) => method.Invoke(null, new object[] { client, data }));
+                }
+            }
         }
 
         public static PacketHandler GetHandler(Opcode opcode)

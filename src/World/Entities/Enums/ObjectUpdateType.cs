@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum ObjectUpdateType
+    public enum ObjectUpdateType
     {
         UPDATETYPE_VALUES = 0,
 

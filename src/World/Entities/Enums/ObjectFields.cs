@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum ObjectFields
+    public enum ObjectFields
     {
         Guid = 0x0, // 0x000 - Size: 2 - Type: GUID  - Flags: PUBLIC
         Type = 0x2, // 0x002 - Size: 1 - Type: INT   - Flags: PUBLIC

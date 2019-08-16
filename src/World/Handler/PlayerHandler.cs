@@ -38,7 +38,19 @@ namespace Classic.World.Handler
 
             client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             client.SendPacket(new SMSG_INIT_WORLD_STATES());
-            client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character));
+            client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
+
+            client.OnPlayerSpawn(player);
+
+            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
+            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
+        }
+
+        [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
+        public static void OnPlayerLogoutRequested(WorldClient client, byte[] data)
+        {
+            client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+            client.OnPlayerLogout();
         }
     }
 }

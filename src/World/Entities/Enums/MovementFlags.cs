@@ -3,7 +3,7 @@ using System;
 namespace Classic.World.Entities.Enums
 {
     [Flags]
-    internal enum MovementFlags
+    public enum MovementFlags
     {
         None = 0x00000000,
         Forward = 0x00000001,

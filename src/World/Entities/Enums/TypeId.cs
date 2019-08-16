@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum TypeId : byte
+    public enum TypeId : byte
     {
         TypeidObject = 0,
         TypeidItem = 1,

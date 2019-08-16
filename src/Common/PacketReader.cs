@@ -17,6 +17,8 @@ namespace Classic.Common
             return BitConverter.ToUInt16(new [] { bytes[1], bytes[0] });
         }
 
+        public float ReadFloat() => ReadSingle();
+
         public override string ReadString()
         {
             var account = new List<byte>();

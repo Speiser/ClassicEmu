@@ -5,7 +5,7 @@ namespace Classic.World.Entities.Utils
 {
     internal class CharacterHelper
     {
-        public static ManaTypes GetClassManaType(Classes classe)
+        internal static ManaTypes GetClassManaType(Classes classe)
         {
             switch (classe)
             {
@@ -17,6 +17,7 @@ namespace Classic.World.Entities.Utils
                     return ManaTypes.TypeMana;
             }
         }
+
         internal static int GetRaceModel(Race race, Gender gender)
         {
             switch (race)

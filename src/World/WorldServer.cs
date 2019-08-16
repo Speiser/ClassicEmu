@@ -1,4 +1,6 @@
 ﻿using Classic.Common;
+using Classic.World.Entities;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,9 +14,15 @@ namespace Classic.World
             WorldPacketHandler.Initialize();
         }
 
+        public ConcurrentBag<PlayerEntity> ActivePlayers { get; } = new ConcurrentBag<PlayerEntity>();
+
         protected override void ProcessClient(TcpClient client)
         {
-            new Thread(() => new WorldClient(client).HandleConnection()).Start();
+            var worldClient = new WorldClient(client);
+            worldClient.PlayerSpawned += player => ActivePlayers.Add(player);
+            worldClient.PlayerDespawned += player => ActivePlayers.TryTake(out player);
+
+            new Thread(() => worldClient.HandleConnection()).Start();
         }
     }
 }

@@ -5,7 +5,7 @@ using Classic.World.Entities.Utils;
 
 namespace Classic.World.Entities
 {
-    internal class PlayerEntity : UnitEntity
+    public class PlayerEntity : UnitEntity
     {
         public new int Model;
 

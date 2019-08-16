@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum PlayerFields
+    public enum PlayerFields
     {
         PLAYER_DUEL_ARBITER = 0x00 + UnitFields.UNIT_END, // Size:2
         PLAYER_FLAGS = 0x02 + UnitFields.UNIT_END, // Size:1

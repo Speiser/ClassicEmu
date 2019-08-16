@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum HighGuid
+    public enum HighGuid
     {
         HighguidPlayer = 0x0000,
         HighguidItem = 0x4700,

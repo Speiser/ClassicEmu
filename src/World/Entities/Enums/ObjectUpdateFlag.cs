@@ -3,7 +3,7 @@ using System;
 namespace Classic.World.Entities.Enums
 {
     [Flags]
-    internal enum ObjectUpdateFlag : byte
+    public enum ObjectUpdateFlag : byte
     {
         None = 0x0000,
         Self = 0x0001,

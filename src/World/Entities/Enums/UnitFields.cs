@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum UnitFields
+    public enum UnitFields
     {
         UNIT_FIELD_CHARM = 0x00 + ObjectFields.End, // Size:2
         UNIT_FIELD_SUMMON = 0x02 + ObjectFields.End, // Size:2

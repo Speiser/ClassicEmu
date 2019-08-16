@@ -3,7 +3,7 @@ using Classic.World.Entities.Utils;
 
 namespace Classic.World.Entities
 {
-    internal class UnitEntity : ObjectEntity
+    public class UnitEntity : ObjectEntity
     {
         public UnitEntity(ObjectGuid objectGuid) : base(objectGuid)
         {

@@ -4,7 +4,7 @@ using Classic.Common;
 
 namespace Classic.World.Entities
 {
-    internal class BaseEntity
+    public class BaseEntity
     {
         public static int Level = 1;
         public int Model = 0;

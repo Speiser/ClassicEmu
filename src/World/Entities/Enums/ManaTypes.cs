@@ -1,6 +1,6 @@
 namespace Classic.World.Entities.Enums
 {
-    internal enum ManaTypes
+    public enum ManaTypes
     {
         TypeMana = 0,
         TypeRage = 1,

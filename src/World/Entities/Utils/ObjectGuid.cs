@@ -2,7 +2,7 @@ using Classic.World.Entities.Enums;
 
 namespace Classic.World.Entities.Utils
 {
-    internal class ObjectGuid
+    public class ObjectGuid
     {
         public ObjectGuid(ulong guid)
         {

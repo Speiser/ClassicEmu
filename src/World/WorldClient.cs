@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
+using Classic.World.Entities;
 using Classic.World.Messages;
 
 namespace Classic.World
@@ -16,9 +17,26 @@ namespace Classic.World
             this.Send(new SMSG_AUTH_CHALLENGE().Get());
         }
 
+        public event Action<PlayerEntity> PlayerSpawned;
+        public event Action<PlayerEntity> PlayerDespawned; 
+
         public User User { get; internal set; }
+        public PlayerEntity Player { get; private set; }
+        public Character Character => Player?.Character;
 
         public AuthCrypt Crypt { get; }
+
+        public void OnPlayerSpawn(PlayerEntity player)
+        {
+            Player = player;
+            PlayerSpawned?.Invoke(player);
+        }
+
+        public void OnPlayerLogout()
+        {
+            PlayerDespawned?.Invoke(Player);
+            Player = null;
+        }
 
         protected override void HandlePacket(byte[] data)
         {
