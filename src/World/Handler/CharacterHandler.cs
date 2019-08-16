@@ -18,9 +18,6 @@ namespace Classic.World.Handler
         {
             using (var reader = new PacketReader(data))
             {
-                // TODO: Maybe evaluate later: len, cmd ??
-                reader.Skip(6);
-
                 var character = new Character
                 {
                     Name = reader.ReadString(),

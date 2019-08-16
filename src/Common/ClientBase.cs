@@ -25,7 +25,8 @@ namespace Classic.Common
             while (this.isConnected)
             {
                 // TODO try catch
-                var buffer = new byte[1024];
+                // Biggest package seen so far was 1190 bytes in length
+                var buffer = new byte[2048];
                 var length = this.stream.Read(buffer, 0, buffer.Length);
 
                 if (length == 0)

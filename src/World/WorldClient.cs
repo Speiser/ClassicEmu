@@ -20,13 +20,26 @@ namespace Classic.World
 
         public AuthCrypt Crypt { get; }
 
-        protected override void HandlePacket(byte[] packet)
+        protected override void HandlePacket(byte[] data)
         {
-            var opcode = this.LogPacket(packet);
+            for (var i = 0; i < data.Length; i++)
+            {
+                // TODO: Spans instead of array.copy!
+                var header = new byte[6];
+                Array.Copy(data, i, header, 0, 6);
 
-            var handler = WorldPacketHandler.GetHandler(opcode);
+                var (length, opcode) = this.DecodePacket(header);
 
-            handler(this, packet);
+                this.Log($"{opcode} - {length} bytes");
+
+                var packet = new byte[length];
+                Array.Copy(data, i + 6, packet, 0, length - 4);
+
+                var handler = WorldPacketHandler.GetHandler(opcode);
+                handler(this, packet);
+
+                i += 2 + (length - 1);
+            }
         }
 
         public void SendPacket(ServerMessageBase<Opcode> message)
@@ -36,8 +49,6 @@ namespace Classic.World
             message.Dispose();
         }
 
-        // Based on
-        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L31
         private (ushort length, Opcode opcode) DecodePacket(byte[] packet)
         {
             ushort length;
@@ -56,16 +67,6 @@ namespace Classic.World
             }
 
             return (length, (Opcode)opcode);
-        }
-
-        private new Opcode LogPacket(byte[] packet)
-        {
-            // Copy so that the original packet is not corrupted
-            var copy = new byte[packet.Length];
-            Array.Copy(packet, copy, copy.Length);
-            var (length, opcode) = this.DecodePacket(copy);
-            this.Log($"{opcode} - {length} bytes");
-            return opcode;
         }
     }
 }

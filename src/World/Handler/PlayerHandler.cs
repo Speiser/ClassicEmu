@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Classic.Common;
-using Classic.Data;
 using Classic.World.Messages;
 
 namespace Classic.World.Handler
@@ -14,7 +13,6 @@ namespace Classic.World.Handler
 
             using (var reader = new PacketReader(data))
             {
-                reader.Skip(6);
                 charId = reader.ReadUInt32();
             }
 
