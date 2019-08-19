@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Entities;
 using Classic.World.Messages;
+using Newtonsoft.Json;
 
 namespace Classic.World
 {
@@ -50,6 +52,13 @@ namespace Classic.World
             var data = this.Crypt.Encode(message);
             this.Send(data);
             message.Dispose();
+        }
+
+        protected override void OnDisconnected()
+        {
+            // TODO
+            var json = JsonConvert.SerializeObject(User.Characters.ToArray());
+            File.WriteAllText("chars.json", json);
         }
 
         private (ushort length, Opcode opcode) DecodePacket(byte[] packet)

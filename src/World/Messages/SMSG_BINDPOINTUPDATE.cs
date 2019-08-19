@@ -5,16 +5,19 @@ namespace Classic.World.Messages
 {
     public class SMSG_BINDPOINTUPDATE : ServerMessageBase<Opcode>
     {
-        public SMSG_BINDPOINTUPDATE() : base(Opcode.SMSG_BINDPOINTUPDATE)
+        private readonly Character character;
+
+        public SMSG_BINDPOINTUPDATE(Character character) : base(Opcode.SMSG_BINDPOINTUPDATE)
         {
+            this.character = character;
         }
 
         public override byte[] Get() => this.Writer
-            .WriteFloat(Map.Default.X) // MapX
-            .WriteFloat(Map.Default.Y) // MapY
-            .WriteFloat(Map.Default.Z) // MapZ
-            .WriteUInt32((uint)Map.Default.ID) // MapID
-            .WriteUInt32((uint)Map.Default.Zone) // ZoneID
+            .WriteFloat(character.Position.X) // MapX
+            .WriteFloat(character.Position.Y) // MapY
+            .WriteFloat(character.Position.Z) // MapZ
+            .WriteUInt32((uint)character.Position.ID) // MapID
+            .WriteUInt32((uint)character.Position.Zone) // ZoneID
             .Build();
     }
 }

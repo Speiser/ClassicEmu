@@ -1,4 +1,4 @@
-using Classic.Data.CharacterEnums;
+using Classic.Data.Enums.Character;
 using Classic.World.Entities.Enums;
 
 namespace Classic.World.Entities.Utils

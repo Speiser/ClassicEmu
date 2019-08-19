@@ -1,6 +1,6 @@
 ﻿using Classic.Common;
 using Classic.Data;
-using Classic.Data.CharacterEnums;
+using Classic.Data.Enums.Character;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +18,7 @@ namespace Classic.World.Messages
         {
             this.Writer.WriteUInt8((byte)this.characters.Count());
 
-            foreach (var c in this.characters)
+            foreach (var c in this.characters.OrderBy(c => c.Created))
             {
                 this.Writer
                     .WriteUInt64(c.ID)
@@ -32,11 +32,11 @@ namespace Classic.World.Messages
                     .WriteUInt8(c.HairColor)
                     .WriteUInt8(c.FacialHair)
                     .WriteUInt8(c.Level) // Character Level
-                    .WriteInt32(0) // Map zone
-                    .WriteInt32(0) // Map id
-                    .WriteFloat(0f) // X coord
-                    .WriteFloat(0f) // Y coord
-                    .WriteFloat(0f) // Z coord
+                    .WriteInt32((int)c.Position.Zone) // Map zone
+                    .WriteInt32((int)c.Position.ID) // Map id
+                    .WriteFloat(c.Position.X) // X coord
+                    .WriteFloat(c.Position.Y) // Y coord
+                    .WriteFloat(c.Position.Z) // Z coord
                     .WriteInt32(0) // Guild id
                     .WriteInt32(1) // unk?
                     .WriteUInt8(3) // Reststate

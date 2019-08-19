@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.IO;
 using Classic.Cryptography;
-using Classic.Data.CharacterEnums;
+using Newtonsoft.Json;
 
 namespace Classic.Data
 {
@@ -10,24 +11,12 @@ namespace Classic.Data
         public User(SecureRemotePasswordProtocol srp)
         {
             this.srp = srp;
-            this.Characters = new ConcurrentBag<Character>
-            {
-                new Character
-                {
-                    Class = Classes.Warrior,
-                    Face = 1,
-                    FacialHair = 1,
-                    Gender = Gender.Male,
-                    HairColor = 1,
-                    HairStyle = 1,
-                    Level = 1,
-                    Map = Map.StartingAreas[Race.Human],
-                    Name = "Player",
-                    OutfitId = 1,
-                    Race = Race.Human,
-                    Skin = 1
-                }
-            };
+
+            // TODO
+            var raw = File.ReadAllText("chars.json");
+            var chars = JsonConvert.DeserializeObject<Character[]>(raw);
+
+            this.Characters = new ConcurrentBag<Character>(chars);
         }
 
         public string Identifier => this.srp.I;

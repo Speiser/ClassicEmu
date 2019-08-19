@@ -29,10 +29,10 @@ namespace Classic.World.Handler
                 var mapZ = reader.ReadFloat();
                 var mapO = reader.ReadFloat();
 
-                client.Character.Map.X = mapX;
-                client.Character.Map.Y = mapY;
-                client.Character.Map.Z = mapZ;
-                client.Character.Map.Orientation = mapO;
+                client.Character.Position.X = mapX;
+                client.Character.Position.Y = mapY;
+                client.Character.Position.Z = mapZ;
+                client.Character.Position.Orientation = mapO;
             }
         }
     }

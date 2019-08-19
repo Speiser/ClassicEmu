@@ -1,4 +1,4 @@
-﻿using Classic.Data.CharacterEnums;
+﻿using Classic.Data.Enums.Character;
 
 namespace Classic.Data
 {

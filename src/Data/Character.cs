@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
-using Classic.Cryptography;
-using Classic.Data.CharacterEnums;
+﻿using System;
+using System.Collections.Concurrent;
+using Classic.Data.Enums.Character;
 
 namespace Classic.Data
 {
@@ -8,7 +8,8 @@ namespace Classic.Data
     {
         public Character()
         {
-            this.ID = Random.GetUInt64();
+            ID = Cryptography.Random.GetUInt64();
+            Created = DateTime.UtcNow;
         }
 
         public ulong ID { get; }
@@ -23,9 +24,10 @@ namespace Classic.Data
         public byte HairColor { get; set; }
         public byte FacialHair { get; set; }
         public byte OutfitId { get; set; }
-        public Map Map { get; set; }
+        public Map Position { get; set; }
         public ConcurrentBag<InventoryItem> Inventory { get; } = new ConcurrentBag<InventoryItem>();
-        public CharacterStats Stats { get; set; } = new CharacterStats();
+        public CharacterStats Stats { get; } = new CharacterStats();
         public CharacterFlag Flag { get; set; } = CharacterFlag.None;
+        public DateTime Created { get; }
     }
 }

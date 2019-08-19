@@ -32,7 +32,7 @@ namespace Classic.World.Messages
                 .WriteUInt32((uint) MovementFlags.None)
                 .WriteUInt32((uint) Environment.TickCount)
 
-                .WriteMap(character.Map)
+                .WriteMap(character.Position)
 
                 .WriteFloat(0) // ??
 

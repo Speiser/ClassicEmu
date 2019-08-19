@@ -1,7 +1,8 @@
 ﻿using Classic.Common;
 using Classic.Data;
-using Classic.Data.CharacterEnums;
+using Classic.Data.Enums.Character;
 using Classic.World.Messages;
+using System.Linq;
 
 namespace Classic.World.Handler
 {
@@ -31,13 +32,26 @@ namespace Classic.World.Handler
                     FacialHair = reader.ReadByte(),
                     OutfitId = reader.ReadByte(),
                     Level = 1,
-                    Map = Map.Default
                 };
 
+                character.Position = Map.StartingAreas[character.Race];
                 client.User.Characters.Add(character);
             }
 
             client.SendPacket(new SMSG_CHAR_CREATE());
+        }
+
+        [OpcodeHandler(Opcode.CMSG_CHAR_DELETE)]
+        public static void OnCharacterDelete(WorldClient client, byte[] data)
+        {
+            using (var reader = new PacketReader(data))
+            {
+                var id = reader.ReadUInt64();
+                var toBeDeleted = client.User.Characters.Where(c => c.ID == id).Single();
+                client.SendPacket(client.User.Characters.TryTake(out toBeDeleted)
+                    ? SMSG_CHAR_DELETE.Success()
+                    : SMSG_CHAR_DELETE.Fail());
+            }
         }
     }
 }

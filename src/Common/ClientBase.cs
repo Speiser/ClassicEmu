@@ -38,6 +38,8 @@ namespace Classic.Common
 
                 this.HandlePacket(buffer.Take(length).ToArray());
             }
+
+            OnDisconnected();
         }
 
         public void Send(byte[] data)
@@ -52,6 +54,9 @@ namespace Classic.Common
         {
             Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
         }
+
+        // Todo change to abstract later
+        protected virtual void OnDisconnected() { }
 
         protected void LogPacket(byte[] packet)
         {

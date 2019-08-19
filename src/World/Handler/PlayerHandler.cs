@@ -20,14 +20,14 @@ namespace Classic.World.Handler
 
             client.Log($"Player logged in with char {character.Name}");
 
-            client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD());
+            client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
             client.SendPacket(new SMSG_ACCOUNT_DATA_TIMES());
 
             client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
             client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
 
             client.SendPacket(new SMSG_SET_REST_START());
-            client.SendPacket(new SMSG_BINDPOINTUPDATE());
+            client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
             client.SendPacket(new SMSG_TUTORIAL_FLAGS());
             client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
 

@@ -1,4 +1,4 @@
-﻿namespace Classic.Data.CharacterEnums
+﻿namespace Classic.Data.Enums.Character
 {
     public enum Classes
     {
