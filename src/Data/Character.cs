@@ -12,7 +12,7 @@ namespace Classic.Data
             Created = DateTime.UtcNow;
         }
 
-        public ulong ID { get; }
+        public ulong ID { get; set; }
         public string Name { get; set; }
         public byte Level { get; set; }
         public Race Race { get; set; }
@@ -24,10 +24,17 @@ namespace Classic.Data
         public byte HairColor { get; set; }
         public byte FacialHair { get; set; }
         public byte OutfitId { get; set; }
-        public Map Position { get; set; }
+        public Map Position { get; set; } // TODO: From ctor?
         public ConcurrentBag<InventoryItem> Inventory { get; } = new ConcurrentBag<InventoryItem>();
-        public CharacterStats Stats { get; } = new CharacterStats();
+        public CharacterAttributes Attributes { get; } = new CharacterAttributes(); // TODO: From ctor?
+        public CharacterResistances Resistances { get; } = new CharacterResistances(); // TODO: From ctor?
+        public CharacterStats Stats { get; } = new CharacterStats(); // TODO: From ctor?
+        public CharacterStats MaxStats { get; } = new CharacterStats(); // TODO: From ctor?
         public CharacterFlag Flag { get; set; } = CharacterFlag.None;
-        public DateTime Created { get; }
+        public DateTime Created { get; set; }
+
+        public int WatchFaction { get; set; } = 255; // ?? as enum
+        public RestedState RestedState { get; set; } = RestedState.Rested;
+        public StandState StandState { get; set; }
     }
 }

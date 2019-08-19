@@ -31,15 +31,15 @@ namespace Classic.World.Messages
                     .WriteUInt8(c.HairStyle)
                     .WriteUInt8(c.HairColor)
                     .WriteUInt8(c.FacialHair)
-                    .WriteUInt8(c.Level) // Character Level
-                    .WriteInt32((int)c.Position.Zone) // Map zone
-                    .WriteInt32((int)c.Position.ID) // Map id
-                    .WriteFloat(c.Position.X) // X coord
-                    .WriteFloat(c.Position.Y) // Y coord
-                    .WriteFloat(c.Position.Z) // Z coord
+                    .WriteUInt8(c.Level)
+                    .WriteInt32((int)c.Position.Zone)
+                    .WriteInt32((int)c.Position.ID)
+                    .WriteFloat(c.Position.X)
+                    .WriteFloat(c.Position.Y)
+                    .WriteFloat(c.Position.Z)
                     .WriteInt32(0) // Guild id
-                    .WriteInt32(1) // unk?
-                    .WriteUInt8(3) // Reststate
+                    .WriteInt32((int) c.Flag)
+                    .WriteUInt8((byte) c.RestedState)
                     .WriteInt32(0) // Pet model
                     .WriteInt32(0) // Pet level
                     .WriteInt32(0); // Pet family
@@ -49,7 +49,7 @@ namespace Classic.World.Messages
                 {
                     var item = c.Inventory.FirstOrDefault(x => x.ItemSlot == i.AsEnum<ItemSlot>());
 
-                    this.Writer.WriteInt32(item?.DisplayID ?? 0); // Display ID
+                    this.Writer.WriteInt32(item?.DisplayID ?? 0);
                     this.Writer.WriteUInt8(i); // Inventory type
                 }
             }

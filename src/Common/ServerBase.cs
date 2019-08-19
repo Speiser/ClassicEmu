@@ -6,7 +6,7 @@ namespace Classic.Common
     public abstract class ServerBase
     {
         private bool isActive; // TODO: replace with cancellationtoken
-        private TcpListener server;
+        private readonly TcpListener server;
         
         public ServerBase(IPEndPoint endPoint)
         {
