@@ -27,72 +27,36 @@ namespace Classic.World.Entities
         public virtual int DataLength { get; internal set; }
         public virtual string Name { get; set; }
 
-        public void SetUpdateField<T>(int index, T value, byte offset = 0)
+        public void SetUpdateField<T>(int index, T value)
         {
             UpdateCount++;
-            switch (value.GetType().Name)
+            Mask.Set(index, true);
+            switch (value)
             {
-                case "SByte":
-                case "Int16":
-                {
-                    Mask.Set(index, true);
+                case byte _:
+                case ushort _:
+                    var _update = (uint)Convert.ChangeType(value, typeof(uint));
 
                     if (UpdateData.ContainsKey(index))
-                        UpdateData[index] = (int) UpdateData[index] |
-                                            ((int) Convert.ChangeType(value, typeof(int)) <<
-                                             (offset * (value.GetType().Name == "Byte" ? 8 : 16)));
+                        UpdateData[index] = (uint)UpdateData[index] | _update;
                     else
-                        UpdateData[index] = (int) Convert.ChangeType(value, typeof(int)) <<
-                                            (offset * (value.GetType().Name == "Byte" ? 8 : 16));
-
+                        UpdateData[index] = _update;
                     break;
-                }
-                case "Byte":
-                case "UInt16":
-                {
-                    Mask.Set(index, true);
-
-                    if (UpdateData.ContainsKey(index))
-                        UpdateData[index] = (uint) UpdateData[index] |
-                                            ((uint) Convert.ChangeType(value, typeof(uint)) <<
-                                             (offset * (value.GetType().Name == "Byte" ? 8 : 16)));
-                    else
-                        UpdateData[index] = (uint) Convert.ChangeType(value, typeof(uint)) <<
-                                            (offset * (value.GetType().Name == "Byte" ? 8 : 16));
-
+                case long l:
+                    Mask.Set(index + 1, true);
+                   
+                    UpdateData[index] = (uint) (l & int.MaxValue);
+                    UpdateData[index + 1] = (uint) ((l >> 32) & int.MaxValue);
                     break;
-                }
-                case "Int64":
-                {
-                    Mask.Set(index, true);
+                case ulong u:
                     Mask.Set(index + 1, true);
 
-                    var tmpValue = (long) Convert.ChangeType(value, typeof(long));
-
-                    UpdateData[index] = (uint) (tmpValue & int.MaxValue);
-                    UpdateData[index + 1] = (uint) ((tmpValue >> 32) & int.MaxValue);
-
+                    UpdateData[index] = (uint) (u & uint.MaxValue);
+                    UpdateData[index + 1] = (uint) ((u >> 32) & uint.MaxValue);
                     break;
-                }
-                case "UInt64":
-                {
-                    Mask.Set(index, true);
-                    Mask.Set(index + 1, true);
-
-                    var tmpValue = (ulong) Convert.ChangeType(value, typeof(ulong));
-
-                    UpdateData[index] = (uint) (tmpValue & uint.MaxValue);
-                    UpdateData[index + 1] = (uint) ((tmpValue >> 32) & uint.MaxValue);
-
-                    break;
-                }
                 default:
-                {
-                    Mask.Set(index, true);
                     UpdateData[index] = value;
-
                     break;
-                }
             }
         }
 
@@ -100,34 +64,25 @@ namespace Classic.World.Entities
         {
             writer.WriteUInt8((byte) MaskSize);
             
-            // writer.WriteBitArray(Mask, MaskSize * 4); // Int32 = 4 Bytes
-            // Start WriteBitArray
             var bufferarray = new byte[Convert.ToByte((Mask.Length + 8) / 8) + 1];
             Mask.CopyTo(bufferarray, 0);
             writer.WriteByteArrayWithLength(bufferarray, MaskSize * 4);
-            // End WriteBitArray
 
             for (var i = 0; i < Mask.Count; i++)
             {
                 if (!Mask.Get(i)) continue;
-                try
+
+                switch (UpdateData[i])
                 {
-                    switch (UpdateData[i].GetType().Name)
-                    {
-                        case "UInt32":
-                            writer.WriteUInt32((uint) UpdateData[i]);
-                            break;
-                        case "Single":
-                            writer.WriteFloat((float) UpdateData[i]);
-                            break;
-                        default:
-                            writer.WriteInt32((int) UpdateData[i]);
-                            break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Logger.Log($"Error in WriteUpdateFields, {e.Message}");
+                    case uint u:
+                        writer.WriteUInt32(u);
+                        break;
+                    case float f:
+                        writer.WriteFloat(f);
+                        break;
+                    default:
+                        writer.WriteInt32((int) UpdateData[i]);
+                        break;
                 }
             }
 
