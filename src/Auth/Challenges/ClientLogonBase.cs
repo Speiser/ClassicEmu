@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Classic.Auth.Challenges
 {
     public abstract class ClientLogonBase
@@ -11,6 +13,6 @@ namespace Classic.Auth.Challenges
             this.client = client;
         }
 
-        public abstract bool Execute();
+        public abstract Task<bool> Execute();
     }
 }

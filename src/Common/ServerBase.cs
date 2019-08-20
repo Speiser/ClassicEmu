@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Classic.Common
 {
@@ -13,14 +14,14 @@ namespace Classic.Common
             this.server = new TcpListener(endPoint);
         }
 
-        public void Start()
+        public async Task Start()
         {
             this.server.Start();
             this.isActive = true;
             while (this.isActive)
             {
-                var client = this.server.AcceptTcpClient();
-                this.ProcessClient(client);
+                var client = await this.server.AcceptTcpClientAsync();
+                _ = this.ProcessClient(client);
             }
         }
 
@@ -30,6 +31,6 @@ namespace Classic.Common
             this.server.Stop();
         }
 
-        protected abstract void ProcessClient(TcpClient client);
+        protected abstract Task ProcessClient(TcpClient client);
     }
 }

@@ -26,7 +26,6 @@ namespace Classic.Auth.Challenges
                         .WriteUInt32(/* unk   */ 0)
                         .Build();
                 }
-                
             }
 
             // Failed

@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Classic.Cryptography;
 
 namespace Classic.Auth.Challenges
@@ -8,13 +9,13 @@ namespace Classic.Auth.Challenges
     {
         public ClientLogonChallenge(byte[] packet, LoginClient client) : base(packet, client) { }
 
-        public override bool Execute()
+        public override async Task<bool> Execute()
         {
             var identifier = this.GetIdentifier();
             this.client.SRP = new SecureRemotePasswordProtocol(identifier, identifier); // TODO: Quick hack
 
             // Create and send a ServerLogonChallenge as response.
-            this.client.Send(new ServerLogonChallenge(this.client.SRP).Get());
+            await this.client.Send(new ServerLogonChallenge(this.client.SRP).Get());
             return true;
         }
 

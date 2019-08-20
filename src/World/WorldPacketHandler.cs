@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Classic.Common;
 
 namespace Classic.World
 {
     public class WorldPacketHandler
     {
-        public delegate void PacketHandler(WorldClient client, byte[] data);
+        public delegate Task PacketHandler(WorldClient client, byte[] data);
 
         private static readonly Dictionary<Opcode, PacketHandler> PacketHandlers = new Dictionary<Opcode, PacketHandler>();
 
@@ -24,7 +24,7 @@ namespace Classic.World
                 var attributes = method.GetCustomAttributes<OpcodeHandlerAttribute>();
                 foreach (var attribute in attributes)
                 {
-                    PacketHandlers.Add(attribute.Opcode, (client, data) => method.Invoke(null, new object[] { client, data }));
+                    PacketHandlers.Add(attribute.Opcode, (client, data) => (Task)method.Invoke(null, new object[] { client, data }));
                 }
             }
         }
@@ -33,7 +33,10 @@ namespace Classic.World
         {
             return PacketHandlers.TryGetValue(opcode, out var handler)
                 ? handler
-                : (client, data) => Logger.Log($"Unhandled opcode {opcode}.");
+                : (client, data) => {
+                    Logger.Log($"Unhandled opcode {opcode}.");
+                    return Task.CompletedTask;
+                };
         }
     }
 }

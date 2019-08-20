@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
@@ -16,7 +17,7 @@ namespace Classic.World
         {
             this.Log("-- connected");
             this.Crypt = new AuthCrypt();
-            this.Send(new SMSG_AUTH_CHALLENGE().Get());
+            Task.Run(async () => await this.Send(new SMSG_AUTH_CHALLENGE().Get()));
         }
 
         public User User { get; internal set; }
@@ -25,7 +26,7 @@ namespace Classic.World
 
         public AuthCrypt Crypt { get; }
 
-        protected override void HandlePacket(byte[] data)
+        protected override async Task HandlePacket(byte[] data)
         {
             for (var i = 0; i < data.Length; i++)
             {
@@ -41,16 +42,16 @@ namespace Classic.World
                 Array.Copy(data, i + 6, packet, 0, length - 4);
 
                 var handler = WorldPacketHandler.GetHandler(opcode);
-                handler(this, packet);
+                await handler(this, packet);
 
                 i += 2 + (length - 1);
             }
         }
 
-        public void SendPacket(ServerMessageBase<Opcode> message)
+        public async Task SendPacket(ServerMessageBase<Opcode> message)
         {
             var data = this.Crypt.Encode(message);
-            this.Send(data);
+            await this.Send(data);
             message.Dispose();
         }
 

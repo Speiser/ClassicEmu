@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-
+using System.Threading.Tasks;
 using Classic.Common;
 
 namespace Classic.Auth
@@ -10,9 +9,10 @@ namespace Classic.Auth
     {
         public AuthenticationServer() : base(new IPEndPoint(IPAddress.Loopback, 3724)) { }
 
-        protected override void ProcessClient(TcpClient client)
+        protected override async Task ProcessClient(TcpClient client)
         {
-            new Thread(() => new LoginClient(client).HandleConnection()).Start();
+            var loginClient = new LoginClient(client);
+            await loginClient.HandleConnection();
         }
     }
 }

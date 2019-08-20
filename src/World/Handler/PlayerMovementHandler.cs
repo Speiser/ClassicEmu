@@ -1,5 +1,6 @@
 ﻿using Classic.Common;
 using Classic.World.Entities.Enums;
+using System.Threading.Tasks;
 
 namespace Classic.World.Handler
 {
@@ -8,6 +9,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_FALL_LAND)]
         [OpcodeHandler(Opcode.MSG_MOVE_HEARTBEAT)]
         [OpcodeHandler(Opcode.MSG_MOVE_JUMP)]
+        //[OpcodeHandler(Opcode.MSG_MOVE_SET_FACING)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_BACKWARD)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_FORWARD)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_STRAFE_LEFT)]
@@ -17,7 +19,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-        public static void OnPlayerMovePrototype(WorldClient client, byte[] data)
+        public static Task OnPlayerMovePrototype(WorldClient client, byte[] data)
         {
             // Always trust the client (for now..)
             using (var reader = new PacketReader(data))
@@ -34,6 +36,8 @@ namespace Classic.World.Handler
                 client.Character.Position.Z = mapZ;
                 client.Character.Position.Orientation = mapO;
             }
+
+            return Task.CompletedTask;
         }
     }
 }

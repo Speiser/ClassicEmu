@@ -1,11 +1,7 @@
 ﻿using Classic.Common;
-using Classic.World.Entities;
-using Classic.World.Messages;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Classic.World
 {
@@ -16,9 +12,10 @@ namespace Classic.World
             WorldPacketHandler.Initialize();
         }
 
-        protected override void ProcessClient(TcpClient client)
+        protected override async Task ProcessClient(TcpClient client)
         {
-            new Thread(() => new WorldClient(client).HandleConnection()).Start();
+            var worldClient = new WorldClient(client);
+            await worldClient.HandleConnection();
         }
     }
 }

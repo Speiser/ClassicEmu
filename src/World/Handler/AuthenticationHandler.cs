@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Classic.Common;
 using Classic.World.Messages;
 
@@ -10,7 +11,7 @@ namespace Classic.World.Handler
     public class AuthenticationHandler
     {
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
-        public static void OnClientAuthenticationSession(WorldClient client, byte[] data)
+        public static async Task OnClientAuthenticationSession(WorldClient client, byte[] data)
         {
             var reader = new PacketReader(data);
 
@@ -49,7 +50,7 @@ namespace Classic.World.Handler
             }
 
             client.Crypt.SetKey(user.SessionKey);
-            client.SendPacket(new SMSG_AUTH_RESPONSE());
+            await client.SendPacket(new SMSG_AUTH_RESPONSE());
             client.User = user;
         }
     }

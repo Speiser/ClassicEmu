@@ -1,11 +1,12 @@
-﻿using Classic.Common;
+﻿using System.Threading.Tasks;
+using Classic.Common;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
     public class ServerRealmList
     {
-        public static void Send(ClientBase client)
+        public static async Task Send(ClientBase client)
         {
             var info = new PacketWriter()
                 .WriteUInt32(/* type       */ 1)
@@ -27,9 +28,9 @@ namespace Classic.Auth.Challenges
                 .WriteUInt32(/* unk        */ 0)
                 .WriteUInt8( /* num_realms */ 1);
 
-            client.Send(header.Build());
-            client.Send(infoPacket);
-            client.Send(footer.Build());
+            await client.Send(header.Build());
+            await client.Send(infoPacket);
+            await client.Send(footer.Build());
 
             header.Dispose();
             info.Dispose();

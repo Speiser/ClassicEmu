@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Classic.Common;
 using Classic.World.Messages;
 
@@ -7,7 +8,7 @@ namespace Classic.World.Handler
     public static class PlayerHandler
     {
         [OpcodeHandler(Opcode.CMSG_PLAYER_LOGIN)]
-        public static void OnPlayerLogin(WorldClient client, byte[] data)
+        public static async Task OnPlayerLogin(WorldClient client, byte[] data)
         {
             uint charId = 0;
 
@@ -20,33 +21,33 @@ namespace Classic.World.Handler
 
             client.Log($"Player logged in with char {character.Name}");
 
-            client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
-            client.SendPacket(new SMSG_ACCOUNT_DATA_TIMES());
+            await client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
+            await client.SendPacket(new SMSG_ACCOUNT_DATA_TIMES());
 
-            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
-            client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
+            await client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
+            await client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
 
-            client.SendPacket(new SMSG_SET_REST_START());
-            client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
-            client.SendPacket(new SMSG_TUTORIAL_FLAGS());
-            client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
+            await client.SendPacket(new SMSG_SET_REST_START());
+            await client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
+            await client.SendPacket(new SMSG_TUTORIAL_FLAGS());
+            await client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
 
-            client.SendPacket(new SMSG_INITIAL_SPELLS());
-            client.SendPacket(new SMSG_ACTION_BUTTONS());
-            client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
+            await client.SendPacket(new SMSG_INITIAL_SPELLS());
+            await client.SendPacket(new SMSG_ACTION_BUTTONS());
+            await client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
             // TODO: SMSG_TRIGGER_CINEMATIC (Human_ID = 81??)
 
-            client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
-            client.SendPacket(new SMSG_INIT_WORLD_STATES());
-            client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
+            await client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
+            await client.SendPacket(new SMSG_INIT_WORLD_STATES());
+            await client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
 
             client.Player = player;
         }
 
         [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
-        public static void OnPlayerLogoutRequested(WorldClient client, byte[] data)
+        public static async Task OnPlayerLogoutRequested(WorldClient client, byte[] data)
         {
-            client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+            await client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
 
             client.Player = null;
         }

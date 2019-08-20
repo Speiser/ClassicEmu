@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Classic.Common
 {
@@ -20,14 +21,14 @@ namespace Classic.Common
 
         public string ClientInfo { get; }
 
-        public void HandleConnection()
+        public async Task HandleConnection()
         {
             while (this.isConnected)
             {
                 // TODO try catch
                 // Biggest package seen so far was 1190 bytes in length
                 var buffer = new byte[2048];
-                var length = this.stream.Read(buffer, 0, buffer.Length);
+                var length = await this.stream.ReadAsync(buffer, 0, buffer.Length);
 
                 if (length == 0)
                 {
@@ -36,18 +37,19 @@ namespace Classic.Common
                     break;
                 }
 
-                this.HandlePacket(buffer.Take(length).ToArray());
+                // Do not await
+                _ = this.HandlePacket(buffer.Take(length).ToArray());
             }
 
             OnDisconnected();
         }
 
-        public void Send(byte[] data)
+        public async Task Send(byte[] data)
         {
             if (!this.isConnected)
                 throw new InvalidOperationException($"Client {this.ClientInfo} is not connected.");
 
-            this.stream.Write(data, 0, data.Length);
+            await this.stream.WriteAsync(data, 0, data.Length);
         }
 
         public void Log(string message)
@@ -63,6 +65,6 @@ namespace Classic.Common
             this.Log($"Packet received {packet.Length} bytes");
         }
 
-        protected abstract void HandlePacket(byte[] packet);
+        protected abstract Task HandlePacket(byte[] packet);
     }
 }

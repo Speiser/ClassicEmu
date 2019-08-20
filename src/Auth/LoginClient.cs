@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Classic.Auth.Challenges;
 using Classic.Common;
 using Classic.Cryptography;
@@ -17,21 +18,21 @@ namespace Classic.Auth
 
         public SecureRemotePasswordProtocol SRP { get; internal set; }
 
-        protected override void HandlePacket(byte[] packet)
+        protected override async Task HandlePacket(byte[] packet)
         {
             this.LogPacket(packet);
             switch (this.state)
             {
-                case (ClientState.Init):
+                case ClientState.Init:
                     this.state = ClientState.LogonChallenge;
                     this.Log("-> ClientLogonChallenge");
-                    new ClientLogonChallenge(packet, this).Execute();
+                    await new ClientLogonChallenge(packet, this).Execute();
                     this.Log("<- ServerLogonChallenge");
                     break;
-                case (ClientState.LogonChallenge):
+                case ClientState.LogonChallenge:
                     this.state = ClientState.LogonProof;
                     this.Log("-> ClientLogonProof");
-                    var success = new ClientLogonProof(packet, this).Execute();
+                    var success = await new ClientLogonProof(packet, this).Execute();
                     this.Log($"<- ServerLogonProof {(success ? "successful" : "failed")}");
                     if (success)
                     {
@@ -45,10 +46,10 @@ namespace Classic.Auth
                         this.Log("-- Client authentication failed");
                     }
                     break;
-                case (ClientState.Authenticated):
+                case ClientState.Authenticated:
                     DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP));
                     this.Log("<- Realmlist sent");
-                    ServerRealmList.Send(this);
+                    await ServerRealmList.Send(this);
                     break;
             }
         }
