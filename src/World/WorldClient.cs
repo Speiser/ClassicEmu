@@ -6,25 +6,38 @@ using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Entities;
+using Classic.World.Extensions;
 using Classic.World.Messages;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Classic.World
 {
     public class WorldClient : ClientBase
     {
-        public WorldClient(TcpClient client) : base(client)
+        private readonly WorldPacketHandler packetHandler;
+
+        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger) : base(logger)
         {
-            this.Log("-- connected");
-            this.Crypt = new AuthCrypt();
-            Task.Run(async () => await this.Send(new SMSG_AUTH_CHALLENGE().Get()));
+            this.packetHandler = packetHandler;
+        }
+
+        public override async Task Initialize(TcpClient client)
+        {
+            await base.Initialize(client);
+
+            Log("-- connected");
+            Crypt = new AuthCrypt(); // TODO DI??
+
+            await Send(new SMSG_AUTH_CHALLENGE().Get());
+            await HandleConnection();
         }
 
         public User User { get; internal set; }
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
-        public AuthCrypt Crypt { get; }
+        public AuthCrypt Crypt { get; private set; }
 
         protected override async Task HandlePacket(byte[] data)
         {
@@ -36,12 +49,12 @@ namespace Classic.World
 
                 var (length, opcode) = this.DecodePacket(header);
 
-                this.Log($"{opcode} - {length} bytes");
+                logger.LogOpcode(opcode, length);
 
                 var packet = new byte[length];
                 Array.Copy(data, i + 6, packet, 0, length - 4);
 
-                var handler = WorldPacketHandler.GetHandler(opcode);
+                var handler = packetHandler.GetHandler(opcode);
                 await handler(this, packet);
 
                 i += 2 + (length - 1);

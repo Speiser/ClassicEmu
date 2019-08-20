@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Classic.Common;
+using Microsoft.Extensions.Logging;
+using Classic.World.Extensions;
 
 namespace Classic.World
 {
@@ -10,10 +11,13 @@ namespace Classic.World
     {
         public delegate Task PacketHandler(WorldClient client, byte[] data);
 
-        private static readonly Dictionary<Opcode, PacketHandler> PacketHandlers = new Dictionary<Opcode, PacketHandler>();
+        private readonly Dictionary<Opcode, PacketHandler> handlers = new Dictionary<Opcode, PacketHandler>();
+        private readonly ILogger<WorldPacketHandler> logger;
 
-        public static void Initialize()
+        public WorldPacketHandler(ILogger<WorldPacketHandler> logger)
         {
+            this.logger = logger;
+
             var methods = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
@@ -24,17 +28,17 @@ namespace Classic.World
                 var attributes = method.GetCustomAttributes<OpcodeHandlerAttribute>();
                 foreach (var attribute in attributes)
                 {
-                    PacketHandlers.Add(attribute.Opcode, (client, data) => (Task)method.Invoke(null, new object[] { client, data }));
+                    handlers.Add(attribute.Opcode, (client, data) => (Task)method.Invoke(null, new object[] { client, data }));
                 }
             }
         }
 
-        public static PacketHandler GetHandler(Opcode opcode)
+        public PacketHandler GetHandler(Opcode opcode)
         {
-            return PacketHandlers.TryGetValue(opcode, out var handler)
+            return handlers.TryGetValue(opcode, out var handler)
                 ? handler
                 : (client, data) => {
-                    Logger.Log($"Unhandled opcode {opcode}.");
+                    logger.LogUnhandledOpcode(opcode);
                     return Task.CompletedTask;
                 };
         }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net;
@@ -8,26 +9,34 @@ namespace Classic.Common
 {
     public abstract class ClientBase
     {
+        protected readonly ILogger<ClientBase> logger;
         protected bool isConnected; // TODO: Replace with cancellationtoken
-        private readonly NetworkStream stream;
+        private NetworkStream stream;
 
-        public ClientBase(TcpClient client)
+        public ClientBase(ILogger<ClientBase> logger)
+        {
+            this.logger = logger;
+        }
+
+        public virtual Task Initialize(TcpClient client)
         {
             this.stream = client.GetStream();
             this.isConnected = true;
             var endPoint = (IPEndPoint)client.Client.RemoteEndPoint;
             this.ClientInfo = endPoint.Address + ":" + endPoint.Port;
+            return Task.CompletedTask;
         }
 
-        public string ClientInfo { get; }
+        public string ClientInfo { get; private set; }
 
-        public async Task HandleConnection()
+        protected async Task HandleConnection()
         {
             while (this.isConnected)
             {
-                // TODO try catch
                 // Biggest package seen so far was 1190 bytes in length
-                var buffer = new byte[2048];
+                // Incase many packets are sent by the client, the server currently
+                // dies with 2048 bytes, so 4096 are used for now...
+                var buffer = new byte[4096];
                 var length = await this.stream.ReadAsync(buffer, 0, buffer.Length);
 
                 if (length == 0)
@@ -38,7 +47,14 @@ namespace Classic.Common
                 }
 
                 // Do not await
-                _ = this.HandlePacket(buffer.Take(length).ToArray());
+                try
+                {
+                    await this.HandlePacket(buffer.Take(length).ToArray());
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.ToString());
+                }
             }
 
             OnDisconnected();
@@ -54,7 +70,7 @@ namespace Classic.Common
 
         public void Log(string message)
         {
-            Logger.Log($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
+            logger.LogDebug($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
         }
 
         // Todo change to abstract later

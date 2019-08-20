@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -8,10 +10,12 @@ namespace Classic.Common
     {
         private bool isActive; // TODO: replace with cancellationtoken
         private readonly TcpListener server;
-        
-        public ServerBase(IPEndPoint endPoint)
+        private readonly ILogger<ServerBase> logger;
+
+        public ServerBase(IPEndPoint endPoint, ILogger<ServerBase> logger)
         {
             this.server = new TcpListener(endPoint);
+            this.logger = logger;
         }
 
         public async Task Start()
@@ -21,7 +25,17 @@ namespace Classic.Common
             while (this.isActive)
             {
                 var client = await this.server.AcceptTcpClientAsync();
-                _ = this.ProcessClient(client);
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await this.ProcessClient(client);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e.ToString());
+                    }
+                });
             }
         }
 

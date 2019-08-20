@@ -1,6 +1,10 @@
 ﻿using Classic.Auth;
+using Classic.Auth.Extensions;
+using Classic.Common;
 using Classic.World;
-using Newtonsoft.Json;
+using Classic.World.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -10,11 +14,20 @@ namespace Classic
     {
         static async Task Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => Console.WriteLine($"UnhandledException: {JsonConvert.SerializeObject(e)}");
-            TaskScheduler.UnobservedTaskException += (s, e) => Console.WriteLine($"UnobservedTaskException: {JsonConvert.SerializeObject(e)}");
+            var services = RegisterServices();
 
-            _ = new AuthenticationServer().Start();
-            await new WorldServer().Start();
+            _ = services.GetService<AuthenticationServer>().Start();
+            await services.GetService<WorldServer>().Start();
+        }
+
+        private static IServiceProvider RegisterServices()
+        {
+            return new ServiceCollection()
+                .AddSingleton<ErrorHandler>()
+                .AddAuthenticationServer()
+                .AddWorldServer()
+                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace))
+                .BuildServiceProvider();
         }
     }
 }

@@ -4,16 +4,23 @@ using Classic.Auth.Challenges;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.Auth
 {
     public class LoginClient : ClientBase
     {
         private ClientState state;
-        public LoginClient(TcpClient client) : base(client)
+        public LoginClient(ILogger<LoginClient> logger) : base(logger)
         {
-            this.Log("-- connected");
-            this.state = ClientState.Init;
+        }
+
+        public override async Task Initialize(TcpClient client)
+        {
+            await base.Initialize(client);
+            Log("-- connected");
+            state = ClientState.Init;
+            await HandleConnection();
         }
 
         public SecureRemotePasswordProtocol SRP { get; internal set; }

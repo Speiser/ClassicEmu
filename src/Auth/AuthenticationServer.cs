@@ -1,18 +1,27 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Classic.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.Auth
 {
     public class AuthenticationServer : ServerBase
     {
-        public AuthenticationServer() : base(new IPEndPoint(IPAddress.Loopback, 3724)) { }
+        private readonly IServiceProvider services;
+
+        public AuthenticationServer(IServiceProvider services, ILogger<AuthenticationServer> logger)
+            : base(new IPEndPoint(IPAddress.Loopback, 3724), logger)
+        {
+            this.services = services;
+        }
 
         protected override async Task ProcessClient(TcpClient client)
         {
-            var loginClient = new LoginClient(client);
-            await loginClient.HandleConnection();
+            var loginClient = services.GetService<LoginClient>();
+            await loginClient.Initialize(client);
         }
     }
 }
