@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Classic.Common;
-using Classic.World.Messages;
+using Classic.World.Messages.Client;
+using Classic.World.Messages.Server;
 
 namespace Classic.World.Handler
 {
@@ -10,14 +10,8 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_PLAYER_LOGIN)]
         public static async Task OnPlayerLogin(WorldClient client, byte[] data)
         {
-            uint charId = 0;
-
-            using (var reader = new PacketReader(data))
-            {
-                charId = reader.ReadUInt32();
-            }
-
-            var character = client.User.Characters.Single(x => x.ID == charId);
+            var request = new CMSG_PLAYER_LOGIN(data);
+            var character = client.User.Characters.Single(x => x.ID == request.CharacterID);
 
             client.Log($"Player logged in with char {character.Name}");
 
@@ -45,10 +39,9 @@ namespace Classic.World.Handler
         }
 
         [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
-        public static async Task OnPlayerLogoutRequested(WorldClient client, byte[] data)
+        public static async Task OnPlayerLogoutRequested(WorldClient client, byte[] _)
         {
             await client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
-
             client.Player = null;
         }
     }

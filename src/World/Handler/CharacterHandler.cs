@@ -1,7 +1,5 @@
-﻿using Classic.Common;
-using Classic.Data;
-using Classic.Data.Enums.Character;
-using Classic.World.Messages;
+﻿using Classic.World.Messages.Client;
+using Classic.World.Messages.Server;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,41 +13,28 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CHAR_CREATE)]
         public static async Task OnCharacterCreate(WorldClient client, byte[] data)
         {
-            using (var reader = new PacketReader(data))
-            {
-                var character = new Character
-                {
-                    Name = reader.ReadString(),
-                    Race = reader.ReadByte().AsEnum<Race>(),
-                    Class = reader.ReadByte().AsEnum<Classes>(),
-                    Gender = reader.ReadByte().AsEnum<Gender>(),
-                    Skin = reader.ReadByte(),
-                    Face = reader.ReadByte(),
-                    HairStyle = reader.ReadByte(),
-                    HairColor = reader.ReadByte(),
-                    FacialHair = reader.ReadByte(),
-                    OutfitId = reader.ReadByte(),
-                    Level = 1,
-                };
+            var character = CMSG_CHAR_CREATE.RequestAsCharacter(data);
+            client.User.Characters.Add(character);
 
-                character.Position = Map.StartingAreas[character.Race];
-                client.User.Characters.Add(character);
-            }
-
-            await client.SendPacket(new SMSG_CHAR_CREATE());
+            await client.SendPacket(SMSG_CHAR_CREATE.Success());
         }
 
         [OpcodeHandler(Opcode.CMSG_CHAR_DELETE)]
         public static async Task OnCharacterDelete(WorldClient client, byte[] data)
         {
-            using (var reader = new PacketReader(data))
+            var request = new CMSG_CHAR_DELETE(data);
+
+            var toBeDeleted = client.User.Characters.Where(c => c.ID == request.CharacterID).SingleOrDefault();
+
+            if (toBeDeleted is null)
             {
-                var id = reader.ReadUInt64();
-                var toBeDeleted = client.User.Characters.Where(c => c.ID == id).Single();
-                await client.SendPacket(client.User.Characters.TryTake(out toBeDeleted)
-                    ? SMSG_CHAR_DELETE.Success()
-                    : SMSG_CHAR_DELETE.Fail());
+                await client.SendPacket(SMSG_CHAR_DELETE.Fail());
+                return;
             }
+
+            await client.SendPacket(client.User.Characters.TryTake(out toBeDeleted)
+                ? SMSG_CHAR_DELETE.Success()
+                : SMSG_CHAR_DELETE.Fail());
         }
     }
 }

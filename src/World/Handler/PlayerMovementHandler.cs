@@ -1,5 +1,4 @@
-﻿using Classic.Common;
-using Classic.World.Entities.Enums;
+﻿using Classic.World.Messages;
 using System.Threading.Tasks;
 
 namespace Classic.World.Handler
@@ -9,7 +8,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_FALL_LAND)]
         [OpcodeHandler(Opcode.MSG_MOVE_HEARTBEAT)]
         [OpcodeHandler(Opcode.MSG_MOVE_JUMP)]
-        //[OpcodeHandler(Opcode.MSG_MOVE_SET_FACING)]
+        [OpcodeHandler(Opcode.MSG_MOVE_SET_FACING)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_BACKWARD)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_FORWARD)]
         [OpcodeHandler(Opcode.MSG_MOVE_START_STRAFE_LEFT)]
@@ -21,21 +20,13 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
         public static Task OnPlayerMovePrototype(WorldClient client, byte[] data)
         {
-            // Always trust the client (for now..)
-            using (var reader = new PacketReader(data))
-            {
-                var moveFlags = (MovementFlags)reader.ReadUInt32(); // Unhandled
-                var time = reader.ReadUInt32(); // Unhandled
-                var mapX = reader.ReadFloat();
-                var mapY = reader.ReadFloat();
-                var mapZ = reader.ReadFloat();
-                var mapO = reader.ReadFloat();
+            var request = new MSG_MOVE_GENERIC(data);
 
-                client.Character.Position.X = mapX;
-                client.Character.Position.Y = mapY;
-                client.Character.Position.Z = mapZ;
-                client.Character.Position.Orientation = mapO;
-            }
+            // Always trust the client (for now..)
+            client.Character.Position.X = request.MapX;
+            client.Character.Position.Y = request.MapY;
+            client.Character.Position.Z = request.MapZ;
+            client.Character.Position.Orientation = request.MapO;
 
             return Task.CompletedTask;
         }

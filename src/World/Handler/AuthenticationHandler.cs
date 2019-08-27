@@ -4,7 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Classic.Common;
-using Classic.World.Messages;
+using Classic.World.Messages.Client;
+using Classic.World.Messages.Server;
 
 namespace Classic.World.Handler
 {
@@ -13,40 +14,32 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
         public static async Task OnClientAuthenticationSession(WorldClient client, byte[] data)
         {
-            var reader = new PacketReader(data);
+            var request = new CMSG_AUTH_SESSION(data);
 
-            var build = reader.ReadUInt32();
-            var session = reader.ReadUInt32();
-            var account_name = reader.ReadString();
-            var seed = reader.ReadUInt32();
-            var digest = reader.ReadBytes(20);
-            var addon_size = reader.ReadUInt32();
-
-            reader.Dispose();
-
-            if (!DataStore.Users.TryGetValue(account_name, out var user))
+            if (!DataStore.Users.TryGetValue(request.AccountName, out var user))
             {
                 // return [SMSG_AUTH_RESPONSE, 21]
-                throw new ArgumentException($"No user with name {account_name} found in db.");
+                throw new ArgumentException($"No user with name {request.AccountName} found in db.");
             }
 
             ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
             ////: if player is already connected return [SMSG_AUTH_RESPONSE, 13]
 
-            var sha = new SHA1CryptoServiceProvider();
-
-            var calculatedDigest = sha.ComputeHash(
-                Encoding.ASCII.GetBytes(account_name)
-                    .Concat(new byte[] { 0, 0, 0, 0 })
-                    .Concat(BitConverter.GetBytes(seed))
-                    .Concat(SMSG_AUTH_CHALLENGE.AuthSeed)
-                    .Concat(user.SessionKey)
-                    .ToArray());
-
-            if (!calculatedDigest.SequenceEqual(digest))
+            using (var sha = new SHA1CryptoServiceProvider())
             {
-                //return [SMSG_AUTH_RESPONSE, 21]
-                throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
+                var calculatedDigest = sha.ComputeHash(
+                    Encoding.ASCII.GetBytes(request.AccountName)
+                        .Concat(new byte[] { 0, 0, 0, 0 })
+                        .Concat(BitConverter.GetBytes(request.Seed))
+                        .Concat(SMSG_AUTH_CHALLENGE.AuthSeed)
+                        .Concat(user.SessionKey)
+                        .ToArray());
+
+                if (!calculatedDigest.SequenceEqual(request.Digest))
+                {
+                    //return [SMSG_AUTH_RESPONSE, 21]
+                    throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
+                }
             }
 
             client.Crypt.SetKey(user.SessionKey);
