@@ -7,7 +7,7 @@ using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Entities;
 using Classic.World.Extensions;
-using Classic.World.Messages;
+using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -72,7 +72,7 @@ namespace Classic.World
         {
             // TODO
             var json = JsonConvert.SerializeObject(User.Characters.ToArray());
-            File.WriteAllText("chars.json", json);
+            File.WriteAllText(User.CharsFile, json);
         }
 
         private (ushort length, Opcode opcode) DecodePacket(byte[] packet)

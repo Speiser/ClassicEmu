@@ -7,16 +7,25 @@ namespace Classic.Data
 {
     public class User
     {
+        public const string CharsFile = "chars.json";
         private readonly SecureRemotePasswordProtocol srp;
+
         public User(SecureRemotePasswordProtocol srp)
         {
             this.srp = srp;
 
             // TODO
-            var raw = File.ReadAllText("chars.json");
-            var chars = JsonConvert.DeserializeObject<Character[]>(raw);
+            if (File.Exists(CharsFile))
+            {
+                var raw = File.ReadAllText(CharsFile);
+                var chars = JsonConvert.DeserializeObject<Character[]>(raw);
 
-            this.Characters = new ConcurrentBag<Character>(chars);
+                this.Characters = new ConcurrentBag<Character>(chars);
+            }
+            else
+            {
+                this.Characters = new ConcurrentBag<Character>();
+            }
         }
 
         public string Identifier => this.srp.I;
