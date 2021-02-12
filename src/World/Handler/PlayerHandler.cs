@@ -29,7 +29,9 @@ namespace Classic.World.Handler
             await client.SendPacket(new SMSG_INITIAL_SPELLS());
             await client.SendPacket(new SMSG_ACTION_BUTTONS());
             await client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
-            // TODO: SMSG_TRIGGER_CINEMATIC (Human_ID = 81??)
+
+            // TODO: not working
+            // await client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 
             await client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             await client.SendPacket(new SMSG_INIT_WORLD_STATES());

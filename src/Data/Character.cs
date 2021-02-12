@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Classic.Data.Enums.Character;
 
 namespace Classic.Data
@@ -32,6 +33,7 @@ namespace Classic.Data
         public CharacterStats MaxStats { get; } = new CharacterStats(); // TODO: From ctor?
         public CharacterFlag Flag { get; set; } = CharacterFlag.None;
         public DateTime Created { get; set; }
+        public List<Skill> Skills { get; set; } = new List<Skill> { Skill.Staves() };
 
         public int WatchFaction { get; set; } = 255; // ?? as enum
         public RestedState RestedState { get; set; } = RestedState.Rested;

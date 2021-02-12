@@ -120,13 +120,13 @@ namespace Classic.World.Entities
 
         private void SkillGenerate()
         {
-            // var a = 0;
-            // foreach (var skill in Character.SubSkills)
-            // {
-            //     SetUpdateField((int) PlayerFields.PLAYER_SKILL_INFO_1_1 + a * 3, skill.Skill);
-            //     SetUpdateField((int) PlayerFields.PLAYER_SKILL_INFO_1_1 + a * 3 + 1, skill.Value + (skill.Max << 16));
-            //     a++;
-            // }
+            var a = 0;
+            foreach (var skill in Character.Skills)
+            {
+                SetUpdateField((int)PlayerFields.PLAYER_SKILL_INFO_1_1 + a * 3, skill.Id);
+                SetUpdateField((int)PlayerFields.PLAYER_SKILL_INFO_1_1 + a * 3 + 1, skill.Current + (skill.Max << 16));
+                a++;
+            }
         }
     }
 }
