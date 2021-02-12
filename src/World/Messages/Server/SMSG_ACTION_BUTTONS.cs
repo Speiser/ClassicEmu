@@ -1,18 +1,26 @@
 ﻿using Classic.Common;
+using Classic.Data;
 
 namespace Classic.World.Messages.Server
 {
     public class SMSG_ACTION_BUTTONS : ServerMessageBase<Opcode>
     {
-        public SMSG_ACTION_BUTTONS() : base(Opcode.SMSG_ACTION_BUTTONS)
+        private readonly ActionBarItem[] actionBar;
+
+        public SMSG_ACTION_BUTTONS(ActionBarItem[] actionBar) : base(Opcode.SMSG_ACTION_BUTTONS)
         {
+            this.actionBar = actionBar;
         }
 
         public override byte[] Get()
         {
-            for (var i = 0; i < 120; i++)
+            for (var i = 0; i < actionBar.Length; i++)
             {
-                this.Writer.WriteUInt32(0);
+                var item = actionBar[i];
+                if (item != null)
+                    this.Writer.WriteUInt32((uint)item.SpellId | ((uint)item.Type << 24));
+                else
+                    this.Writer.WriteUInt32(0);
             }
 
             return this.Writer.Build();

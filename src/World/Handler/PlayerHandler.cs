@@ -27,7 +27,7 @@ namespace Classic.World.Handler
             await client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
 
             await client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
-            await client.SendPacket(new SMSG_ACTION_BUTTONS());
+            await client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
             await client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
 
             // TODO: not working

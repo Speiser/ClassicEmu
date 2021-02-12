@@ -11,6 +11,7 @@ namespace Classic.Data
         {
             ID = Cryptography.Random.GetUInt64();
             Created = DateTime.UtcNow;
+            ActionBar[0] = ActionBarItem.Fireball();
         }
 
         public ulong ID { get; set; }
@@ -35,6 +36,7 @@ namespace Classic.Data
         public DateTime Created { get; set; }
         public List<Skill> Skills { get; set; } = new List<Skill> { Skill.Staves() };
         public List<Spell> Spells { get; set; } = new List<Spell> { Spell.Fireball() };
+        public ActionBarItem[] ActionBar { get; set; } = new ActionBarItem[120];
 
         public int WatchFaction { get; set; } = 255; // ?? as enum
         public RestedState RestedState { get; set; } = RestedState.Rested;
