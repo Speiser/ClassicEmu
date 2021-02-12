@@ -1,5 +1,5 @@
-﻿using Classic.Common;
-using System.Text;
+﻿using System.Text;
+using Classic.Common;
 
 namespace Classic.World.Messages.Server
 {

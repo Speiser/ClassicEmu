@@ -1,7 +1,7 @@
-﻿using Classic.World.Messages.Client;
-using Classic.World.Messages.Server;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Classic.World.Messages.Client;
+using Classic.World.Messages.Server;
 
 namespace Classic.World.Handler
 {

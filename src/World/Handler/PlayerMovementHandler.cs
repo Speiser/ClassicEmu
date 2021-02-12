@@ -1,5 +1,5 @@
-﻿using Classic.World.Messages;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Classic.World.Messages;
 
 namespace Classic.World.Handler
 {

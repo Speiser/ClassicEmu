@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
-using Classic.Common;
+using Classic.Cryptography.Extensions;
 
 namespace Classic.Cryptography
 {

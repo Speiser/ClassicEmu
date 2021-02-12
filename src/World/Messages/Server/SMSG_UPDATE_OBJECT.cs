@@ -1,10 +1,10 @@
-﻿using Classic.Common;
+﻿using System;
+using Classic.Common;
 using Classic.Data;
 using Classic.World.Entities;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
 using Classic.World.Extensions;
-using System;
 
 namespace Classic.World.Messages.Server
 {

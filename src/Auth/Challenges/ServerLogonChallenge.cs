@@ -1,5 +1,6 @@
 using Classic.Common;
 using Classic.Cryptography;
+using Classic.Cryptography.Extensions;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges

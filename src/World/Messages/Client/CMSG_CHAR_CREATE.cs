@@ -1,6 +1,7 @@
 ﻿using Classic.Common;
 using Classic.Data;
 using Classic.Data.Enums.Character;
+using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Client
 {

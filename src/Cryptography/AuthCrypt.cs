@@ -1,5 +1,5 @@
-﻿using Classic.Common;
-using System.Linq;
+﻿using System.Linq;
+using Classic.Common;
 
 namespace Classic.Cryptography
 {

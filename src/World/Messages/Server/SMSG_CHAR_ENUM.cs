@@ -1,8 +1,9 @@
-﻿using Classic.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Classic.Common;
 using Classic.Data;
 using Classic.Data.Enums.Character;
-using System.Collections.Generic;
-using System.Linq;
+using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Server
 {

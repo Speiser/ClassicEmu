@@ -1,5 +1,4 @@
-﻿using System;
-using Classic.Common;
+﻿using Classic.Common;
 using Classic.Data;
 
 namespace Classic.World.Messages.Server

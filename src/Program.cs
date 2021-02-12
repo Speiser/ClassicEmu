@@ -1,12 +1,12 @@
-﻿using Classic.Auth;
+﻿using System;
+using System.Threading.Tasks;
+using Classic.Auth;
 using Classic.Auth.Extensions;
 using Classic.Common;
 using Classic.World;
 using Classic.World.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace Classic
 {
@@ -26,7 +26,7 @@ namespace Classic
                 .AddSingleton<ErrorHandler>()
                 .AddAuthenticationServer()
                 .AddWorldServer()
-                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace))
+                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Debug))
                 .BuildServiceProvider();
         }
     }
