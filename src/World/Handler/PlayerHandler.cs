@@ -36,6 +36,7 @@ namespace Classic.World.Handler
             await client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             await client.SendPacket(new SMSG_INIT_WORLD_STATES());
             await client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
+            await client.SendPacket(SMSG_UPDATE_OBJECT.CreateUnit(Cryptography.Random.GetUInt64()));
 
             client.Player = player;
         }
