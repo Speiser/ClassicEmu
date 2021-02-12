@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Classic.Cryptography;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Classic.World.Extensions
 {
@@ -8,6 +9,7 @@ namespace Classic.World.Extensions
         {
             return services
                 .AddSingleton<WorldServer>()
+                .AddTransient<AuthCrypt>()
                 .AddTransient<WorldClient>()
                 .AddSingleton<WorldPacketHandler>();
         }

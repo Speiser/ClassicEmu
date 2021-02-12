@@ -17,9 +17,10 @@ namespace Classic.World
     {
         private readonly WorldPacketHandler packetHandler;
 
-        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger) : base(logger)
+        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt) : base(logger)
         {
             this.packetHandler = packetHandler;
+            this.Crypt = crypt;
         }
 
         public override async Task Initialize(TcpClient client)
@@ -27,7 +28,6 @@ namespace Classic.World
             await base.Initialize(client);
 
             Log("-- connected");
-            Crypt = new AuthCrypt(); // TODO DI??
 
             await Send(new SMSG_AUTH_CHALLENGE().Get());
             await HandleConnection();
@@ -37,7 +37,7 @@ namespace Classic.World
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
-        public AuthCrypt Crypt { get; private set; }
+        public AuthCrypt Crypt { get; }
 
         protected override async Task HandlePacket(byte[] data)
         {

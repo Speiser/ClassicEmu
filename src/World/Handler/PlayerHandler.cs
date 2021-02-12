@@ -26,7 +26,7 @@ namespace Classic.World.Handler
             await client.SendPacket(new SMSG_TUTORIAL_FLAGS());
             await client.SendPacket(new SMSG_LOGIN_SETTIMESPEED());
 
-            await client.SendPacket(new SMSG_INITIAL_SPELLS());
+            await client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
             await client.SendPacket(new SMSG_ACTION_BUTTONS());
             await client.SendPacket(new SMSG_INITIALIZE_FACTIONS());
 

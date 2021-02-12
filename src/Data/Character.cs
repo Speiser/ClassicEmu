@@ -34,6 +34,7 @@ namespace Classic.Data
         public CharacterFlag Flag { get; set; } = CharacterFlag.None;
         public DateTime Created { get; set; }
         public List<Skill> Skills { get; set; } = new List<Skill> { Skill.Staves() };
+        public List<Spell> Spells { get; set; } = new List<Spell> { Spell.Fireball() };
 
         public int WatchFaction { get; set; } = 255; // ?? as enum
         public RestedState RestedState { get; set; } = RestedState.Rested;
