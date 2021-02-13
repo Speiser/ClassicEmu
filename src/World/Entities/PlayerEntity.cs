@@ -14,13 +14,6 @@ namespace Classic.World.Entities
             : base(new ObjectGuid((uint) character.ID, TypeId.TypeidPlayer, HighGuid.HighguidPlayer))
         {
             Character = character;
-            // KnownPlayers = new List<PlayerEntity>();
-            // KnownCreatures = new List<SpawnCreatures>();
-
-            // TutorialFlags = new TutorialFlags(character.TutorialFlags);
-
-            // var chrRaces = MainProgram.ChrRacesReader.GetData(character.Race);
-
             Model = character.Race.GetModel(character.Gender);
             Scale = character.Race.GetScale(character.Gender);
 
@@ -113,11 +106,7 @@ namespace Classic.World.Entities
 
         public Character Character { get; }
         public override string Name => Character.Name;
-        public WorldClient Session { get; set; }
         public ulong TargetId { get; set; }
-        // public List<PlayerEntity> KnownPlayers { get; set; }
-        // public List<SpawnCreatures> KnownCreatures { get; set; }
-        // public TutorialFlags TutorialFlags { get; set; }
 
         private void SkillGenerate()
         {

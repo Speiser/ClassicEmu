@@ -34,27 +34,17 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_INIT_WORLD_STATES());
             await args.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
 
-            foreach (var unit in args.WorldState.CurrentCreatures)
+            // Initially spawn all creatures
+            foreach (var unit in args.WorldState.Creatures)
             {
                 // TODO: Add range check
                 await args.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateUnit(unit));
             }
 
-            var updateForOtherActivePlayers = SMSG_UPDATE_OBJECT.CreatePlayer(character);
-
-            foreach (var other in args.WorldState.Connections)
-            {
-                // TODO: Add range check
-                if (other.Character is null) continue;
-                if (other.Character.ID == character.ID) continue; // Should not happen?
-                await args.Client.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other.Character));
-                await other.SendPacket(updateForOtherActivePlayers);
-            }
-
             args.Client.Player = player;
-
+            await args.WorldState.SpawnPlayer(character);
+            
             await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
-            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
         }
 
         [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]

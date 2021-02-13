@@ -7,6 +7,7 @@
         Chest = 4,
         Leg = 6,
         Boots = 7,
-        Gloves = 9
+        Gloves = 9,
+        MainHand = 15,
     }
 }
