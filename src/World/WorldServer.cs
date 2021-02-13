@@ -11,6 +11,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Classic.World
 {
+    public class WorldState
+    {
+        public List<WorldClient> Connections { get; } = new List<WorldClient>();
+        public List<Creature> CurrentCreatures { get; } = new List<Creature>();
+    }
+
     public class WorldServer : ServerBase
     {
         private readonly IServiceProvider services;
@@ -18,15 +24,15 @@ namespace Classic.World
         public WorldServer(IServiceProvider services, ILogger<WorldServer> logger) : base(new IPEndPoint(IPAddress.Loopback, 13250), logger)
         {
             this.services = services;
-            this.CurrentCreatures.Add(new Creature { ID = Cryptography.Random.GetUInt64(), Model = 169, Position = Map.StartingAreas[Race.NightElf] });
+            this.State.CurrentCreatures.Add(new Creature { ID = Cryptography.Random.GetUInt64(), Model = 169, Position = Map.StartingAreas[Race.NightElf] });
         }
 
-        public List<Character> CurrentPlayers { get; } = new List<Character>();
-        public List<Creature> CurrentCreatures { get; } = new List<Creature>();
+        public WorldState State { get; } = new WorldState();
 
         protected override async Task ProcessClient(TcpClient client)
         {
             var worldClient = services.GetService<WorldClient>();
+            this.State.Connections.Add(worldClient);
             await worldClient.Initialize(client);
         }
     }

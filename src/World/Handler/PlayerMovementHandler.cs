@@ -18,15 +18,17 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-        public static Task OnPlayerMovePrototype(WorldClient client, byte[] data)
+        public static Task OnPlayerMovePrototype(HandlerArguments args)
         {
-            var request = new MSG_MOVE_GENERIC(data);
+            var request = new MSG_MOVE_GENERIC(args.Data);
 
             // Always trust the client (for now..)
-            client.Character.Position.X = request.MapX;
-            client.Character.Position.Y = request.MapY;
-            client.Character.Position.Z = request.MapZ;
-            client.Character.Position.Orientation = request.MapO;
+            args.Client.Character.Position.X = request.MapX;
+            args.Client.Character.Position.Y = request.MapY;
+            args.Client.Character.Position.Z = request.MapZ;
+            args.Client.Character.Position.Orientation = request.MapO;
+
+            // TODO: Update other clients
 
             return Task.CompletedTask;
         }

@@ -15,12 +15,13 @@ namespace Classic.World
     public class WorldClient : ClientBase
     {
         private readonly WorldPacketHandler packetHandler;
+        private readonly WorldState worldState;
 
         public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt, WorldServer world) : base(logger)
         {
             this.packetHandler = packetHandler;
             this.Crypt = crypt;
-            this.World = world;
+            this.worldState = world.State;
         }
 
         public override async Task Initialize(TcpClient client)
@@ -39,9 +40,6 @@ namespace Classic.World
 
         public AuthCrypt Crypt { get; }
 
-        // TODO: Handle differently, I dont like the idea of that :D
-        public WorldServer World { get; }
-
         protected override async Task HandlePacket(byte[] data)
         {
             for (var i = 0; i < data.Length; i++)
@@ -58,7 +56,13 @@ namespace Classic.World
                 Array.Copy(data, i + 6, packet, 0, length - 4);
 
                 var handler = packetHandler.GetHandler(opcode);
-                await handler(this, packet);
+                await handler(new HandlerArguments
+                {
+                    Client = this,
+                    Data = packet,
+                    Opcode = opcode,
+                    WorldState = this.worldState
+                });
 
                 i += 2 + (length - 1);
             }
@@ -74,6 +78,8 @@ namespace Classic.World
 
         protected override void OnDisconnected()
         {
+            this.worldState.Connections.Remove(this);
+
             // TODO
             var json = JsonConvert.SerializeObject(User.Characters.ToArray());
             File.WriteAllText(User.CharsFile, json);

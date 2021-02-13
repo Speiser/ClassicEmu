@@ -7,11 +7,11 @@ namespace Classic.World.Handler
     class ZoneHandler
     {
         [OpcodeHandler(Opcode.CMSG_ZONEUPDATE)]
-        public static Task OnZoneUpdate(WorldClient client, byte[] data)
+        public static Task OnZoneUpdate(HandlerArguments args)
         {
-            var request = new CMSG_ZONEUPDATE(data);
+            var request = new CMSG_ZONEUPDATE(args.Data);
 
-            client.Log($"{client.Player.Name} entered {(ZoneID)request.NewZone}");
+            args.Client.Log($"{args.Client.Player.Name} entered {(ZoneID)request.NewZone}");
 
             return Task.CompletedTask;
         }

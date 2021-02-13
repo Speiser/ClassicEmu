@@ -9,7 +9,7 @@ namespace Classic.World
 {
     public class WorldPacketHandler
     {
-        public delegate Task PacketHandler(WorldClient client, byte[] data);
+        public delegate Task PacketHandler(HandlerArguments args);
 
         private readonly Dictionary<Opcode, PacketHandler> handlers = new Dictionary<Opcode, PacketHandler>();
         private readonly ILogger<WorldPacketHandler> logger;
@@ -28,7 +28,7 @@ namespace Classic.World
                 var attributes = method.GetCustomAttributes<OpcodeHandlerAttribute>();
                 foreach (var attribute in attributes)
                 {
-                    handlers.Add(attribute.Opcode, (client, data) => (Task)method.Invoke(null, new object[] { client, data }));
+                    handlers.Add(attribute.Opcode, args => (Task)method.Invoke(null, new object[] { args }));
                 }
             }
         }
@@ -37,7 +37,7 @@ namespace Classic.World
         {
             return handlers.TryGetValue(opcode, out var handler)
                 ? handler
-                : (client, data) => {
+                : args => {
                     logger.LogUnhandledOpcode(opcode);
                     return Task.CompletedTask;
                 };

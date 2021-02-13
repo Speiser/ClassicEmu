@@ -41,7 +41,7 @@ namespace Classic.Common
 
                 if (length == 0)
                 {
-                    this.Log($"-- disconnected");
+                    this.Log($"disconnected");
                     this.isConnected = false;
                     break;
                 }
@@ -68,9 +68,9 @@ namespace Classic.Common
             await this.stream.WriteAsync(data.AsMemory(0, data.Length));
         }
 
-        public void Log(string message)
+        public void Log(string message, LogLevel level = LogLevel.Debug)
         {
-            logger.LogDebug($"[{this.ClientInfo}] [{this.GetType().Name}] " + message);
+            this.logger.Log(level, $"{this.ClientInfo} - {message}");
         }
 
         // Todo change to abstract later

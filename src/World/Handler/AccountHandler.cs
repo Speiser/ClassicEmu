@@ -6,9 +6,9 @@ namespace Classic.World.Handler
     public class AccountHandler
     {
         [OpcodeHandler(Opcode.CMSG_UPDATE_ACCOUNT_DATA)]
-        public static Task UpdateAccountData(WorldClient client, byte[] data)
+        public static Task UpdateAccountData(HandlerArguments args)
         {
-            var request = new CMSG_UPDATE_ACCOUNT_DATA(data);
+            var request = new CMSG_UPDATE_ACCOUNT_DATA(args.Data);
             return Task.CompletedTask;
         }
     }

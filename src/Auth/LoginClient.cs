@@ -33,33 +33,35 @@ namespace Classic.Auth
             {
                 case ClientState.Init:
                     this.state = ClientState.LogonChallenge;
-                    this.Log("-> ClientLogonChallenge");
+                    this.LogAuthState("Recv ClientLogonChallenge");
                     await new ClientLogonChallenge(packet, this).Execute();
-                    this.Log("<- ServerLogonChallenge");
+                    this.LogAuthState("Sent ServerLogonChallenge");
                     break;
                 case ClientState.LogonChallenge:
                     this.state = ClientState.LogonProof;
-                    this.Log("-> ClientLogonProof");
+                    this.LogAuthState("Recv ClientLogonProof");
                     var success = await new ClientLogonProof(packet, this).Execute();
-                    this.Log($"<- ServerLogonProof {(success ? "successful" : "failed")}");
+                    this.LogAuthState($"Sent ServerLogonProof {(success ? "successful" : "failed")}");
                     if (success)
                     {
                         this.state = ClientState.Authenticated;
-                        this.Log("-- Client authenticated");
+                        this.LogAuthState("Client authenticated");
                     }
                     else
                     {
                         this.state = ClientState.Disconnected;
                         this.isConnected = false;
-                        this.Log("-- Client authentication failed");
+                        this.LogAuthState("Client authentication failed");
                     }
                     break;
                 case ClientState.Authenticated:
                     DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP));
-                    this.Log("<- Realmlist sent");
+                    this.LogAuthState("Sent Realmlist");
                     await ServerRealmList.Send(this);
                     break;
             }
         }
+
+        private void LogAuthState(string message) => this.logger.LogTrace($"{this.ClientInfo} - {message}");
     }
 }

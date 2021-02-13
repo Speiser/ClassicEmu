@@ -12,9 +12,9 @@ namespace Classic.World.Handler
     public class AuthenticationHandler
     {
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
-        public static async Task OnClientAuthenticationSession(WorldClient client, byte[] data)
+        public static async Task OnClientAuthenticationSession(HandlerArguments args)
         {
-            var request = new CMSG_AUTH_SESSION(data);
+            var request = new CMSG_AUTH_SESSION(args.Data);
 
             if (!DataStore.Users.TryGetValue(request.AccountName, out var user))
             {
@@ -42,9 +42,9 @@ namespace Classic.World.Handler
                 }
             }
 
-            client.Crypt.SetKey(user.SessionKey);
-            await client.SendPacket(new SMSG_AUTH_RESPONSE());
-            client.User = user;
+            args.Client.Crypt.SetKey(user.SessionKey);
+            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE());
+            args.Client.User = user;
         }
     }
 }
