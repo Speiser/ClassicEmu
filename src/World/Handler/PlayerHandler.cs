@@ -18,9 +18,6 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
             await args.Client.SendPacket(new SMSG_ACCOUNT_DATA_TIMES());
 
-            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
-            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
-
             await args.Client.SendPacket(new SMSG_SET_REST_START());
             await args.Client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
             await args.Client.SendPacket(new SMSG_TUTORIAL_FLAGS());
@@ -55,6 +52,9 @@ namespace Classic.World.Handler
             }
 
             args.Client.Player = player;
+
+            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "Hello World"));
+            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "World Hello"));
         }
 
         [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
@@ -62,6 +62,8 @@ namespace Classic.World.Handler
         {
             await args.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
             args.Client.Player = null;
+
+            // TODO: Remove from other clients
         }
     }
 }

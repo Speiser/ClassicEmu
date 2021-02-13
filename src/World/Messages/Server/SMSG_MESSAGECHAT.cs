@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Classic.Common;
+using Classic.Data.Enums.Chat;
 
 namespace Classic.World.Messages.Server
 {
@@ -16,12 +17,12 @@ namespace Classic.World.Messages.Server
 
         public override byte[] Get()
             => this.Writer
-                .WriteUInt8(0x0A) // ChatMessageType.System
-                .WriteUInt8(0)    // ChatMessageLanguage.Universal
+                .WriteUInt8((byte)MessageType.System)
+                .WriteUInt32((uint)MessageLanguage.Universal)
                 .WriteUInt64(this.characterId)
                 .WriteUInt32((uint)this.message.Length + 1)
-                .WriteBytes(Encoding.UTF8.GetBytes(message + '\0'))
-                .WriteUInt8(0)
+                .WriteBytes(Encoding.UTF8.GetBytes(message + '\n'))
+                .WriteUInt8(0) // chatTag ??
                 .Build();
     }
 }
