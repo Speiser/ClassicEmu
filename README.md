@@ -3,5 +3,7 @@
 - [x] Login
 - [x] Spawn player
 - [x] Spawn creature
-- [ ] Cast a spell (and damage/kill creature)
-- [ ] Sync between clients
+- [x] Movement sync between clients
+- [ ] Cast a spell
+- [ ] Damage units
+- [ ] Working items

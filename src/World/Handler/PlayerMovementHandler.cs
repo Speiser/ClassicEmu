@@ -18,7 +18,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-        public static Task OnPlayerMovePrototype(HandlerArguments args)
+        public static async Task OnPlayerMovePrototype(HandlerArguments args)
         {
             var request = new MSG_MOVE_GENERIC(args.Data);
 
@@ -28,9 +28,12 @@ namespace Classic.World.Handler
             args.Client.Character.Position.Z = request.MapZ;
             args.Client.Character.Position.Orientation = request.MapO;
 
-            // TODO: Update other clients
-
-            return Task.CompletedTask;
+            foreach (var client in args.WorldState.Connections)
+            {
+                if (client.Character is null) continue;
+                if (client.Character.ID == args.Client.Character.ID) continue; // Should not happen?
+                await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode));
+            }
         }
     }
 }

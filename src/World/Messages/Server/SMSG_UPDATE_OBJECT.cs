@@ -1,7 +1,6 @@
 ﻿using System;
 using Classic.Common;
 using Classic.Data;
-using Classic.Data.Enums.Character;
 using Classic.World.Entities;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
@@ -134,6 +133,22 @@ namespace Classic.World.Messages.Server
                 .WriteInt32(0); // ??
 
             entity.WriteUpdateFields(update.Writer);
+            return update;
+        }
+
+        // UNUSED FOR NOW
+        public static SMSG_UPDATE_OBJECT UpdateValues(PlayerEntity player)
+        {
+            var update = new SMSG_UPDATE_OBJECT();
+
+            update.Writer
+                .WriteUInt32(1) // blocks.Count
+                .WriteUInt8(0) // hasTransport
+
+                .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
+                .WriteBytes(player.Character.ID.ToPackedUInt64());
+
+            player.WriteUpdateFields(update.Writer);
             return update;
         }
 
