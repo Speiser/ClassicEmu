@@ -114,6 +114,7 @@ namespace Classic.World.Entities
         public Character Character { get; }
         public override string Name => Character.Name;
         public WorldClient Session { get; set; }
+        public ulong TargetId { get; set; }
         // public List<PlayerEntity> KnownPlayers { get; set; }
         // public List<SpawnCreatures> KnownCreatures { get; set; }
         // public TutorialFlags TutorialFlags { get; set; }
