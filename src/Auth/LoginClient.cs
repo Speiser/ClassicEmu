@@ -18,8 +18,10 @@ namespace Classic.Auth
         public override async Task Initialize(TcpClient client)
         {
             await base.Initialize(client);
-            Log("-- connected");
+
+            this.logger.LogDebug($"{this.ClientInfo} - connected");
             state = ClientState.Init;
+
             await HandleConnection();
         }
 
@@ -27,7 +29,6 @@ namespace Classic.Auth
 
         protected override async Task HandlePacket(byte[] packet)
         {
-            this.LogPacket(packet);
             switch (this.state)
             {
                 case ClientState.Init:

@@ -6,7 +6,6 @@ using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Entities;
-using Classic.World.Extensions;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -17,17 +16,18 @@ namespace Classic.World
     {
         private readonly WorldPacketHandler packetHandler;
 
-        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt) : base(logger)
+        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt, WorldServer world) : base(logger)
         {
             this.packetHandler = packetHandler;
             this.Crypt = crypt;
+            this.World = world;
         }
 
         public override async Task Initialize(TcpClient client)
         {
             await base.Initialize(client);
 
-            Log("-- connected");
+            this.logger.LogDebug($"{this.ClientInfo} - connected");
 
             await Send(new SMSG_AUTH_CHALLENGE().Get());
             await HandleConnection();
@@ -39,6 +39,9 @@ namespace Classic.World
 
         public AuthCrypt Crypt { get; }
 
+        // TODO: Handle differently, I dont like the idea of that :D
+        public WorldServer World { get; }
+
         protected override async Task HandlePacket(byte[] data)
         {
             for (var i = 0; i < data.Length; i++)
@@ -49,7 +52,7 @@ namespace Classic.World
 
                 var (length, opcode) = this.DecodePacket(header);
 
-                logger.LogOpcode(opcode, length);
+                this.logger.LogTrace($"{this.ClientInfo} - Recv {opcode} ({length} bytes)");
 
                 var packet = new byte[length];
                 Array.Copy(data, i + 6, packet, 0, length - 4);
@@ -65,6 +68,7 @@ namespace Classic.World
         {
             var data = this.Crypt.Encode(message);
             await this.Send(data);
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.GetType().Name}");
             message.Dispose();
         }
 

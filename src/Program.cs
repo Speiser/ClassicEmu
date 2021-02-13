@@ -26,7 +26,7 @@ namespace Classic
                 .AddSingleton<ErrorHandler>()
                 .AddAuthenticationServer()
                 .AddWorldServer()
-                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Debug))
+                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace))
                 .BuildServiceProvider();
         }
     }

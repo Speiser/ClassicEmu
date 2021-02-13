@@ -13,6 +13,6 @@ namespace Classic.Common
             => Users
                 .SelectMany(x => x.Value.Characters)
                 .Where(c => c.ID == charID)
-                .SingleOrDefault();
+                .FirstOrDefault();
     }
 }

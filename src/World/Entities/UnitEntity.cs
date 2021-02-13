@@ -1,3 +1,4 @@
+using Classic.Data;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
 
@@ -9,16 +10,14 @@ namespace Classic.World.Entities
         {
         }
 
-        public UnitEntity(ulong creatureId)
-            : base(new ObjectGuid((uint)creatureId, TypeId.TypeidUnit, HighGuid.HighguidUnit))
+        public UnitEntity(Creature unit)
+            : base(new ObjectGuid((uint)unit.ID, TypeId.TypeidUnit, HighGuid.HighguidUnit))
         {
-            var model = 169;
-
             Type = (byte)(ObjectType.TYPE_OBJECT + (int)ObjectType.TYPE_UNIT);
             Scale = 1f;
 
-            SetUpdateField((int)UnitFields.UNIT_FIELD_DISPLAYID, model);
-            SetUpdateField((int)UnitFields.UNIT_FIELD_NATIVEDISPLAYID, model);
+            SetUpdateField((int)UnitFields.UNIT_FIELD_DISPLAYID, unit.Model);
+            SetUpdateField((int)UnitFields.UNIT_FIELD_NATIVEDISPLAYID, unit.Model);
 
             SetUpdateField((int)UnitFields.UNIT_NPC_FLAGS, 0); //Npc
             SetUpdateField((int)UnitFields.UNIT_DYNAMIC_FLAGS, 0); // Dynamic

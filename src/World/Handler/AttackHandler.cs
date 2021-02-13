@@ -19,7 +19,11 @@ namespace Classic.World.Handler
         {
             var request = new CMSG_CAST_SPELL(data);
             client.Log($"Casting: {request.SpellId}");
+
+            // ????
             await client.SendPacket(SMSG_CAST_RESULT.Success(request.SpellId));
+
+            // Opcode.SMSG_SPELLLOGEXECUTE
         }
     }
 }

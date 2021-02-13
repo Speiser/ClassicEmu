@@ -37,7 +37,7 @@ namespace Classic.Common
                 // Incase many packets are sent by the client, the server currently
                 // dies with 2048 bytes, so 4096 are used for now...
                 var buffer = new byte[4096];
-                var length = await this.stream.ReadAsync(buffer, 0, buffer.Length);
+                var length = await this.stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
 
                 if (length == 0)
                 {
@@ -65,7 +65,7 @@ namespace Classic.Common
             if (!this.isConnected)
                 throw new InvalidOperationException($"Client {this.ClientInfo} is not connected.");
 
-            await this.stream.WriteAsync(data, 0, data.Length);
+            await this.stream.WriteAsync(data.AsMemory(0, data.Length));
         }
 
         public void Log(string message)
@@ -75,11 +75,6 @@ namespace Classic.Common
 
         // Todo change to abstract later
         protected virtual void OnDisconnected() { }
-
-        protected void LogPacket(byte[] packet)
-        {
-            this.Log($"Packet received {packet.Length} bytes");
-        }
 
         protected abstract Task HandlePacket(byte[] packet);
     }

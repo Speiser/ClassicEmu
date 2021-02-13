@@ -36,8 +36,21 @@ namespace Classic.World.Handler
             await client.SendPacket(new SMSG_CORPSE_RECLAIM_DELAY());
             await client.SendPacket(new SMSG_INIT_WORLD_STATES());
             await client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, out var player));
-            await client.SendPacket(SMSG_UPDATE_OBJECT.CreateUnit(Cryptography.Random.GetUInt64()));
 
+            foreach (var unit in client.World.CurrentCreatures)
+            {
+                // TODO: Add range check
+                await client.SendPacket(SMSG_UPDATE_OBJECT.CreateUnit(unit));
+            }
+
+            foreach (var other in client.World.CurrentPlayers)
+            {
+                // TODO: Add range check
+                if (other.ID == character.ID) continue; // Should not happen?
+                await client.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other));
+            }
+
+            client.World.CurrentPlayers.Add(character);
             client.Player = player;
         }
 
@@ -45,6 +58,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogoutRequested(WorldClient client, byte[] _)
         {
             await client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+            client.World.CurrentPlayers.Remove(client.Character);
             client.Player = null;
         }
     }
