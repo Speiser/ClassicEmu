@@ -7,25 +7,33 @@ namespace Classic.Auth.Challenges
     public class ServerLogonProof
     {
         private readonly SecureRemotePasswordProtocol srp;
+        private readonly GameVersion gameVersion;
 
-        public ServerLogonProof(SecureRemotePasswordProtocol srp)
+        public ServerLogonProof(SecureRemotePasswordProtocol srp, GameVersion gameVersion)
         {
             this.srp = srp;
+            this.gameVersion = gameVersion;
         }
 
         public byte[] Get(byte[] clientPublicValue, byte[] clientProof)
         {
             if (this.srp.ValidateClientProof(clientPublicValue, clientProof))
             {
-                using (var packet = new PacketWriter())
+                using var packet = new PacketWriter();
+                packet
+                    .WriteUInt8( /* cmd   */ (byte)LOGIN_PROOF)
+                    .WriteUInt8( /* error */ 0)
+                    .WriteBytes( /* M[20] */ this.srp.M)
+                    .WriteUInt32(/* unk   */ 0);
+
+                if (this.gameVersion == GameVersion.WotLK)
                 {
-                    return packet
-                        .WriteUInt8( /* cmd   */ (byte) LOGIN_PROOF)
-                        .WriteUInt8( /* error */ 0)
-                        .WriteBytes( /* M[20] */ this.srp.M)
-                        .WriteUInt32(/* unk   */ 0)
-                        .Build();
+                    packet
+                        .WriteUInt32(/* unk2 */ 0)
+                        .WriteUInt16(/* unk3 */ 0);
                 }
+
+                return packet.Build();
             }
 
             // Failed
