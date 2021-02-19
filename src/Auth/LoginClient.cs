@@ -1,16 +1,19 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Challenges;
+using Classic.Auth.Entities;
 using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Microsoft.Extensions.Logging;
+using static Classic.Auth.Opcode;
 
 namespace Classic.Auth
 {
     public class LoginClient : ClientBase
     {
-        private ClientState state;
+        private bool isReconnect;
+
         public LoginClient(ILogger<LoginClient> logger) : base(logger)
         {
         }
@@ -20,44 +23,50 @@ namespace Classic.Auth
             await base.Initialize(client);
 
             this.logger.LogDebug($"{this.ClientInfo} - connected");
-            state = ClientState.Init;
 
             await HandleConnection();
         }
 
         public SecureRemotePasswordProtocol SRP { get; internal set; }
 
+        public GameVersion GameVersion { get; internal set; }
+
         protected override async Task HandlePacket(byte[] packet)
         {
-            switch (this.state)
+            using var reader = new PacketReader(packet);
+            var cmd = (Opcode)reader.ReadByte();
+            this.LogAuthState($"Recv {cmd} ({packet.Length} bytes)");
+
+            switch (cmd)
             {
-                case ClientState.Init:
-                    this.state = ClientState.LogonChallenge;
-                    this.LogAuthState("Recv ClientLogonChallenge");
+                case LOGIN_CHALL:
                     await new ClientLogonChallenge(packet, this).Execute();
-                    this.LogAuthState("Sent ServerLogonChallenge");
                     break;
-                case ClientState.LogonChallenge:
-                    this.state = ClientState.LogonProof;
-                    this.LogAuthState("Recv ClientLogonProof");
+                case LOGIN_PROOF:
                     var success = await new ClientLogonProof(packet, this).Execute();
-                    this.LogAuthState($"Sent ServerLogonProof {(success ? "successful" : "failed")}");
                     if (success)
                     {
-                        this.state = ClientState.Authenticated;
                         this.LogAuthState("Client authenticated");
                     }
                     else
                     {
-                        this.state = ClientState.Disconnected;
                         this.isConnected = false;
                         this.LogAuthState("Client authentication failed");
                     }
                     break;
-                case ClientState.Authenticated:
-                    DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP));
-                    this.LogAuthState("Sent Realmlist");
-                    await ServerRealmList.Send(this);
+                case REALMLIST:
+                    if (!this.isReconnect)
+                    {
+                        DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP, this.GameVersion));
+                    }
+                    await ServerRealmlist.Send(this);
+                    break;
+                case RECONNECT_CHALLENGE:
+                    this.isReconnect = true;
+                    await new ClientReconnectChallenge(packet, this).Execute();
+                    break;
+                case RECONNECT_PROOF:
+                    await new ClientReconnectProof(packet, this).Execute();
                     break;
             }
         }
