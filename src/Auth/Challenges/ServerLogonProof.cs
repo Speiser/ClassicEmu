@@ -1,3 +1,4 @@
+using Classic.Auth.Entities;
 using Classic.Common;
 using Classic.Cryptography;
 using static Classic.Auth.Opcode;

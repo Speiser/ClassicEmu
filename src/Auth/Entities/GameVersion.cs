@@ -1,4 +1,4 @@
-﻿namespace Classic.Auth
+﻿namespace Classic.Auth.Entities
 {
     public enum GameVersion
     {

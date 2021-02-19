@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.IO;
+using Classic.Auth.Entities;
 using Classic.Cryptography;
 using Newtonsoft.Json;
 
@@ -10,9 +11,10 @@ namespace Classic.Data
         public const string CharsFile = "chars.json";
         private readonly SecureRemotePasswordProtocol srp;
 
-        public User(SecureRemotePasswordProtocol srp)
+        public User(SecureRemotePasswordProtocol srp, GameVersion gameVersion)
         {
             this.srp = srp;
+            this.GameVersion = gameVersion;
 
             // TODO
             if (File.Exists(CharsFile))
@@ -31,5 +33,6 @@ namespace Classic.Data
         public string Identifier => this.srp.I;
         public byte[] SessionKey => this.srp.SessionKey;
         public ConcurrentBag<Character> Characters { get; }
+        public GameVersion GameVersion { get; }
     }
 }
