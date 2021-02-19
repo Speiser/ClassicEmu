@@ -17,7 +17,7 @@ namespace Classic.Cryptography
 
         public byte[] Decrypt(byte[] data, int size)
         {
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
             {
                 this.recv_i %= (byte)this.key.Length;
                 var x = (byte)((data[i] - this.recv_j) ^ this.key[this.recv_i]);
@@ -29,30 +29,9 @@ namespace Classic.Cryptography
             return data;
         }
 
-        // https://github.com/drolean/Servidor-Wow/blob/master/Common/Helpers/Utils.cs#L13
-        public byte[] Encode(ServerMessageBase<World.Opcode> message)
+        public byte[] Encrypt(byte[] data)
         {
-            var data = message.Get();
-            var index = 0;
-            var newSize = data.Length + 2;
-            var header = new byte[4];
-
-            if (newSize > 0x7FFF)
-                header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
-
-            header[index++] = (byte)(0xFF & (newSize >> 8));
-            header[index++] = (byte)(0xFF & (newSize >> 0));
-            header[index++] = (byte)(0xFF & (int)message.Opcode);
-            header[index] = (byte)(0xFF & ((int)message.Opcode >> 8));
-
-            if (this.IsInitialized) header = this.Encrypt(header);
-
-            return header.Concat(data).ToArray();
-        }
-
-        private byte[] Encrypt(byte[] data)
-        {
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
                 this.send_i %= (byte)this.key.Length;
                 var x = (byte)((data[i] ^ this.key[this.send_i]) + this.send_j);

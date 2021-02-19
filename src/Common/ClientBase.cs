@@ -23,9 +23,12 @@ namespace Classic.Common
             this.stream = client.GetStream();
             this.isConnected = true;
             var endPoint = (IPEndPoint)client.Client.RemoteEndPoint;
+            this.Port = endPoint.Port;
             this.ClientInfo = endPoint.Address + ":" + endPoint.Port;
             return Task.CompletedTask;
         }
+
+        public int Port { get; private set; }
 
         public string ClientInfo { get; private set; }
 

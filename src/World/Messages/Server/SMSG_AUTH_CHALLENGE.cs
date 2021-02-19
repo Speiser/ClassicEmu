@@ -1,10 +1,11 @@
 ﻿using Classic.Common;
+using Classic.Cryptography;
 
 namespace Classic.World.Messages.Server
 {
-    public class SMSG_AUTH_CHALLENGE : ServerMessageBase<Opcode>
+    public class SMSG_AUTH_CHALLENGE_VANILLA_TBC : ServerMessageBase<Opcode>
     {
-        public SMSG_AUTH_CHALLENGE() : base(Opcode.SMSG_AUTH_CHALLENGE)
+        public SMSG_AUTH_CHALLENGE_VANILLA_TBC() : base(Opcode.SMSG_AUTH_CHALLENGE)
         {
         }
 
@@ -14,6 +15,22 @@ namespace Classic.World.Messages.Server
             .WriteUInt16Reversed(6) // length
             .WriteUInt16((ushort)this.Opcode)
             .WriteBytes(AuthSeed)
+            .Build();
+    }
+
+    public class SMSG_AUTH_CHALLENGE_WOTLK : ServerMessageBase<Opcode>
+    {
+        public SMSG_AUTH_CHALLENGE_WOTLK() : base(Opcode.SMSG_AUTH_CHALLENGE)
+        {
+        }
+
+        public override byte[] Get() => this.Writer
+            .WriteUInt16Reversed(40) // length
+            .WriteUInt16((ushort)this.Opcode)
+            .WriteUInt32(1) // 1..31 ???
+            .WriteUInt32(3) // m_seed ???
+            .WriteBytes(Random.GetBytes(16)) // seed1
+            .WriteBytes(Random.GetBytes(16)) // seed2
             .Build();
     }
 }
