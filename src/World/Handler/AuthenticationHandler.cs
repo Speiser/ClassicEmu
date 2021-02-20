@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Classic.Common;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
 {
@@ -18,7 +19,8 @@ namespace Classic.World.Handler
 
             if (args.Client.Build != build)
             {
-                throw new ArgumentException($"Expected build {args.Client.Build} but is {build}.");
+                args.Client.Log($"Expected build {args.Client.Build} but is {build}.", LogLevel.Warning);
+                args.Client.Build = build;
             }
 
             if (!DataStore.Users.TryGetValue(request.AccountName, out var user))

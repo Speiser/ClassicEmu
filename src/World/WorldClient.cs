@@ -31,17 +31,20 @@ namespace Classic.World
 
             if (!DataStore.PortToClientBuild.TryGetValue(this.Port - 1, out var build))
             {
-                throw new InvalidOperationException("Could not find client build.");
+                this.logger.LogWarning($"Could not find client build for {this.Port - 1}.");
+                build = ClientBuild.Vanilla;
             }
 
-            this.HeaderUtil = HeaderUtilFactory.Create(build, this.Crypt);
+            this.Build = build;
+
+            this.HeaderUtil = HeaderUtilFactory.Create(this.Build, this.Crypt);
             this.logger.LogDebug($"{this.ClientInfo} - connected");
 
-            ServerMessageBase<Opcode> message = build switch
+            ServerMessageBase<Opcode> message = this.Build switch
             {
                 ClientBuild.Vanilla or ClientBuild.TBC => new SMSG_AUTH_CHALLENGE_VANILLA_TBC(),
                 ClientBuild.WotLK => new SMSG_AUTH_CHALLENGE_WOTLK(),
-                _ => throw new NotImplementedException($"SMSG_AUTH_CHALLENGE(build: {build})"),
+                _ => throw new NotImplementedException($"SMSG_AUTH_CHALLENGE(build: {this.Build})"),
             };
 
             await Send(message.Get());
