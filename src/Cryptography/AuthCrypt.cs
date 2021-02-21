@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Classic.Common;
-
-namespace Classic.Cryptography
+﻿namespace Classic.Cryptography
 {
     // Based on
     // https://github.com/cmangos/mangos-classic/blob/master/src/shared/Auth/AuthCrypt.cpp

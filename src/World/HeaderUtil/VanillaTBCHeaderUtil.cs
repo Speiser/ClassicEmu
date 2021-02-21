@@ -4,11 +4,11 @@ using Classic.Cryptography;
 
 namespace Classic.World.HeaderUtil
 {
-    internal class VanillaHeaderUtil : IHeaderUtil
+    internal class VanillaTBCHeaderUtil : IHeaderUtil
     {
         private readonly AuthCrypt crypt;
 
-        public VanillaHeaderUtil(AuthCrypt crypt)
+        public VanillaTBCHeaderUtil(AuthCrypt crypt)
         {
             this.crypt = crypt;
         }

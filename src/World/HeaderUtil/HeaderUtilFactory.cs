@@ -8,7 +8,7 @@ namespace Classic.World.HeaderUtil
     {
         public static IHeaderUtil Create(int build, AuthCrypt crypt) => build switch
         {
-            ClientBuild.Vanilla => new VanillaHeaderUtil(crypt),
+            ClientBuild.Vanilla or ClientBuild.TBC => new VanillaTBCHeaderUtil(crypt),
             _ => throw new NotImplementedException($"HeaderUtilFactory(build: {build})"),
         };
     }
