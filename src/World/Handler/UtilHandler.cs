@@ -26,5 +26,15 @@ namespace Classic.World.Handler
 
         [OpcodeHandler(Opcode.CMSG_QUERY_TIME)]
         public static async Task OnQueryTime(HandlerArguments args) => await args.Client.SendPacket(new SMSG_QUERY_TIME_RESPONSE());
+
+        // Introduced in TBC
+        [OpcodeHandler(Opcode.CMSG_REALM_SPLIT)]
+        public static async Task OnRealmSplit(HandlerArguments args)
+        {
+            using var reader = new PacketReader(args.Data);
+            var decision = reader.ReadUInt32();
+
+            await args.Client.SendPacket(new SMSG_REALM_SPLIT(decision));
+        }
     }
 }

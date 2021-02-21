@@ -22,7 +22,11 @@ namespace Classic.Data
             { Race.Undead, new Map { X = 1676.35F, Y = 1677.45F, Z = 121.67F, Orientation = 3.14F, ID = MapID.EasternKingdoms, Zone = ZoneID.TirisfalGlades }},
             { Race.Tauren, new Map { X = -2917.58F, Y = -257.98F, Z = 52.9968F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Mulgore }},
             { Race.Gnome, new Map { X = -6240.32F, Y = 331.033F, Z = 382.758F, Orientation = 1F, ID = MapID.EasternKingdoms, Zone = ZoneID.DunMorogh }},
-            { Race.Troll, new Map { X = -618.518F, Y = -4251.67F, Z = 38.718F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Durotar }}
+            { Race.Troll, new Map { X = -618.518F, Y = -4251.67F, Z = 38.718F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Durotar }},
+
+            // TBC
+            { Race.Draenei, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.Kalimdor, Zone = ZoneID.Teldrassil }}, // TODO
+            { Race.BloodElf, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.Kalimdor, Zone = ZoneID.Teldrassil }}, // TODO
         };
     }
 }

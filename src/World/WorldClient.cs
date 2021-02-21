@@ -6,6 +6,7 @@ using Classic.Common;
 using Classic.Cryptography;
 using Classic.Data;
 using Classic.World.Entities;
+using Classic.World.HeaderUtil;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -28,17 +29,38 @@ namespace Classic.World
         {
             await base.Initialize(client);
 
+            if (!DataStore.PortToClientBuild.TryGetValue(this.Port - 1, out var build))
+            {
+                this.logger.LogWarning($"Could not find client build for {this.Port - 1}.");
+                build = ClientBuild.Vanilla;
+            }
+
+            this.Build = build;
+
+            this.HeaderUtil = HeaderUtilFactory.Create(this.Build, this.Crypt);
             this.logger.LogDebug($"{this.ClientInfo} - connected");
 
-            await Send(new SMSG_AUTH_CHALLENGE().Get());
+            ServerMessageBase<Opcode> message = this.Build switch
+            {
+                ClientBuild.Vanilla or ClientBuild.TBC => new SMSG_AUTH_CHALLENGE_VANILLA_TBC(),
+                ClientBuild.WotLK => new SMSG_AUTH_CHALLENGE_WOTLK(),
+                _ => throw new NotImplementedException($"SMSG_AUTH_CHALLENGE(build: {this.Build})"),
+            };
+
+            await Send(message.Get());
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.GetType().Name}");
             await HandleConnection();
         }
+
+        public int Build { get; internal set; }
 
         public User User { get; internal set; }
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
-        public AuthCrypt Crypt { get; }
+        public AuthCrypt Crypt { get; internal set; }
+
+        public IHeaderUtil HeaderUtil { get; internal set; }
 
         protected override async Task HandlePacket(byte[] data)
         {
@@ -48,7 +70,7 @@ namespace Classic.World
                 var header = new byte[6];
                 Array.Copy(data, i, header, 0, 6);
 
-                var (length, opcode) = this.DecodePacket(header);
+                var (length, opcode) = this.Decode(header);
 
                 this.logger.LogTrace($"{this.ClientInfo} - Recv {opcode} ({length} bytes)");
 
@@ -70,22 +92,14 @@ namespace Classic.World
 
         public async Task SendPacket(ServerMessageBase<Opcode> message)
         {
-            var data = this.Crypt.Encode(message);
+            var data = this.HeaderUtil.Encode(message);
             await this.Send(data);
             this.logger.LogTrace($"{this.ClientInfo} - Sent {message.GetType().Name}");
             message.Dispose();
         }
 
-        protected override void OnDisconnected()
-        {
-            this.worldState.Connections.Remove(this);
-
-            // TODO
-            var json = JsonConvert.SerializeObject(User.Characters.ToArray());
-            File.WriteAllText(User.CharsFile, json);
-        }
-
-        private (ushort length, Opcode opcode) DecodePacket(byte[] packet)
+        // https://github.com/drolean/Servidor-Wow/blob/f77520bc8ad5d123139e34d3d0c8f40d161ad352/RealmServer/RealmServerSession.cs#L245
+        private (ushort length, Opcode opcode) Decode(byte[] packet)
         {
             ushort length;
             short opcode;
@@ -93,7 +107,7 @@ namespace Classic.World
             if (this.Crypt.IsInitialized)
             {
                 this.Crypt.Decrypt(packet, 6);
-                length = BitConverter.ToUInt16(new [] { packet[1], packet[0] });
+                length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
                 opcode = BitConverter.ToInt16(new[] { packet[2], packet[3] });
             }
             else
@@ -103,6 +117,15 @@ namespace Classic.World
             }
 
             return (length, (Opcode)opcode);
+        }
+
+        protected override void OnDisconnected()
+        {
+            this.worldState.Connections.Remove(this);
+
+            // TODO
+            var json = JsonConvert.SerializeObject(User.Characters.ToArray());
+            File.WriteAllText(User.CharsFile, json);
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Classic.Common;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
 {
@@ -14,7 +15,13 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
         public static async Task OnClientAuthenticationSession(HandlerArguments args)
         {
-            var request = new CMSG_AUTH_SESSION(args.Data);
+            var (build, request) = CMSG_AUTH_SESSION.Read(args.Data);
+
+            if (args.Client.Build != build)
+            {
+                args.Client.Log($"Expected build {args.Client.Build} but is {build}.", LogLevel.Warning);
+                args.Client.Build = build;
+            }
 
             if (!DataStore.Users.TryGetValue(request.AccountName, out var user))
             {
@@ -25,13 +32,14 @@ namespace Classic.World.Handler
             ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
             ////: if player is already connected return [SMSG_AUTH_RESPONSE, 13]
 
-            using (var sha = new SHA1CryptoServiceProvider())
+            if (build == ClientBuild.Vanilla || build == ClientBuild.TBC)
             {
+                using var sha = new SHA1CryptoServiceProvider();
                 var calculatedDigest = sha.ComputeHash(
                     Encoding.ASCII.GetBytes(request.AccountName)
                         .Concat(new byte[] { 0, 0, 0, 0 })
                         .Concat(BitConverter.GetBytes(request.Seed))
-                        .Concat(SMSG_AUTH_CHALLENGE.AuthSeed)
+                        .Concat(SMSG_AUTH_CHALLENGE_VANILLA_TBC.AuthSeed)
                         .Concat(user.SessionKey)
                         .ToArray());
 
@@ -40,11 +48,29 @@ namespace Classic.World.Handler
                     //return [SMSG_AUTH_RESPONSE, 21]
                     throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
                 }
+
+                args.Client.Crypt.SetKey(GenerateAuthCryptKey(user.SessionKey, build));
             }
 
-            args.Client.Crypt.SetKey(user.SessionKey);
-            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE());
+            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
             args.Client.User = user;
+        }
+
+        // TODO: How to use with wotlk?
+        private static byte[] GenerateAuthCryptKey(byte[] sessionKey, int build)
+        {
+            switch (build)
+            {
+                case ClientBuild.Vanilla:
+                    return sessionKey;
+                case ClientBuild.TBC:
+                    // https://github.com/SunstriderEmu/sunstrider-legacy/blob/efd728a145c29f5e322aca7d388d6f039fd28ab2/src/common/Cryptography/Authentication/AuthCrypt.cpp#L41
+                    var temp = new byte[] { 0x38, 0xA7, 0x83, 0x15, 0xF8, 0x92, 0x25, 0x30, 0x71, 0x98, 0x67, 0xB1, 0x8C, 0x4, 0xE2, 0xAA };
+                    var hash = new HMACSHA1(temp);
+                    return hash.ComputeHash(sessionKey);
+                default:
+                    throw new NotImplementedException($"GenerateAuthCryptKey(build: {build})");
+            }
         }
     }
 }
