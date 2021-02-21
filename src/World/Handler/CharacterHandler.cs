@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Classic.Common;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 
@@ -8,7 +10,17 @@ namespace Classic.World.Handler
     public class CharacterHandler
     {
         [OpcodeHandler(Opcode.CMSG_CHAR_ENUM)]
-        public static async Task OnCharacterEnum(HandlerArguments args) => await args.Client.SendPacket(new SMSG_CHAR_ENUM(args.Client.User.Characters));
+        public static async Task OnCharacterEnum(HandlerArguments args)
+        {
+            ServerMessageBase<Opcode> characterEnum = args.Client.Build switch
+            {
+                ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(args.Client.User.Characters),
+                ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(args.Client.User.Characters),
+                _ => throw new NotImplementedException($"OnCharacterEnum(build: {args.Client.Build})"),
+            };
+
+            await args.Client.SendPacket(characterEnum);
+        }
 
         [OpcodeHandler(Opcode.CMSG_CHAR_CREATE)]
         public static async Task OnCharacterCreate(HandlerArguments args)
