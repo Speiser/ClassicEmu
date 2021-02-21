@@ -4,8 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Classic.Common;
-using Classic.Cryptography;
-using Classic.Data;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -54,7 +52,7 @@ namespace Classic.World.Handler
                 args.Client.Crypt.SetKey(GenerateAuthCryptKey(user.SessionKey, build));
             }
 
-            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE());
+            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
             args.Client.User = user;
         }
 

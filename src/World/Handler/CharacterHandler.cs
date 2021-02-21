@@ -28,7 +28,14 @@ namespace Classic.World.Handler
             var character = CMSG_CHAR_CREATE.RequestAsCharacter(args.Data);
             args.Client.User.Characters.Add(character);
 
-            await args.Client.SendPacket(SMSG_CHAR_CREATE.Success());
+            var status = args.Client.Build switch
+            {
+                ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
+                ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_CREATE_SUCCESS,
+                _ => throw new NotImplementedException($"OnCharacterCreate(build: {args.Client.Build})"),
+            };
+
+            await args.Client.SendPacket(new SMSG_CHAR_CREATE(status));
         }
 
         [OpcodeHandler(Opcode.CMSG_CHAR_DELETE)]
@@ -38,15 +45,66 @@ namespace Classic.World.Handler
 
             var toBeDeleted = args.Client.User.Characters.Where(c => c.ID == request.CharacterID).SingleOrDefault();
 
-            if (toBeDeleted is null)
+            if (toBeDeleted is null || !args.Client.User.Characters.TryTake(out toBeDeleted))
             {
-                await args.Client.SendPacket(SMSG_CHAR_DELETE.Fail());
+                var failedStatus = args.Client.Build switch
+                {
+                    ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_DELETE_FAILED,
+                    ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_DELETE_FAILED,
+                    _ => throw new NotImplementedException($"OnCharacterDelete(build: {args.Client.Build})"),
+                };
+                await args.Client.SendPacket(new SMSG_CHAR_DELETE(failedStatus));
                 return;
             }
 
-            await args.Client.SendPacket(args.Client.User.Characters.TryTake(out toBeDeleted)
-                ? SMSG_CHAR_DELETE.Success()
-                : SMSG_CHAR_DELETE.Fail());
+            var status = args.Client.Build switch
+            {
+                ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_DELETE_SUCCESS,
+                ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_DELETE_SUCCESS,
+                _ => throw new NotImplementedException($"OnCharacterDelete(build: {args.Client.Build})"),
+            };
+
+            await args.Client.SendPacket(new SMSG_CHAR_DELETE(status));
         }
+    }
+
+    public enum CharacterHandlerCode_Vanilla
+    {
+        CHAR_CREATE_IN_PROGRESS = 0x2D,
+        CHAR_CREATE_SUCCESS = 0x2E,
+        CHAR_CREATE_ERROR = 0x2F,
+        CHAR_CREATE_FAILED = 0x30,
+        CHAR_CREATE_NAME_IN_USE = 0x31,
+        CHAR_CREATE_DISABLED = 0x3A,
+        CHAR_CREATE_PVP_TEAMS_VIOLATION = 0x33,
+        CHAR_CREATE_SERVER_LIMIT = 0x34,
+        CHAR_CREATE_ACCOUNT_LIMIT = 0x35,
+
+        CHAR_DELETE_IN_PROGRESS = 0x38,
+        CHAR_DELETE_SUCCESS = 0x39,
+        CHAR_DELETE_FAILED = 0x3A,
+    }
+
+    public enum CharacterHandlerCode_TBC
+    {
+        CHAR_CREATE_IN_PROGRESS = 0x2E,
+        CHAR_CREATE_SUCCESS = 0x2F,
+        CHAR_CREATE_ERROR = 0x30,
+        CHAR_CREATE_FAILED = 0x31,
+        CHAR_CREATE_NAME_IN_USE = 0x32,
+        CHAR_CREATE_DISABLED = 0x33,
+        CHAR_CREATE_PVP_TEAMS_VIOLATION = 0x34,
+        CHAR_CREATE_SERVER_LIMIT = 0x35,
+        CHAR_CREATE_ACCOUNT_LIMIT = 0x36,
+        CHAR_CREATE_SERVER_QUEUE = 0x37,
+        CHAR_CREATE_ONLY_EXISTING = 0x38,
+        CHAR_CREATE_EXPANSION = 0x39,
+
+        CHAR_DELETE_IN_PROGRESS = 0x3A,
+        CHAR_DELETE_SUCCESS = 0x3B,
+        CHAR_DELETE_FAILED = 0x3C,
+        CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER = 0x3D,
+        CHAR_DELETE_FAILED_GUILD_LEADER = 0x3E,
+        CHAR_DELETE_FAILED_ARENA_CAPTAIN = 0x3F,
     }
 }

@@ -9,6 +9,10 @@
         Undead = 5,
         Tauren = 6,
         Gnome = 7,
-        Troll = 8
+        Troll = 8,
+
+        // TBC
+        Draenei = 9,
+        BloodElf = 10,
     }
 }
