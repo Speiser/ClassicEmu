@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using Classic.Common;
 using Classic.Cryptography;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace Classic.World.HeaderUtil
 {
@@ -26,7 +24,7 @@ namespace Classic.World.HeaderUtil
             {
                 var uncompressed = data.Length;
                 message.Opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
-                data = Compress(data);
+                data = Compression.Compress(data);
                 data = new PacketWriter().WriteUInt32((uint)uncompressed).WriteBytes(data).Build();
             }
 
@@ -43,16 +41,6 @@ namespace Classic.World.HeaderUtil
             if (this.crypt.IsInitialized) header = this.crypt.Encrypt(header);
 
             return header.Concat(data).ToArray();
-        }
-
-        // TODO Extract
-        private static byte[] Compress(byte[] data)
-        {
-            using var outputStream = new MemoryStream();
-            using var compressordStream = new DeflaterOutputStream(outputStream);
-            compressordStream.Write(data, 0, data.Length);
-            compressordStream.Flush();
-            return outputStream.ToArray();
         }
     }
 }
