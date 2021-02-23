@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Classic.Common;
 using Classic.Data;
 using Classic.World.Extensions;
 using Classic.World.Messages;
@@ -51,7 +52,7 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
             //SMSG_SEND_UNLEARN_SPELLS
             await args.Client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
-            await args.SendPacket<SMSG_INITIALIZE_FACTIONS>();
+            await args.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.Vanilla));
             await args.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 
@@ -96,10 +97,10 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
             //SMSG_SEND_UNLEARN_SPELLS(Player::SendUnlearnSpells)
             await args.Client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
-            await args.SendPacket<SMSG_INITIALIZE_FACTIONS>();
+            await args.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.TBC));
             await args.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
-            
+
             await args.Client.SendPacket(SMSG_UPDATE_OBJECT_TBC.CreateOwnPlayerObject(character, out var player));
 
             //if (GROUP) -> SMSG_GROUP_LIST(Group::SendUpdateTo)
@@ -109,7 +110,7 @@ namespace Classic.World.Handler
             //SMSG_ITEM_TIME_UPDATE(Item::SendTimeUpdate)
             //SMSG_FRIEND_STATUS(SocialMgr::MakeFriendStatusPacket)
 
-            args.Client.Player = player;
+            //args.Client.Player = player;
         }
     }
 }

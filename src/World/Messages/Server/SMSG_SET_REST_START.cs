@@ -8,6 +8,6 @@ namespace Classic.World.Messages.Server
         {
         }
 
-        public override byte[] Get() => this.Writer.WriteUInt32(1000).Build();
+        public override byte[] Get() => this.Writer.WriteUInt32(0).Build(); // TODO VANILLA VS TBC
     }
 }

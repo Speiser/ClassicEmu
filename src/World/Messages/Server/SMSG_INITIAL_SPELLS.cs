@@ -27,7 +27,7 @@ namespace Classic.World.Messages.Server
                     .WriteUInt16(slot++);
             }
 
-            this.Writer.WriteUInt16(0); // ??
+            this.Writer.WriteUInt16(0); // Cooldown count
             return this.Writer.Build();
         }
     }

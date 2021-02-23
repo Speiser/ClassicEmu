@@ -47,7 +47,7 @@ namespace Classic.World.Messages.Server
 
                 .WriteUInt32(0); // ??
 
-            player = new PlayerEntity(character)
+            player = new PlayerEntity(character, ClientBuild.TBC)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -97,7 +97,7 @@ namespace Classic.World.Messages.Server
 
                 .WriteInt32(1); // ??
 
-            player = new PlayerEntity(character)
+            player = new PlayerEntity(character, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -140,7 +140,7 @@ namespace Classic.World.Messages.Server
                 .WriteInt32(1); // ??
 
             // TODO: Can be done somewhere else?
-            var player = new PlayerEntity(character)
+            var player = new PlayerEntity(character, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -153,7 +153,7 @@ namespace Classic.World.Messages.Server
         public static SMSG_UPDATE_OBJECT_VANILLA CreateUnit(Creature unit)
         {
             var update = new SMSG_UPDATE_OBJECT_VANILLA();
-            var entity = new UnitEntity(unit)
+            var entity = new UnitEntity(unit, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(unit.ID),
                 Guid = unit.ID

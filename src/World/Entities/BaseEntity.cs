@@ -4,7 +4,7 @@ using Classic.Common;
 
 namespace Classic.World.Entities
 {
-    public class BaseEntity
+    public abstract class BaseEntity
     {
         public static int Level = 1;
         public int Model = 0;
@@ -12,19 +12,21 @@ namespace Classic.World.Entities
         // Base Stats
         public float Size = 1.0f;
 
-        public BaseEntity()
+        protected BaseEntity(int build)
         {
-            MaskSize = (DataLength + 32) / 32;
-            Mask = new BitArray(DataLength, false);
-            UpdateData = new Hashtable();
+            var dataLength = this.GetDatalength(build);
+            this.MaskSize = (dataLength + 32) / 32;
+            this.Mask = new BitArray(dataLength, false);
+            this.UpdateData = new Hashtable();
         }
 
-        public int MaskSize { get; }
-        public BitArray Mask { get; }
-        public Hashtable UpdateData { get; }
+        protected abstract int GetDatalength(int build);
+
+        public int MaskSize { get; private set; }
+        public BitArray Mask { get; private set; }
+        public Hashtable UpdateData { get; private set; }
         public int UpdateCount { get; private set; }
 
-        public virtual int DataLength { get; internal set; }
         public virtual string Name { get; set; }
 
         public void SetUpdateField<T>(int index, T value)

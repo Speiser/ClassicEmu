@@ -10,8 +10,8 @@ namespace Classic.Common
             this.Writer = new PacketWriter();
         }
 
-        public TOpcode Opcode { get; }
-        public PacketWriter Writer { get; }
+        public TOpcode Opcode { get; set; }
+        public PacketWriter Writer { get; set; }
 
         public abstract byte[] Get();
 
