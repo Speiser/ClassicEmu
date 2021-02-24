@@ -16,7 +16,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogin(HandlerArguments args)
         {
             var request = new CMSG_PLAYER_LOGIN(args.Data);
-            var character = args.Client.User.Characters.Single(x => x.ID == request.CharacterID);
+            var character = args.Client.Session.Account.Characters.Single(x => x.ID == request.CharacterID);
 
             args.Client.Log($"Player logged in with char {character.Name}");
 

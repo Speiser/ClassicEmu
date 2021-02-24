@@ -12,8 +12,10 @@ namespace Classic
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
+            await DataStore.Init();
+
             var services = RegisterServices();
 
             _ = services.GetService<AuthenticationServer>().Start();

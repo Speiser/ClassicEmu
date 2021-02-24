@@ -54,7 +54,7 @@ namespace Classic.World
 
         public int Build { get; internal set; }
 
-        public User User { get; internal set; }
+        public AccountSession Session { get; internal set; }
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
@@ -122,10 +122,11 @@ namespace Classic.World
         protected override void OnDisconnected()
         {
             this.worldState.Connections.Remove(this);
-
-            // TODO
-            var json = JsonConvert.SerializeObject(User.Characters.ToArray());
-            File.WriteAllText(User.CharsFile, json);
+            var identifier = this.Session.Account.Identifier;
+            if (!DataStore.Sessions.TryRemove(identifier, out var _))
+            {
+                this.logger.LogError($"Could not remove session \"{identifier}\"");
+            }
         }
     }
 }

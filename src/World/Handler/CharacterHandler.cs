@@ -14,8 +14,8 @@ namespace Classic.World.Handler
         {
             ServerMessageBase<Opcode> characterEnum = args.Client.Build switch
             {
-                ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(args.Client.User.Characters),
-                ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(args.Client.User.Characters),
+                ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(args.Client.Session.Account.Characters),
+                ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(args.Client.Session.Account.Characters),
                 _ => throw new NotImplementedException($"OnCharacterEnum(build: {args.Client.Build})"),
             };
 
@@ -26,7 +26,7 @@ namespace Classic.World.Handler
         public static async Task OnCharacterCreate(HandlerArguments args)
         {
             var character = CMSG_CHAR_CREATE.RequestAsCharacter(args.Data);
-            args.Client.User.Characters.Add(character);
+            args.Client.Session.Account.Characters.Add(character);
 
             var status = args.Client.Build switch
             {
@@ -43,9 +43,9 @@ namespace Classic.World.Handler
         {
             var request = new CMSG_CHAR_DELETE(args.Data);
 
-            var toBeDeleted = args.Client.User.Characters.Where(c => c.ID == request.CharacterID).SingleOrDefault();
+            var toBeDeleted = args.Client.Session.Account.Characters.Where(c => c.ID == request.CharacterID).SingleOrDefault();
 
-            if (toBeDeleted is null || !args.Client.User.Characters.TryTake(out toBeDeleted))
+            if (toBeDeleted is null || !args.Client.Session.Account.Characters.TryTake(out toBeDeleted))
             {
                 var failedStatus = args.Client.Build switch
                 {

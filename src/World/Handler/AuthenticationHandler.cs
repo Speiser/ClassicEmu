@@ -23,7 +23,7 @@ namespace Classic.World.Handler
                 args.Client.Build = build;
             }
 
-            if (!DataStore.Users.TryGetValue(request.AccountName, out var user))
+            if (!DataStore.Sessions.TryGetValue(request.AccountName, out var session))
             {
                 // return [SMSG_AUTH_RESPONSE, 21]
                 throw new ArgumentException($"No user with name {request.AccountName} found in db.");
@@ -40,7 +40,7 @@ namespace Classic.World.Handler
                         .Concat(new byte[] { 0, 0, 0, 0 })
                         .Concat(BitConverter.GetBytes(request.Seed))
                         .Concat(SMSG_AUTH_CHALLENGE_VANILLA_TBC.AuthSeed)
-                        .Concat(user.SessionKey)
+                        .Concat(session.SessionKey)
                         .ToArray());
 
                 if (!calculatedDigest.SequenceEqual(request.Digest))
@@ -49,11 +49,11 @@ namespace Classic.World.Handler
                     throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
                 }
 
-                args.Client.Crypt.SetKey(GenerateAuthCryptKey(user.SessionKey, build));
+                args.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
             }
 
             await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
-            args.Client.User = user;
+            args.Client.Session = session;
         }
 
         // TODO: How to use with wotlk?
