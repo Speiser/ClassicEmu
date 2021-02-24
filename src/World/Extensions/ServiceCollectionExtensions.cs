@@ -8,10 +8,11 @@ namespace Classic.World.Extensions
         public static IServiceCollection AddWorldServer(this IServiceCollection services)
         {
             return services
-                .AddSingleton<WorldServer>()
                 .AddTransient<AuthCrypt>()
                 .AddTransient<WorldClient>()
-                .AddSingleton<WorldPacketHandler>();
+                .AddSingleton<WorldPacketHandler>()
+                .AddSingleton<WorldServer>()
+                .AddHostedService<WorldServer>();
         }
     }
 }

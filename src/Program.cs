@@ -1,11 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Classic.Auth;
+﻿using System.Threading.Tasks;
 using Classic.Auth.Extensions;
 using Classic.Common;
-using Classic.World;
 using Classic.World.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Classic
@@ -16,20 +14,15 @@ namespace Classic
         {
             await DataStore.Init();
 
-            var services = RegisterServices();
-
-            _ = services.GetService<AuthenticationServer>().Start();
-            await services.GetService<WorldServer>().Start();
-        }
-
-        private static IServiceProvider RegisterServices()
-        {
-            return new ServiceCollection()
-                .AddSingleton<ErrorHandler>()
-                .AddAuthenticationServer()
-                .AddWorldServer()
-                .AddLogging(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace))
-                .BuildServiceProvider();
+            await Host.CreateDefaultBuilder()
+                .ConfigureLogging(logging => logging
+                    .AddConsole()
+                    .SetMinimumLevel(LogLevel.Trace))
+                .ConfigureServices(services => services
+                    .AddSingleton<ErrorHandler>()
+                    .AddAuthenticationServer()
+                    .AddWorldServer())
+                .RunConsoleAsync();
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Classic.Common;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,12 @@ namespace Classic.Auth
         {
             var loginClient = services.GetService<LoginClient>();
             await loginClient.Initialize(client);
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await DataStore.Save();
+            await base.StopAsync(cancellationToken);
         }
     }
 }
