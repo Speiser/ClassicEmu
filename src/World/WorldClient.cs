@@ -54,7 +54,7 @@ namespace Classic.World
 
         public int Build { get; internal set; }
 
-        public User User { get; internal set; }
+        public AccountSession Session { get; internal set; }
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
@@ -123,9 +123,9 @@ namespace Classic.World
         {
             this.worldState.Connections.Remove(this);
 
-            // TODO
-            var json = JsonConvert.SerializeObject(User.Characters.ToArray());
-            File.WriteAllText(User.CharsFile, json);
+            //// TODO
+            //var json = JsonConvert.SerializeObject(Session.Characters.ToArray());
+            //File.WriteAllText(User.CharsFile, json);
         }
     }
 }

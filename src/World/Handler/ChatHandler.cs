@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Classic.Common;
 using Classic.Data;
-using Classic.Data.Enums.Character;
 using Classic.World.Messages.Client;
-using Classic.World.Messages.Server;
 
 namespace Classic.World.Handler
 {
@@ -23,6 +18,10 @@ namespace Classic.World.Handler
                 var spawnId = int.Parse(request.Message.Split(" ")[1]);
                 var creature = new Creature { Model = spawnId, Position = args.Client.Character.Position };
                 await args.WorldState.SpawnCreature(creature);
+            }
+            else if (request.Message == ".save")
+            {
+                await DataStore.Save();
             }
         }
     }

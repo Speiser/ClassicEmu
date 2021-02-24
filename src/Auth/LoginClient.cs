@@ -57,7 +57,8 @@ namespace Classic.Auth
                 case REALMLIST:
                     if (!this.isReconnect)
                     {
-                        DataStore.Users.TryAdd(this.SRP.I, new User(this.SRP, this.GameVersion));
+                        var session = new AccountSession(this.SRP.I, this.SRP.SessionKey);
+                        DataStore.Sessions.TryAdd(this.SRP.I, session);
                     }
                     await ServerRealmlist.Send(this);
                     break;

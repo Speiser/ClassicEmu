@@ -11,10 +11,15 @@ namespace Classic.World.Messages.Client
             using var reader = new PacketReader(data);
             this.Type = reader.ReadUInt32();
             this.UncompressedSize = reader.ReadUInt32();
-
             var rest = reader.ReadBytes(data.Length - 8);
-            var uncompressed = Compression.Uncompress(rest);
 
+            if (this.UncompressedSize == 0)
+            {
+                this.Data = Encoding.ASCII.GetString(rest);
+                return;
+            }
+
+            var uncompressed = Compression.Uncompress(rest);
             this.Data = Encoding.ASCII.GetString(uncompressed);
         }
 
