@@ -13,7 +13,7 @@ namespace Classic.World
 
         public async Task SpawnPlayer(Character character)
         {
-            var updateForOtherActivePlayers = SMSG_UPDATE_OBJECT.CreatePlayer(character);
+            var updateForOtherActivePlayers = SMSG_UPDATE_OBJECT_VANILLA.CreatePlayer(character);
             var _this = this.Connections.Single(x => x.Character?.ID == character.ID);
 
             foreach (var other in this.Connections)
@@ -21,7 +21,7 @@ namespace Classic.World
                 // TODO: Add range check
                 if (other.Character is null) continue;
                 if (other.Character.ID == character.ID) continue; // Should not happen?
-                await _this.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other.Character));
+                await _this.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreatePlayer(other.Character));
                 await other.SendPacket(updateForOtherActivePlayers);
             }
         }
@@ -34,7 +34,7 @@ namespace Classic.World
             {
                 // TODO: Add range check
                 if (connection.Character is null) continue;
-                await connection.SendPacket(SMSG_UPDATE_OBJECT.CreateUnit(creature));
+                await connection.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(creature));
             }
         }
     }

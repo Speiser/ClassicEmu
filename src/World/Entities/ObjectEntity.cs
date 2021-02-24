@@ -5,15 +5,13 @@ namespace Classic.World.Entities
 {
     public class ObjectEntity : BaseEntity
     {
-        public ObjectEntity(ObjectGuid objectGuid)
+        protected ObjectEntity(ObjectGuid objectGuid, int build) : base(build)
         {
             ObjectGuid = objectGuid;
             Guid = ObjectGuid.RawGuid;
         }
 
         public ObjectGuid ObjectGuid { get; set; }
-
-        public override int DataLength => (int) ObjectFields.End;
 
         public ulong Guid
         {
@@ -38,5 +36,7 @@ namespace Classic.World.Entities
             get => (float) UpdateData[(int) ObjectFields.ScaleX];
             set => SetUpdateField((int) ObjectFields.ScaleX, value);
         }
+
+        protected override int GetDatalength(int build) => (int)ObjectFields.End;
     }
 }

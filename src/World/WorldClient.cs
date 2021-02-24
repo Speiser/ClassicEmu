@@ -48,7 +48,7 @@ namespace Classic.World
             };
 
             await Send(message.Get());
-            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.GetType().Name}");
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
             await HandleConnection();
         }
 
@@ -94,7 +94,7 @@ namespace Classic.World
         {
             var data = this.HeaderUtil.Encode(message);
             await this.Send(data);
-            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.GetType().Name}");
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
             message.Dispose();
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Classic.Common;
+using Classic.World.Extensions;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 
@@ -21,7 +22,7 @@ namespace Classic.World.Handler
             var character = DataStore.GetCharacter(request.CharacterID);
             if (character is null)
                 return;
-            await args.Client.SendPacket(new SMSG_NAME_QUERY_RESPONSE(character));
+            await args.Client.SendPacket(new SMSG_NAME_QUERY_RESPONSE(character, args.Client.Build));
         }
 
         [OpcodeHandler(Opcode.CMSG_QUERY_TIME)]

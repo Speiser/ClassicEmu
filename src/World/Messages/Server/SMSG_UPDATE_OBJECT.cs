@@ -8,13 +8,65 @@ using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Server
 {
-    public class SMSG_UPDATE_OBJECT : ServerMessageBase<Opcode>
+    public class SMSG_UPDATE_OBJECT_TBC : ServerMessageBase<Opcode>
     {
-        public SMSG_UPDATE_OBJECT() : base(Opcode.SMSG_UPDATE_OBJECT) { }
+        public SMSG_UPDATE_OBJECT_TBC() : base(Opcode.SMSG_UPDATE_OBJECT) { }
 
-        public static SMSG_UPDATE_OBJECT CreateOwnPlayerObject(Character character, out PlayerEntity player)
+        public static SMSG_UPDATE_OBJECT_TBC CreateOwnPlayerObject(Character character, out PlayerEntity player)
         {
-            var update = new SMSG_UPDATE_OBJECT();
+            var update = new SMSG_UPDATE_OBJECT_TBC();
+
+            update.Writer
+                .WriteUInt32(1) // blocks.Count
+                .WriteUInt8(0) // hasTransport
+
+                .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
+                .WriteBytes(character.ID.ToPackedUInt64())
+
+                .WriteUInt8((byte)TypeId.TypeidPlayer)
+                .WriteUInt8((byte)(ObjectUpdateFlag_TBC.Highguid |
+                                   ObjectUpdateFlag_TBC.HasPosition |
+                                   ObjectUpdateFlag_TBC.Living |
+                                   ObjectUpdateFlag_TBC.Self))
+
+                .WriteUInt32((uint)MovementFlags.None)
+                .WriteUInt32((uint)Environment.TickCount)
+
+                .WriteMap(character.Position)
+
+                .WriteFloat(0) // ??
+
+                .WriteFloat(2.5f) // WalkSpeed
+                .WriteFloat(7f) // RunSpeed
+                .WriteFloat(2.5f) // Backwards WalkSpeed
+                .WriteFloat(4.72f) // SwimSpeed
+                .WriteFloat(2.5f) // Backwards SwimSpeed
+                .WriteFloat(14f) // MOVE_FLIGHT
+                .WriteFloat(14f) // MOVE_FLIGHT_BACK
+                .WriteFloat(3.14f) // TurnSpeed
+
+                .WriteUInt32(0); // ??
+
+            player = new PlayerEntity(character, ClientBuild.TBC)
+            {
+                ObjectGuid = new ObjectGuid(character.ID),
+                Guid = character.ID
+            };
+
+            player.WriteUpdateFields(update.Writer);
+            return update;
+        }
+
+        public override byte[] Get() => this.Writer.Build();
+    }
+
+    public class SMSG_UPDATE_OBJECT_VANILLA : ServerMessageBase<Opcode>
+    {
+        public SMSG_UPDATE_OBJECT_VANILLA() : base(Opcode.SMSG_UPDATE_OBJECT) { }
+
+        public static SMSG_UPDATE_OBJECT_VANILLA CreateOwnPlayerObject(Character character, out PlayerEntity player)
+        {
+            var update = new SMSG_UPDATE_OBJECT_VANILLA();
 
             update.Writer
                 .WriteUInt32(1) // blocks.Count
@@ -24,10 +76,10 @@ namespace Classic.World.Messages.Server
                 .WriteBytes(character.ID.ToPackedUInt64())
 
                 .WriteUInt8((byte) TypeId.TypeidPlayer)
-                .WriteUInt8((byte) (ObjectUpdateFlag.All |
-                                    ObjectUpdateFlag.HasPosition |
-                                    ObjectUpdateFlag.Living |
-                                    ObjectUpdateFlag.Self))
+                .WriteUInt8((byte) (ObjectUpdateFlag_VANILLA.All |
+                                    ObjectUpdateFlag_VANILLA.HasPosition |
+                                    ObjectUpdateFlag_VANILLA.Living |
+                                    ObjectUpdateFlag_VANILLA.Self))
 
                 .WriteUInt32((uint) MovementFlags.None)
                 .WriteUInt32((uint) Environment.TickCount)
@@ -45,7 +97,7 @@ namespace Classic.World.Messages.Server
 
                 .WriteInt32(1); // ??
 
-            player = new PlayerEntity(character)
+            player = new PlayerEntity(character, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -55,9 +107,9 @@ namespace Classic.World.Messages.Server
             return update;
         }
 
-        public static SMSG_UPDATE_OBJECT CreatePlayer(Character character)
+        public static SMSG_UPDATE_OBJECT_VANILLA CreatePlayer(Character character)
         {
-            var update = new SMSG_UPDATE_OBJECT();
+            var update = new SMSG_UPDATE_OBJECT_VANILLA();
 
             update.Writer
                 .WriteUInt32(1) // blocks.Count
@@ -67,9 +119,9 @@ namespace Classic.World.Messages.Server
                 .WriteBytes(character.ID.ToPackedUInt64()) // ? 
 
                 .WriteUInt8((byte)TypeId.TypeidPlayer)
-                .WriteUInt8((byte)(ObjectUpdateFlag.All |
-                                    ObjectUpdateFlag.HasPosition |
-                                    ObjectUpdateFlag.Living))
+                .WriteUInt8((byte)(ObjectUpdateFlag_VANILLA.All |
+                                    ObjectUpdateFlag_VANILLA.HasPosition |
+                                    ObjectUpdateFlag_VANILLA.Living))
 
                 .WriteUInt32((uint)MovementFlags.None)
                 .WriteUInt32((uint)Environment.TickCount)
@@ -88,7 +140,7 @@ namespace Classic.World.Messages.Server
                 .WriteInt32(1); // ??
 
             // TODO: Can be done somewhere else?
-            var player = new PlayerEntity(character)
+            var player = new PlayerEntity(character, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -98,10 +150,10 @@ namespace Classic.World.Messages.Server
             return update;
         }
 
-        public static SMSG_UPDATE_OBJECT CreateUnit(Creature unit)
+        public static SMSG_UPDATE_OBJECT_VANILLA CreateUnit(Creature unit)
         {
-            var update = new SMSG_UPDATE_OBJECT();
-            var entity = new UnitEntity(unit)
+            var update = new SMSG_UPDATE_OBJECT_VANILLA();
+            var entity = new UnitEntity(unit, ClientBuild.Vanilla)
             {
                 ObjectGuid = new ObjectGuid(unit.ID),
                 Guid = unit.ID
@@ -114,9 +166,9 @@ namespace Classic.World.Messages.Server
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
                 .WriteBytes(unit.ID.ToPackedUInt64())
                 .WriteUInt8((byte)TypeId.TypeidUnit)
-                .WriteUInt8((byte)(ObjectUpdateFlag.All |
-                                    ObjectUpdateFlag.HasPosition |
-                                    ObjectUpdateFlag.Living))
+                .WriteUInt8((byte)(ObjectUpdateFlag_VANILLA.All |
+                                    ObjectUpdateFlag_VANILLA.HasPosition |
+                                    ObjectUpdateFlag_VANILLA.Living))
                 .WriteUInt32((uint)MovementFlags.None)
                 .WriteUInt32((uint)Environment.TickCount)
                 .WriteMap(unit.Position)
@@ -137,9 +189,9 @@ namespace Classic.World.Messages.Server
         }
 
         // UNUSED FOR NOW
-        public static SMSG_UPDATE_OBJECT UpdateValues(PlayerEntity player)
+        public static SMSG_UPDATE_OBJECT_VANILLA UpdateValues(PlayerEntity player)
         {
-            var update = new SMSG_UPDATE_OBJECT();
+            var update = new SMSG_UPDATE_OBJECT_VANILLA();
 
             update.Writer
                 .WriteUInt32(1) // blocks.Count
