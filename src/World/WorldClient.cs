@@ -122,10 +122,11 @@ namespace Classic.World
         protected override void OnDisconnected()
         {
             this.worldState.Connections.Remove(this);
-
-            //// TODO
-            //var json = JsonConvert.SerializeObject(Session.Characters.ToArray());
-            //File.WriteAllText(User.CharsFile, json);
+            var identifier = this.Session.Account.Identifier;
+            if (!DataStore.Sessions.TryRemove(identifier, out var _))
+            {
+                this.logger.LogError($"Could not remove session \"{identifier}\"");
+            }
         }
     }
 }
