@@ -1,14 +1,15 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.Common
 {
-    public abstract class ServerBase
+    public abstract class ServerBase : BackgroundService
     {
-        private bool isActive; // TODO: replace with cancellationtoken
         private readonly TcpListener server;
         private readonly ILogger<ServerBase> logger;
 
@@ -18,11 +19,16 @@ namespace Classic.Common
             this.logger = logger;
         }
 
-        public async Task Start()
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            this.server.Stop();
+            return base.StopAsync(cancellationToken);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             this.server.Start();
-            this.isActive = true;
-            while (this.isActive)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var client = await this.server.AcceptTcpClientAsync();
                 _ = Task.Run(async () =>
@@ -35,14 +41,8 @@ namespace Classic.Common
                     {
                         logger.LogError(e.ToString());
                     }
-                });
+                }, cancellationToken);
             }
-        }
-
-        public void Stop()
-        {
-            this.isActive = false;
-            this.server.Stop();
         }
 
         protected abstract Task ProcessClient(TcpClient client);

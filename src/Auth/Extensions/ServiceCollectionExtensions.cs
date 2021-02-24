@@ -7,8 +7,8 @@ namespace Classic.Auth.Extensions
         public static IServiceCollection AddAuthenticationServer(this IServiceCollection services)
         {
             return services
-                .AddSingleton<AuthenticationServer>()
-                .AddTransient<LoginClient>();
+                .AddTransient<LoginClient>()
+                .AddHostedService<AuthenticationServer>();
         }
     }
 }
