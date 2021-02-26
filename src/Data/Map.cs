@@ -25,8 +25,8 @@ namespace Classic.Data
             { Race.Troll, new Map { X = -618.518F, Y = -4251.67F, Z = 38.718F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Durotar }},
 
             // TBC
+            { Race.BloodElf, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.EasternKingdoms, Zone = ZoneID.EversongWoods }}, // TODO
             { Race.Draenei, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.Kalimdor, Zone = ZoneID.Teldrassil }}, // TODO
-            { Race.BloodElf, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.Kalimdor, Zone = ZoneID.Teldrassil }}, // TODO
         };
     }
 }

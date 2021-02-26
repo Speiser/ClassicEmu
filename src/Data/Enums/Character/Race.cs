@@ -12,7 +12,7 @@
         Troll = 8,
 
         // TBC
-        Draenei = 9,
         BloodElf = 10,
+        Draenei = 11,
     }
 }

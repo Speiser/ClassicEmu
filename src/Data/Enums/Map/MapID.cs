@@ -4,5 +4,7 @@
     {
         EasternKingdoms = 0,
         Kalimdor = 1,
+        Outland = 530,
+        Northrend = 571,
     }
 }
