@@ -20,18 +20,19 @@ namespace Classic.World.HeaderUtil
             var index = 0;
             var header = new byte[4];
 
-            if (message.Opcode == Opcode.SMSG_UPDATE_OBJECT && data.Length > 98)
-            {
-                var uncompressed = data.Length;
-                message.Opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
-                data = Compression.Compress(data);
-                data = new PacketWriter().WriteUInt32((uint)uncompressed).WriteBytes(data).Build();
-            }
+            // TODO: Fix for TBC...
+            //if (message.Opcode == Opcode.SMSG_UPDATE_OBJECT && data.Length > 98)
+            //{
+            //    var uncompressed = data.Length;
+            //    message.Opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
+            //    data = Compression.Compress(data);
+            //    data = new PacketWriter().WriteUInt32((uint)uncompressed).WriteBytes(data).Build();
+            //}
 
             var newSize = data.Length + 2;
 
-            //if (newSize > 0x7FFF)
-            //    header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
+            if (newSize > 0x7FFF)
+                header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
 
             header[index++] = (byte)(0xFF & (newSize >> 8));
             header[index++] = (byte)(0xFF & newSize);

@@ -82,8 +82,8 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
             await args.SendPacket<SMSG_ACCOUNT_DATA_TIMES>();
             await args.SendPacket<SMSG_FEATURE_SYSTEM_STATUS>();
-            //SMSG_EXPECTED_SPAM_RECORDS(WorldSession::SendExpectedSpamRecords)
-            await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, "https://github.com/Speiser/ClassicEmu")); // TODO Use SMSG_MOTD
+            await args.Client.SendPacket(new SMSG_EXPECTED_SPAM_RECORDS(Enumerable.Empty<string>()));
+            await args.Client.SendPacket(new SMSG_MOTD("https://github.com/Speiser/ClassicEmu"));
             //await args.Client.SendPacket(new SMSG_NAME_QUERY_RESPONSE(character, args.Client.Build));
             //if (GUILD) -> SMSG_GUILD_EVENT(WorldSession::HandlePlayerLogin)
             if (character.Stats.Life == 0)
@@ -110,7 +110,7 @@ namespace Classic.World.Handler
             //SMSG_ITEM_TIME_UPDATE(Item::SendTimeUpdate)
             //SMSG_FRIEND_STATUS(SocialMgr::MakeFriendStatusPacket)
 
-            //args.Client.Player = player;
+            args.Client.Player = player;
         }
     }
 }

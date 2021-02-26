@@ -30,11 +30,12 @@ namespace Classic.World.Messages.Server
                                    ObjectUpdateFlag_TBC.Self))
 
                 .WriteUInt32((uint)MovementFlags.None)
+                .WriteUInt8(0) // moveFlags2
                 .WriteUInt32((uint)Environment.TickCount)
 
                 .WriteMap(character.Position)
 
-                .WriteFloat(0) // ??
+                .WriteFloat(0x00000015) // ??
 
                 .WriteFloat(2.5f) // WalkSpeed
                 .WriteFloat(7f) // RunSpeed
