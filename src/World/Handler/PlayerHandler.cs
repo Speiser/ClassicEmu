@@ -81,8 +81,9 @@ namespace Classic.World.Handler
                     await args.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(unit));
                 }
 
-                await args.WorldState.SpawnPlayer(character, args.Client.Build);
             }
+
+            await args.WorldState.SpawnPlayer(character, args.Client.Build);
 
             // if (GROUP) -> SMSG_GROUP_LIST
             // if Vanilla

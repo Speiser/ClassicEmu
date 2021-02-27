@@ -131,7 +131,7 @@ namespace Classic.World.Messages.Server
                 .WriteUInt32(0); // ??
 
             // TODO: Can be done somewhere else?
-            var player = new PlayerEntity(character, ClientBuild.Vanilla)
+            var player = new PlayerEntity(character, build)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -147,49 +147,6 @@ namespace Classic.World.Messages.Server
     public class SMSG_UPDATE_OBJECT_VANILLA : ServerMessageBase<Opcode>
     {
         public SMSG_UPDATE_OBJECT_VANILLA() : base(Opcode.SMSG_UPDATE_OBJECT) { }
-
-        public static SMSG_UPDATE_OBJECT_VANILLA CreatePlayer(Character character)
-        {
-            var update = new SMSG_UPDATE_OBJECT_VANILLA();
-
-            update.Writer
-                .WriteUInt32(1) // blocks.Count
-                .WriteUInt8(0) // hasTransport
-
-                .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-                .WriteBytes(character.ID.ToPackedUInt64()) // ? 
-
-                .WriteUInt8((byte)TypeId.TypeidPlayer)
-                .WriteUInt8((byte)(ObjectUpdateFlag_VANILLA.All |
-                                    ObjectUpdateFlag_VANILLA.HasPosition |
-                                    ObjectUpdateFlag_VANILLA.Living))
-
-                .WriteUInt32((uint)MovementFlags.None)
-                .WriteUInt32((uint)Environment.TickCount)
-
-                .WriteMap(character.Position)
-
-                .WriteFloat(0) // ??
-
-                .WriteFloat(2.5f) // WalkSpeed
-                .WriteFloat(7f) // RunSpeed
-                .WriteFloat(2.5f) // Backwards WalkSpeed
-                .WriteFloat(4.72f) // SwimSpeed
-                .WriteFloat(2.5f) // Backwards SwimSpeed
-                .WriteFloat(3.14f) // TurnSpeed
-
-                .WriteInt32(1); // ??
-
-            // TODO: Can be done somewhere else?
-            var player = new PlayerEntity(character, ClientBuild.Vanilla)
-            {
-                ObjectGuid = new ObjectGuid(character.ID),
-                Guid = character.ID
-            };
-
-            player.WriteUpdateFields(update.Writer);
-            return update;
-        }
 
         public static SMSG_UPDATE_OBJECT_VANILLA CreateUnit(Creature unit)
         {

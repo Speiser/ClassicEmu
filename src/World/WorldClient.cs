@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Common;
@@ -9,7 +8,6 @@ using Classic.World.Entities;
 using Classic.World.HeaderUtil;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Classic.World
 {
