@@ -54,7 +54,7 @@ namespace Classic.World.Messages.Client
                 Level = 1,
             };
 
-            character.Position = Map.StartingAreas[character.Race];
+            character.Position = Map.GetStartingPosition(character.Race);
             return character;
         }
     }

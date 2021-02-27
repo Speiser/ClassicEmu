@@ -9,21 +9,30 @@ namespace Classic.World.Messages
     {
         private readonly Character character;
         private readonly MSG_MOVE_GENERIC original;
+        private readonly int build;
 
-        public MovementUpdate(Character character, MSG_MOVE_GENERIC original, Opcode opcode) : base(opcode)
+        public MovementUpdate(Character character, MSG_MOVE_GENERIC original, Opcode opcode, int build) : base(opcode)
         {
             this.character = character;
             this.original = original;
+            this.build = build;
         }
 
-        public override byte[] Get() => this.Writer
-            .WriteBytes(this.character.ID.ToPackedUInt64())
-            .WriteUInt32((uint)this.original.MovementFlags)
-            .WriteUInt32((uint)Environment.TickCount)
-            .WriteFloat(this.original.MapX)
-            .WriteFloat(this.original.MapY)
-            .WriteFloat(this.original.MapZ)
-            .WriteFloat(this.original.MapO)
-            .Build();
+        public override byte[] Get()
+        {
+            this.Writer
+                .WriteBytes(this.character.ID.ToPackedUInt64())
+                .WriteUInt32((uint)this.original.MovementFlags)
+                .WriteUInt32((uint)Environment.TickCount);
+
+            if (this.build == ClientBuild.TBC) this.Writer.WriteUInt8(0); // Movementflags2
+
+            return this.Writer
+                .WriteFloat(this.original.MapX)
+                .WriteFloat(this.original.MapY)
+                .WriteFloat(this.original.MapZ)
+                .WriteFloat(this.original.MapO)
+                .Build();
+        }
     }
 }
