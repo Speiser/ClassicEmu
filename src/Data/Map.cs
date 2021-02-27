@@ -13,7 +13,7 @@ namespace Classic.Data
         public MapID ID { get; set; }
         public ZoneID Zone { get; set; }
 
-        public static Dictionary<Race, Map> StartingAreas = new Dictionary<Race, Map>
+        public static readonly Dictionary<Race, Map> StartingAreas = new Dictionary<Race, Map>
         {
             { Race.Human, new Map { X = -8949.95F, Y = -132.493F, Z = 83.5312F, Orientation = 1F, ID = MapID.EasternKingdoms, Zone = ZoneID.ElwynnForest }},
             { Race.Orc, new Map { X = -618.518F, Y = -4251.67F, Z = 38.718F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Durotar }},
@@ -25,8 +25,8 @@ namespace Classic.Data
             { Race.Troll, new Map { X = -618.518F, Y = -4251.67F, Z = 38.718F, Orientation = 1F, ID = MapID.Kalimdor, Zone = ZoneID.Durotar }},
 
             // TBC
-            { Race.BloodElf, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.EasternKingdoms, Zone = ZoneID.EversongWoods }}, // TODO
-            { Race.Draenei, new Map { X = 10311.3F, Y = 832.463F, Z = 1326.41F, Orientation = 5.69632F, ID = MapID.Kalimdor, Zone = ZoneID.Teldrassil }}, // TODO
+            { Race.BloodElf, new Map { X = 10349.6F, Y = -6357.29F, Z = 33.4026F, Orientation = 5.31605F, ID = MapID.Outland, Zone = ZoneID.SunstriderIsle }},
+            { Race.Draenei, new Map { X = -3961.64F, Y = -13931.2F, Z = 100.615F, Orientation = 2.08364F, ID = MapID.Outland, Zone = ZoneID.AmmenVale }},
         };
     }
 }
