@@ -64,10 +64,28 @@ namespace Classic.World.Handler
             var request = new CMSG_CAST_SPELL(args.Data);
             args.Client.Log($"Casting: {request.SpellId}");
 
+            var unit = args.WorldState.Creatures.SingleOrDefault(c => c.ID == request.TargetId);
+
+            if (unit is null)
+            {
+                args.Client.Log($"Could not find unit: {request.TargetId}");
+                return;
+            }
+            else
+            {
+                args.Client.Log($"{unit.ID} - {unit.Model}");
+            }
+
             // ????
-            await args.Client.SendPacket(SMSG_CAST_RESULT.Success(request.SpellId));
+            //await args.Client.SendPacket(SMSG_CAST_RESULT.Success(request.SpellId));
 
             // Opcode.SMSG_SPELLLOGEXECUTE
+            //m_spellLogData.Initialize(SMSG_SPELLLOGEXECUTE);
+            //m_spellLogData << m_spell->GetCaster()->GetPackGUID();
+            //m_spellLogData << uint32(m_spell->m_spellInfo->Id);
+            //m_spellLogDataEffectsCounterPos = m_spellLogData.wpos();
+            //m_spellLogData << uint32(0);                            //placeholder
+            //m_spellLogDataEffectsCounter = 0;
         }
     }
 }

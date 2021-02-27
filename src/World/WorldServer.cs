@@ -17,7 +17,7 @@ namespace Classic.World
         public WorldServer(IServiceProvider services, ILogger<WorldServer> logger) : base(new IPEndPoint(IPAddress.Loopback, 13250), logger)
         {
             this.services = services;
-            this.State.Creatures.Add(new Creature { Model = 169, Position = Map.StartingAreas[Race.NightElf] });
+            this.State.Creatures.Add(new Creature { Model = 169, Position = Map.GetStartingPosition(Race.NightElf) });
         }
 
         public WorldState State { get; } = new WorldState();

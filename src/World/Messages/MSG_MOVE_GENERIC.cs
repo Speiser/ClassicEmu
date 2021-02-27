@@ -5,10 +5,11 @@ namespace Classic.World.Messages
 {
     public class MSG_MOVE_GENERIC
     {
-        public MSG_MOVE_GENERIC(byte[] data)
+        public MSG_MOVE_GENERIC(byte[] data, int build)
         {
             using var reader = new PacketReader(data);
             MovementFlags = (MovementFlags)reader.ReadUInt32();
+            if (build == ClientBuild.TBC) reader.ReadByte(); // moveflags2
             Time = reader.ReadUInt32();
             MapX = reader.ReadFloat();
             MapY = reader.ReadFloat();

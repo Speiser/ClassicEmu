@@ -77,47 +77,61 @@ namespace Classic.World.Messages.Server
             return update;
         }
 
-        public override byte[] Get() => this.Writer.Build();
-    }
-
-    public class SMSG_UPDATE_OBJECT_VANILLA : ServerMessageBase<Opcode>
-    {
-        public SMSG_UPDATE_OBJECT_VANILLA() : base(Opcode.SMSG_UPDATE_OBJECT) { }
-
-        public static SMSG_UPDATE_OBJECT_VANILLA CreatePlayer(Character character)
+        public static SMSG_UPDATE_OBJECT CreatePlayer(Character character, int build)
         {
-            var update = new SMSG_UPDATE_OBJECT_VANILLA();
+            var update = new SMSG_UPDATE_OBJECT();
 
             update.Writer
                 .WriteUInt32(1) // blocks.Count
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-                .WriteBytes(character.ID.ToPackedUInt64()) // ? 
+                .WriteBytes(character.ID.ToPackedUInt64())
 
-                .WriteUInt8((byte)TypeId.TypeidPlayer)
-                .WriteUInt8((byte)(ObjectUpdateFlag_VANILLA.All |
-                                    ObjectUpdateFlag_VANILLA.HasPosition |
-                                    ObjectUpdateFlag_VANILLA.Living))
+                .WriteUInt8((byte)TypeId.TypeidPlayer);
 
-                .WriteUInt32((uint)MovementFlags.None)
-                .WriteUInt32((uint)Environment.TickCount)
+            var updateFlags = build switch
+            {
+                ClientBuild.Vanilla => (byte)(ObjectUpdateFlag_VANILLA.All
+                                       | ObjectUpdateFlag_VANILLA.HasPosition
+                                       | ObjectUpdateFlag_VANILLA.Living),
+                ClientBuild.TBC => (byte)(ObjectUpdateFlag_TBC.Highguid
+                                   | ObjectUpdateFlag_TBC.HasPosition
+                                   | ObjectUpdateFlag_TBC.Living),
+                _ => throw new NotImplementedException($"GetUpdateFlags(build: {build})"),
+            };
 
-                .WriteMap(character.Position)
+            update.Writer
+                .WriteUInt8(updateFlags)
+                .WriteUInt32((uint)MovementFlags.None);
 
-                .WriteFloat(0) // ??
+            if (build == ClientBuild.TBC) update.Writer.WriteUInt8(0); // moveFlags2
 
-                .WriteFloat(2.5f) // WalkSpeed
-                .WriteFloat(7f) // RunSpeed
-                .WriteFloat(2.5f) // Backwards WalkSpeed
-                .WriteFloat(4.72f) // SwimSpeed
-                .WriteFloat(2.5f) // Backwards SwimSpeed
+            update.Writer
+               .WriteUInt32((uint)Environment.TickCount)
+               .WriteMap(character.Position)
+
+               .WriteFloat(0) // ??
+
+               .WriteFloat(2.5f) // WalkSpeed
+               .WriteFloat(7f) // RunSpeed
+               .WriteFloat(2.5f) // Backwards WalkSpeed
+               .WriteFloat(4.72f) // SwimSpeed
+               .WriteFloat(2.5f); // Backwards SwimSpeed
+
+            if (build == ClientBuild.TBC)
+            {
+                update.Writer
+                    .WriteFloat(14f) // MOVE_FLIGHT
+                    .WriteFloat(14f); // MOVE_FLIGHT_BACK
+            }
+
+            update.Writer
                 .WriteFloat(3.14f) // TurnSpeed
-
-                .WriteInt32(1); // ??
+                .WriteUInt32(0); // ??
 
             // TODO: Can be done somewhere else?
-            var player = new PlayerEntity(character, ClientBuild.Vanilla)
+            var player = new PlayerEntity(character, build)
             {
                 ObjectGuid = new ObjectGuid(character.ID),
                 Guid = character.ID
@@ -126,6 +140,13 @@ namespace Classic.World.Messages.Server
             player.WriteUpdateFields(update.Writer);
             return update;
         }
+
+        public override byte[] Get() => this.Writer.Build();
+    }
+
+    public class SMSG_UPDATE_OBJECT_VANILLA : ServerMessageBase<Opcode>
+    {
+        public SMSG_UPDATE_OBJECT_VANILLA() : base(Opcode.SMSG_UPDATE_OBJECT) { }
 
         public static SMSG_UPDATE_OBJECT_VANILLA CreateUnit(Creature unit)
         {

@@ -20,7 +20,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
         public static async Task OnPlayerMovePrototype(HandlerArguments args)
         {
-            var request = new MSG_MOVE_GENERIC(args.Data);
+            var request = new MSG_MOVE_GENERIC(args.Data, args.Client.Build);
 
             // Always trust the client (for now..)
             args.Client.Character.Position.X = request.MapX;
@@ -32,7 +32,9 @@ namespace Classic.World.Handler
             {
                 if (client.Character is null) continue;
                 if (client.Character.ID == args.Client.Character.ID) continue; // Should not happen?
-                await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode));
+
+                // Put that in a queue and dont await it?
+                await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode, client.Build));
             }
         }
     }
