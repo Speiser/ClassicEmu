@@ -12,7 +12,7 @@ namespace Classic.World.Extensions
                 .AddTransient<WorldClient>()
                 .AddSingleton<WorldPacketHandler>()
                 .AddSingleton<WorldServer>()
-                .AddHostedService<WorldServer>();
+                .AddHostedService(prov => prov.GetService<WorldServer>());
         }
     }
 }
