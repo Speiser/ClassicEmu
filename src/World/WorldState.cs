@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Classic.Common;
 using Classic.Data;
 using Classic.World.Messages.Server;
 
@@ -11,9 +12,14 @@ namespace Classic.World
         public List<WorldClient> Connections { get; } = new List<WorldClient>();
         public List<Creature> Creatures { get; } = new List<Creature>();
 
-        public async Task SpawnPlayer(Character character)
+        public async Task SpawnPlayer(Character character, int build)
         {
-            var updateForOtherActivePlayers = SMSG_UPDATE_OBJECT_VANILLA.CreatePlayer(character);
+            var updateForOtherActivePlayers = new Dictionary<int, SMSG_UPDATE_OBJECT>
+            {
+                { ClientBuild.Vanilla, SMSG_UPDATE_OBJECT.CreatePlayer(character, ClientBuild.Vanilla) },
+                { ClientBuild.TBC, SMSG_UPDATE_OBJECT.CreatePlayer(character, ClientBuild.TBC) },
+            };
+
             var _this = this.Connections.Single(x => x.Character?.ID == character.ID);
 
             foreach (var other in this.Connections)
@@ -21,8 +27,8 @@ namespace Classic.World
                 // TODO: Add range check
                 if (other.Character is null) continue;
                 if (other.Character.ID == character.ID) continue; // Should not happen?
-                await _this.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreatePlayer(other.Character));
-                await other.SendPacket(updateForOtherActivePlayers);
+                await _this.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other.Character, build));
+                await other.SendPacket(updateForOtherActivePlayers[other.Build]);
             }
         }
 

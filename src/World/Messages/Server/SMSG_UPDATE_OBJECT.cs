@@ -77,6 +77,70 @@ namespace Classic.World.Messages.Server
             return update;
         }
 
+        public static SMSG_UPDATE_OBJECT CreatePlayer(Character character, int build)
+        {
+            var update = new SMSG_UPDATE_OBJECT();
+
+            update.Writer
+                .WriteUInt32(1) // blocks.Count
+                .WriteUInt8(0) // hasTransport
+
+                .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
+                .WriteBytes(character.ID.ToPackedUInt64())
+
+                .WriteUInt8((byte)TypeId.TypeidPlayer);
+
+            var updateFlags = build switch
+            {
+                ClientBuild.Vanilla => (byte)(ObjectUpdateFlag_VANILLA.All
+                                       | ObjectUpdateFlag_VANILLA.HasPosition
+                                       | ObjectUpdateFlag_VANILLA.Living),
+                ClientBuild.TBC => (byte)(ObjectUpdateFlag_TBC.Highguid
+                                   | ObjectUpdateFlag_TBC.HasPosition
+                                   | ObjectUpdateFlag_TBC.Living),
+                _ => throw new NotImplementedException($"GetUpdateFlags(build: {build})"),
+            };
+
+            update.Writer
+                .WriteUInt8(updateFlags)
+                .WriteUInt32((uint)MovementFlags.None);
+
+            if (build == ClientBuild.TBC) update.Writer.WriteUInt8(0); // moveFlags2
+
+            update.Writer
+               .WriteUInt32((uint)Environment.TickCount)
+               .WriteMap(character.Position)
+
+               .WriteFloat(0) // ??
+
+               .WriteFloat(2.5f) // WalkSpeed
+               .WriteFloat(7f) // RunSpeed
+               .WriteFloat(2.5f) // Backwards WalkSpeed
+               .WriteFloat(4.72f) // SwimSpeed
+               .WriteFloat(2.5f); // Backwards SwimSpeed
+
+            if (build == ClientBuild.TBC)
+            {
+                update.Writer
+                    .WriteFloat(14f) // MOVE_FLIGHT
+                    .WriteFloat(14f); // MOVE_FLIGHT_BACK
+            }
+
+            update.Writer
+                .WriteFloat(3.14f) // TurnSpeed
+                .WriteUInt32(0); // ??
+
+            // TODO: Can be done somewhere else?
+            var player = new PlayerEntity(character, ClientBuild.Vanilla)
+            {
+                ObjectGuid = new ObjectGuid(character.ID),
+                Guid = character.ID
+            };
+
+            player.WriteUpdateFields(update.Writer);
+            return update;
+        }
+
         public override byte[] Get() => this.Writer.Build();
     }
 
