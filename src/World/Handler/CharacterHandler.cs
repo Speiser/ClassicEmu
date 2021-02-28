@@ -25,7 +25,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CHAR_CREATE)]
         public static async Task OnCharacterCreate(HandlerArguments args)
         {
-            var character = CMSG_CHAR_CREATE.RequestAsCharacter(args.Data);
+            var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(args.Data));
             args.Client.Session.Account.Characters.Add(character);
 
             var status = args.Client.Build switch

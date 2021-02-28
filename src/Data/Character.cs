@@ -11,7 +11,6 @@ namespace Classic.Data
         {
             ID = Cryptography.Random.GetUInt64();
             Created = DateTime.UtcNow;
-            ActionBar[0] = ActionBarItem.Fireball();
         }
 
         public ulong ID { get; set; }
@@ -26,17 +25,17 @@ namespace Classic.Data
         public byte HairColor { get; set; }
         public byte FacialHair { get; set; }
         public byte OutfitId { get; set; }
-        public Map Position { get; set; } // TODO: From ctor?
+        public Map Position { get; set; }
         public ConcurrentBag<InventoryItem> Inventory { get; } = new ConcurrentBag<InventoryItem>();
         public CharacterAttributes Attributes { get; } = new CharacterAttributes(); // TODO: From ctor?
         public CharacterResistances Resistances { get; } = new CharacterResistances(); // TODO: From ctor?
         public CharacterStats Stats { get; } = new CharacterStats(); // TODO: From ctor?
         public CharacterStats MaxStats { get; } = new CharacterStats(); // TODO: From ctor?
         public CharacterFlag Flag { get; set; } = CharacterFlag.None;
-        public DateTime Created { get; set; }
-        public List<Skill> Skills { get; set; } = new List<Skill> { Skill.Staves() };
-        public List<Spell> Spells { get; set; } = new List<Spell> { Spell.Fireball() };
-        public ActionBarItem[] ActionBar { get; set; } = new ActionBarItem[120];
+        public DateTime Created { get; }
+        public List<Skill> Skills { get; init; }
+        public List<Spell> Spells { get; init; }
+        public ActionBarItem[] ActionBar { get; init; }
 
         public int WatchFaction { get; set; } = 255; // ?? as enum
         public RestedState RestedState { get; set; } = RestedState.Rested;

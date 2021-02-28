@@ -1,4 +1,5 @@
 ﻿using Classic.Common;
+using Classic.Data.Enums.Map;
 
 namespace Classic.World.Messages.Client
 {
@@ -7,9 +8,9 @@ namespace Classic.World.Messages.Client
         public CMSG_ZONEUPDATE(byte[] data)
         {
             using var reader = new PacketReader(data);
-            NewZone = reader.ReadUInt32();
+            NewZone = (ZoneID)reader.ReadUInt32();
         }
 
-        public uint NewZone { get; }
+        public ZoneID NewZone { get; }
     }
 }
