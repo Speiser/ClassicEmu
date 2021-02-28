@@ -24,9 +24,11 @@ namespace Classic.World
 
             foreach (var other in this.Connections)
             {
-                // TODO: Add range check
                 if (other.Character is null) continue;
-                if (other.Character.ID == character.ID) continue; // Should not happen?
+                if (other.Character.ID == character.ID) continue;
+                
+                if (!IsInRange(character, other.Character)) continue;
+
                 await _this.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other.Character, build));
                 await other.SendPacket(updateForOtherActivePlayers[other.Build]);
             }
@@ -38,10 +40,15 @@ namespace Classic.World
 
             foreach (var connection in this.Connections)
             {
-                // TODO: Add range check
                 if (connection.Character is null) continue;
+
+                if (!IsInRange(connection.Character, creature)) continue;
+
                 await connection.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(creature));
             }
         }
+
+        // Pseudo "range check"
+        private static bool IsInRange(IHasPosition a, IHasPosition b) => a.Position.Zone == b.Position.Zone;
     }
 }

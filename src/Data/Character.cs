@@ -5,7 +5,7 @@ using Classic.Data.Enums.Character;
 
 namespace Classic.Data
 {
-    public class Character
+    public class Character : IHasPosition
     {
         public Character()
         {

@@ -14,6 +14,8 @@ namespace Classic.Data
         public MapID ID { get; set; }
         public ZoneID Zone { get; set; }
 
+        public Map Copy() => new Map { X = this.X, Y = this.Y, Z = this.Z, Orientation = this.Orientation, ID = this.ID, Zone = this.Zone };
+
         private static readonly Dictionary<Race, Func<Map>> StartingAreas = new Dictionary<Race, Func<Map>>
         {
             { Race.Human, () => new Map { X = -8949.95F, Y = -132.493F, Z = 83.5312F, Orientation = 1F, ID = MapID.EasternKingdoms, Zone = ZoneID.ElwynnForest }},

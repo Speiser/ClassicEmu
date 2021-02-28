@@ -1,6 +1,6 @@
 ﻿namespace Classic.Data
 {
-    public class Creature
+    public class Creature : IHasPosition
     {
         public Creature()
         {
