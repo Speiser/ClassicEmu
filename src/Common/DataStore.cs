@@ -13,8 +13,11 @@ namespace Classic.Common
     public class DataStore
     {
         private const string AccountsFile = "accounts.json";
+        private const string CharactersFile = "chars.json";
 
         public static ConcurrentDictionary<string, Account> Accounts { get; private set; }
+
+        public static ConcurrentDictionary<ulong, Character> Characters { get; private set; }
 
         public static ConcurrentDictionary<string, AccountSession> Sessions { get; } = new ConcurrentDictionary<string, AccountSession>();
 
@@ -34,18 +37,28 @@ namespace Classic.Common
             {
                 Accounts = new ConcurrentDictionary<string, Account>();
             }
+
+            if (File.Exists(CharactersFile))
+            {
+                var json = await File.ReadAllTextAsync(CharactersFile);
+                var characters = JsonConvert.DeserializeObject<Dictionary<ulong, Character>>(json);
+                Characters = new ConcurrentDictionary<ulong, Character>(characters);
+            }
+            else
+            {
+                Characters = new ConcurrentDictionary<ulong, Character>();
+            }
         }
 
         public static async Task Save()
         {
-            var json = JsonConvert.SerializeObject(Accounts);
-            await File.WriteAllTextAsync(AccountsFile, json);
+            var accountJson = JsonConvert.SerializeObject(Accounts);
+            await File.WriteAllTextAsync(AccountsFile, accountJson);
+
+            var characterJson = JsonConvert.SerializeObject(Characters);
+            await File.WriteAllTextAsync(CharactersFile, characterJson);
         }
 
-        public static Character GetCharacter(ulong charID) // TODO find a better way...
-            => Sessions
-                .SelectMany(x => x.Value.Account.Characters)
-                .Where(c => c.ID == charID)
-                .FirstOrDefault();
+        public static Character GetCharacter(ulong charID) => Characters.TryGetValue(charID, out var c) ? c : null;
     }
 }

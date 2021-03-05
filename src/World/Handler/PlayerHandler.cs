@@ -5,6 +5,7 @@ using Classic.World.Extensions;
 using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
 {
@@ -16,7 +17,17 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogin(HandlerArguments args)
         {
             var request = new CMSG_PLAYER_LOGIN(args.Data);
-            var character = args.Client.Session.Account.Characters.Single(x => x.ID == request.CharacterID);
+            var character = DataStore.GetCharacter(request.CharacterID);
+
+            // Login with a deleted character or a character from another account. 
+            // TODO: Split for different log messages.
+            if (character is null || !args.Client.Session.Account.Characters.Contains(character.ID))
+            {
+                args.Client.Log(
+                    $"{args.Client.Session.Account.Identifier} tried to login with a deleted character or a character from another account.",
+                    LogLevel.Warning);
+                return;
+            }
 
             args.Client.Log($"Player logged in with char {character.Name}");
 
