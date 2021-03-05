@@ -1,5 +1,4 @@
-﻿using Classic.Common;
-using Classic.Data.Enums;
+﻿using Classic.World.Data.Enums;
 
 namespace Classic.World.Messages.Server
 {

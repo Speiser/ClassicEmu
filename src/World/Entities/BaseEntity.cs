@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using Classic.Common;
+using Classic.Shared;
 
 namespace Classic.World.Entities
 {

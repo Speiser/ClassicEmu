@@ -1,4 +1,4 @@
-﻿using Classic.Common;
+﻿using Classic.World.Messages;
 
 namespace Classic.World.HeaderUtil
 {

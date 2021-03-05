@@ -1,5 +1,5 @@
-﻿using Classic.Common;
-using Classic.Data.Enums.Character;
+﻿using Classic.Shared;
+using Classic.World.Data.Enums.Character;
 using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Client

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared.Data;
 using Classic.World.Extensions;
 using Classic.World.Messages;
 using Classic.World.Messages.Client;
@@ -21,7 +21,7 @@ namespace Classic.World.Handler
 
             // Login with a deleted character or a character from another account. 
             // TODO: Split for different log messages.
-            if (character is null || !args.Client.Session.Account.Characters.Contains(character.ID))
+            if (character is null || !args.Client.Session.Account.Characters.Contains(character.Id))
             {
                 args.Client.Log(
                     $"{args.Client.Session.Account.Identifier} tried to login with a deleted character or a character from another account.",
@@ -48,7 +48,7 @@ namespace Classic.World.Handler
 
             if (args.IsVanilla())
             {
-                await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.ID, MessageOfTheDay));
+                await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.Id, MessageOfTheDay));
             }
             else if (args.IsTBC())
             {
@@ -75,7 +75,7 @@ namespace Classic.World.Handler
             await args.Client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
             // SMSG_SEND_UNLEARN_SPELLS
             await args.Client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
-            await args.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.Vanilla));
+            await args.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.Vanilla)); // BUG??
             await args.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 

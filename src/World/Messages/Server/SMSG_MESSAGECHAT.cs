@@ -1,6 +1,5 @@
 ﻿using System.Text;
-using Classic.Common;
-using Classic.Data.Enums.Chat;
+using Classic.World.Data.Enums.Chat;
 
 namespace Classic.World.Messages.Server
 {

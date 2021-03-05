@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using Classic.Common;
-using Classic.Cryptography;
+using Classic.World.Cryptography;
+using Classic.World.Messages;
 
 namespace Classic.World.HeaderUtil
 {

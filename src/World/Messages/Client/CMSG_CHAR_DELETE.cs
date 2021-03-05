@@ -1,4 +1,4 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
 
 namespace Classic.World.Messages.Client
 {
@@ -8,10 +8,10 @@ namespace Classic.World.Messages.Client
         {
             using (var reader = new PacketReader(data))
             {
-                CharacterID = reader.ReadUInt64();
+                CharacterId = reader.ReadUInt64();
             }
         }
 
-        public ulong CharacterID { get; }
+        public ulong CharacterId { get; }
     }
 }

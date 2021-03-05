@@ -1,4 +1,5 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
+using Classic.Shared.Data;
 using Classic.World.Entities.Enums;
 
 namespace Classic.World.Messages

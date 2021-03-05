@@ -1,5 +1,5 @@
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared;
+using Classic.World.Data;
 
 namespace Classic.World.Extensions
 {

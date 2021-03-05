@@ -1,7 +1,4 @@
-﻿using Classic.Common;
-using Classic.Cryptography;
-
-namespace Classic.World.Messages.Server
+﻿namespace Classic.World.Messages.Server
 {
     public class SMSG_AUTH_CHALLENGE_VANILLA_TBC : ServerMessageBase<Opcode>
     {
@@ -29,8 +26,8 @@ namespace Classic.World.Messages.Server
             .WriteUInt16((ushort)this.Opcode)
             .WriteUInt32(1) // 1..31 ???
             .WriteUInt32(3) // m_seed ???
-            .WriteBytes(Random.GetBytes(16)) // seed1
-            .WriteBytes(Random.GetBytes(16)) // seed2
+            .WriteBytes(Shared.Cryptography.Random.GetBytes(16)) // seed1
+            .WriteBytes(Shared.Cryptography.Random.GetBytes(16)) // seed2
             .Build();
     }
 }

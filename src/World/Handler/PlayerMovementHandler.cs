@@ -31,7 +31,7 @@ namespace Classic.World.Handler
             foreach (var client in args.WorldState.Connections)
             {
                 if (client.Character is null) continue;
-                if (client.Character.ID == args.Client.Character.ID) continue; // Should not happen?
+                if (client.Character.Id == args.Client.Character.Id) continue; // Should not happen?
 
                 // Put that in a queue and dont await it?
                 await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode, client.Build));

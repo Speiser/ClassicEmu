@@ -1,6 +1,6 @@
 using Classic.Auth.Entities;
-using Classic.Common;
-using Classic.Cryptography;
+using Classic.Auth.Cryptography;
+using Classic.Shared;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges

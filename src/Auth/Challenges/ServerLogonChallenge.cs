@@ -1,6 +1,6 @@
-using Classic.Common;
-using Classic.Cryptography;
-using Classic.Cryptography.Extensions;
+using Classic.Auth.Cryptography;
+using Classic.Auth.Cryptography.Extensions;
+using Classic.Shared;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges

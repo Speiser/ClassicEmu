@@ -3,7 +3,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared;
+using Classic.Shared.Data;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,9 @@ namespace Classic.World.Handler
                 args.Client.Build = build;
             }
 
-            if (!DataStore.Sessions.TryGetValue(request.AccountName, out var session))
+            var session = AccountStore.GetSession(request.AccountName);
+
+            if (session is null)
             {
                 // return [SMSG_AUTH_RESPONSE, 21]
                 throw new ArgumentException($"No user with name {request.AccountName} found in db.");

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using Classic.Auth.Entities;
-using Classic.Common;
+using Classic.Shared;
 
 namespace Classic.Auth.Challenges.Abstract
 {

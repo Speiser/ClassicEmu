@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Classic.Common;
-using Classic.Data;
-using Classic.Data.Enums.Character;
+using Classic.Shared;
+using Classic.World.Data;
+using Classic.World.Data.Enums.Character;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

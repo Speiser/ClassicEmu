@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Classic.Common;
-using Classic.Data;
+using Classic.World.Data;
 using Classic.World.Messages.Client;
 
 namespace Classic.World.Handler
@@ -18,10 +17,6 @@ namespace Classic.World.Handler
                 var spawnId = int.Parse(request.Message.Split(" ")[1]);
                 var creature = new Creature { Model = spawnId, Position = args.Client.Character.Position.Copy() };
                 await args.WorldState.SpawnCreature(creature);
-            }
-            else if (request.Message == ".save")
-            {
-                await DataStore.Save();
             }
         }
     }

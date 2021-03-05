@@ -1,6 +1,6 @@
 ﻿using System;
-using Classic.Common;
-using Classic.Cryptography;
+using Classic.Shared.Data;
+using Classic.World.Cryptography;
 
 namespace Classic.World.HeaderUtil
 {

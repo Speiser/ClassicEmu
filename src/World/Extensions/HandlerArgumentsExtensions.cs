@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared.Data;
+using Classic.World.Messages;
 
 namespace Classic.World.Extensions
 {

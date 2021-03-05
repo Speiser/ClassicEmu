@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Classic.Common;
-using Classic.World.Extensions;
+using Classic.Shared;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 

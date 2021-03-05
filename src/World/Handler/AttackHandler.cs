@@ -31,7 +31,7 @@ namespace Classic.World.Handler
             }
 
             // TODO: Checks if can attack, range check etc.
-            await args.Client.SendPacket(new SMSG_ATTACKSTART(args.Client.Character.ID, unit.ID));
+            await args.Client.SendPacket(new SMSG_ATTACKSTART(args.Client.Character.Id, unit.ID));
 
             // TODO: Do this somewhere else (Add AttackController to Player??)
             _ = Task.Run(async () =>
@@ -40,7 +40,7 @@ namespace Classic.World.Handler
                 for (var i = 0; i < 500; i++)
                 {
                     await Task.Delay(500);
-                    await args.Client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(args.Client.Character.ID, unit.ID));
+                    await args.Client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(args.Client.Character.Id, unit.ID));
                 }
             });
         }

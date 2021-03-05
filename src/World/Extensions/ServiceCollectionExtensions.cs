@@ -1,4 +1,4 @@
-﻿using Classic.Cryptography;
+﻿using Classic.World.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Classic.World.Extensions

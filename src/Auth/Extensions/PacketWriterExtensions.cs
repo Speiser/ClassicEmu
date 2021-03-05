@@ -1,5 +1,5 @@
 ﻿using Classic.Auth.Entities;
-using Classic.Common;
+using Classic.Shared;
 
 namespace Classic.Auth.Extensions
 {

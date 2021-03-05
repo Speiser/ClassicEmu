@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Classic.Auth.Entities;
 using Classic.Auth.Extensions;
-using Classic.Common;
+using Classic.Shared;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges

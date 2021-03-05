@@ -2,11 +2,11 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Challenges;
 using Classic.Auth.Entities;
-using Classic.Common;
-using Classic.Cryptography;
-using Classic.Data;
+using Classic.Shared;
+using Classic.Auth.Cryptography;
 using Microsoft.Extensions.Logging;
 using static Classic.Auth.Opcode;
+using Classic.Shared.Data;
 
 namespace Classic.Auth
 {
@@ -57,8 +57,17 @@ namespace Classic.Auth
                 case REALMLIST:
                     if (!this.isReconnect)
                     {
-                        var session = new AccountSession(this.SRP.I, this.SRP.SessionKey);
-                        DataStore.Sessions.TryAdd(this.SRP.I, session);
+                        var account = AccountStore.GetAccount(this.SRP.I);
+
+                        // for development, create new account if not found
+                        if (account is null)
+                        {
+                            account = new Account { Identifier = this.SRP.I };
+                            AccountStore.AddAccount(account);
+                        }
+
+                        var session = new AccountSession(account, this.SRP.SessionKey);
+                        AccountStore.AddSession(session);
                     }
                     await ServerRealmlist.Send(this);
                     break;

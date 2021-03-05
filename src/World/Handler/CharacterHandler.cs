@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
+using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ namespace Classic.World.Handler
             foreach (var id in args.Client.Session.Account.Characters)
             {
                 var c = DataStore.GetCharacter(id);
-                if (c == null)
+                if (c is null)
                 {
                     args.Client.Log($"Could not find character with id {id} from player {args.Client.Session.Account.Identifier}.", LogLevel.Warning);
                     continue;
@@ -43,10 +43,9 @@ namespace Classic.World.Handler
         {
             byte status;
             var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(args.Data));
-            args.Client.Session.Account.Characters.Add(character.ID);
-            if (!DataStore.Characters.TryAdd(character.ID, character))
+            if (!DataStore.AddCharacter(character))
             {
-                args.Client.Log($"Could not add created character {character.Name} - {character.ID}.", LogLevel.Warning);
+                args.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
                 status = args.Client.Build switch
                 {
                     ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_ERROR,
@@ -56,6 +55,7 @@ namespace Classic.World.Handler
             }
             else
             {
+                args.Client.Session.Account.Characters.Add(character.Id);
                 status = args.Client.Build switch
                 {
                     ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
@@ -73,19 +73,19 @@ namespace Classic.World.Handler
             var request = new CMSG_CHAR_DELETE(args.Data);
 
             // Removing character of other account
-            if (!args.Client.Session.Account.Characters.Contains(request.CharacterID))
+            if (!args.Client.Session.Account.Characters.Contains(request.CharacterId))
             {
                 await args.Client.SendPacket(GetFailedPacket(args.Client.Build));
                 return;
             }
 
-            if (!DataStore.Characters.TryRemove(request.CharacterID, out var _))
+            if (!DataStore.DeleteCharacter(request.CharacterId))
             {
                 await args.Client.SendPacket(GetFailedPacket(args.Client.Build));
                 return;
             }
 
-            args.Client.Session.Account.Characters.Remove(request.CharacterID);
+            args.Client.Session.Account.Characters.Remove(request.CharacterId);
 
             var status = args.Client.Build switch
             {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Classic.Data;
-using Classic.Data.Enums.Character;
-using Classic.Data.Enums.Map;
+using Classic.World.Data;
+using Classic.World.Data.Enums.Character;
+using Classic.World.Data.Enums.Map;
 using Classic.World.Messages.Client;
 
 namespace Classic.World
@@ -53,7 +53,7 @@ namespace Classic.World
             return new List<Skill> { Skill.Staves() };
         }
 
-        private static ActionBarItem[]GetInitialActionBar(Race race, Classes _class)
+        private static ActionBarItem[] GetInitialActionBar(Race race, Classes _class)
         {
             var actionBar = new ActionBarItem[120];
             actionBar[0] = ActionBarItem.Fireball();

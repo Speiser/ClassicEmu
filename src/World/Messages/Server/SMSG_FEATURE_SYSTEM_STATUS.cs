@@ -1,6 +1,4 @@
-﻿using Classic.Common;
-
-namespace Classic.World.Messages.Server
+﻿namespace Classic.World.Messages.Server
 {
     // Added in 2.2.0
     public class SMSG_FEATURE_SYSTEM_STATUS : ServerMessageBase<Opcode>

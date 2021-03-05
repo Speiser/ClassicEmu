@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
 using Classic.World.Messages.Server;
 
 namespace Classic.World
@@ -20,12 +20,12 @@ namespace Classic.World
                 { ClientBuild.TBC, SMSG_UPDATE_OBJECT.CreatePlayer(character, ClientBuild.TBC) },
             };
 
-            var _this = this.Connections.Single(x => x.Character?.ID == character.ID);
+            var _this = this.Connections.Single(x => x.Character?.Id == character.Id);
 
             foreach (var other in this.Connections)
             {
                 if (other.Character is null) continue;
-                if (other.Character.ID == character.ID) continue;
+                if (other.Character.Id == character.Id) continue;
                 
                 if (!IsInRange(character, other.Character)) continue;
 

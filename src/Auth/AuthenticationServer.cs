@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +27,7 @@ namespace Classic.Auth
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            await DataStore.Save();
+            AccountStore.ClearAccountSessions();
             await base.StopAsync(cancellationToken);
         }
     }
