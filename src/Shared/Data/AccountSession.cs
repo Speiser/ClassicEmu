@@ -5,15 +5,14 @@ namespace Classic.Shared.Data
     public class AccountSession
     {
         public AccountSession() { }
-        public AccountSession(Account account, byte[] sessionKey)
+        public AccountSession(string identifier, byte[] sessionKey)
         {
             this.SessionKey = sessionKey;
-            this.Account = account;
+            this.Identifier = identifier;
         }
 
         public ObjectId Id { get; set; }
-        public string Identifier => this.Account.Identifier;
+        public string Identifier { get; set; }
         public byte[] SessionKey { get; set; }
-        public Account Account { get; set; }
     }
 }

@@ -57,17 +57,17 @@ namespace Classic.Auth
                 case REALMLIST:
                     if (!this.isReconnect)
                     {
-                        var account = AccountStore.GetAccount(this.SRP.I);
+                        var account = AccountStore.AccountRepository.GetAccount(this.SRP.I);
 
                         // for development, create new account if not found
                         if (account is null)
                         {
                             account = new Account { Identifier = this.SRP.I };
-                            AccountStore.AddAccount(account);
+                            AccountStore.AccountRepository.AddAccount(account);
                         }
 
-                        var session = new AccountSession(account, this.SRP.SessionKey);
-                        AccountStore.AddSession(session);
+                        var session = new AccountSession(this.SRP.I, this.SRP.SessionKey);
+                        AccountStore.AccountSessionRepository.AddSession(session);
                     }
                     await ServerRealmlist.Send(this);
                     break;

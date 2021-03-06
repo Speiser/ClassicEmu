@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.World.Extensions;
 using Classic.World.Messages;
@@ -17,14 +18,15 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogin(HandlerArguments args)
         {
             var request = new CMSG_PLAYER_LOGIN(args.Data);
-            var character = DataStore.GetCharacter(request.CharacterID);
+            var character = DataStore.CharacterRepository.GetCharacter(request.CharacterID);
+            var account = AccountStore.AccountRepository.GetAccount(args.Client.Identifier);
 
             // Login with a deleted character or a character from another account. 
             // TODO: Split for different log messages.
-            if (character is null || !args.Client.Session.Account.Characters.Contains(character.Id))
+            if (character is null || !account.Characters.Contains(character.Id))
             {
                 args.Client.Log(
-                    $"{args.Client.Session.Account.Identifier} tried to login with a deleted character or a character from another account.",
+                    $"{account.Identifier} tried to login with a deleted character or a character from another account.",
                     LogLevel.Warning);
                 return;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Messages;
@@ -15,13 +16,15 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CHAR_ENUM)]
         public static async Task OnCharacterEnum(HandlerArguments args)
         {
+            var account = AccountStore.AccountRepository.GetAccount(args.Client.Identifier);
             var characters = new List<Character>();
-            foreach (var id in args.Client.Session.Account.Characters)
+
+            foreach (var id in account.Characters)
             {
-                var c = DataStore.GetCharacter(id);
+                var c = DataStore.CharacterRepository.GetCharacter(id);
                 if (c is null)
                 {
-                    args.Client.Log($"Could not find character with id {id} from player {args.Client.Session.Account.Identifier}.", LogLevel.Warning);
+                    args.Client.Log($"Could not find character with id {id} from player {account.Identifier}.", LogLevel.Warning);
                     continue;
                 }
 
@@ -43,7 +46,7 @@ namespace Classic.World.Handler
         {
             byte status;
             var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(args.Data));
-            if (!DataStore.AddCharacter(character))
+            if (!DataStore.CharacterRepository.AddCharacter(character))
             {
                 args.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
                 status = args.Client.Build switch
@@ -55,7 +58,10 @@ namespace Classic.World.Handler
             }
             else
             {
-                args.Client.Session.Account.Characters.Add(character.Id);
+                var account = AccountStore.AccountRepository.GetAccount(args.Client.Identifier);
+                account.Characters.Add(character.Id);
+                AccountStore.AccountRepository.UpdateAccount(account);
+
                 status = args.Client.Build switch
                 {
                     ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
@@ -71,21 +77,23 @@ namespace Classic.World.Handler
         public static async Task OnCharacterDelete(HandlerArguments args)
         {
             var request = new CMSG_CHAR_DELETE(args.Data);
+            var account = AccountStore.AccountRepository.GetAccount(args.Client.Identifier);
 
             // Removing character of other account
-            if (!args.Client.Session.Account.Characters.Contains(request.CharacterId))
+            if (!account.Characters.Contains(request.CharacterId))
             {
                 await args.Client.SendPacket(GetFailedPacket(args.Client.Build));
                 return;
             }
 
-            if (!DataStore.DeleteCharacter(request.CharacterId))
+            if (!DataStore.CharacterRepository.DeleteCharacter(request.CharacterId))
             {
                 await args.Client.SendPacket(GetFailedPacket(args.Client.Build));
                 return;
             }
 
-            args.Client.Session.Account.Characters.Remove(request.CharacterId);
+            account.Characters.Remove(request.CharacterId);
+            AccountStore.AccountRepository.UpdateAccount(account);
 
             var status = args.Client.Build switch
             {

@@ -27,7 +27,7 @@ namespace Classic.Auth
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            AccountStore.ClearAccountSessions();
+            AccountStore.AccountSessionRepository.ClearAccountSessions();
             await base.StopAsync(cancellationToken);
         }
     }

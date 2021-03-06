@@ -24,12 +24,12 @@ namespace Classic.World.Handler
                 args.Client.Build = build;
             }
 
-            var session = AccountStore.GetSession(request.AccountName);
+            var session = AccountStore.AccountSessionRepository.GetSession(request.Identifier);
 
             if (session is null)
             {
                 // return [SMSG_AUTH_RESPONSE, 21]
-                throw new ArgumentException($"No user with name {request.AccountName} found in db.");
+                throw new ArgumentException($"No user with name {request.Identifier} found in db.");
             }
 
             ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
@@ -39,7 +39,7 @@ namespace Classic.World.Handler
             {
                 using var sha = new SHA1CryptoServiceProvider();
                 var calculatedDigest = sha.ComputeHash(
-                    Encoding.ASCII.GetBytes(request.AccountName)
+                    Encoding.ASCII.GetBytes(request.Identifier)
                         .Concat(new byte[] { 0, 0, 0, 0 })
                         .Concat(BitConverter.GetBytes(request.Seed))
                         .Concat(SMSG_AUTH_CHALLENGE_VANILLA_TBC.AuthSeed)
@@ -55,8 +55,8 @@ namespace Classic.World.Handler
                 args.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
             }
 
+            args.Client.Identifier = request.Identifier;
             await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
-            args.Client.Session = session;
         }
 
         // TODO: How to use with wotlk?

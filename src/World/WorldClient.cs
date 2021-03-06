@@ -30,7 +30,7 @@ namespace Classic.World
         {
             await base.Initialize(client);
 
-            this.addressToClientBuildMap = AccountStore.GetClientBuildFromAddress(this.Address, this.Port);
+            this.addressToClientBuildMap = AccountStore.AccountSessionRepository.GetClientBuildFromAddress(this.Address, this.Port);
 
             if (this.addressToClientBuildMap is null)
             {
@@ -58,8 +58,8 @@ namespace Classic.World
         }
 
         public int Build { get; internal set; }
+        public string Identifier { get; internal set; }
 
-        public AccountSession Session { get; internal set; }
         public PlayerEntity Player { get; internal set; }
         public Character Character => Player?.Character;
 
@@ -127,11 +127,13 @@ namespace Classic.World
         protected override void OnDisconnected()
         {
             this.worldState.Connections.Remove(this);
-            var identifier = this.Session.Account.Identifier;
-            AccountStore.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
-            if (!AccountStore.DeleteSession(identifier))
+            if (this.addressToClientBuildMap is not null)
             {
-                this.logger.LogError($"Could not remove session \"{identifier}\"");
+                AccountStore.AccountSessionRepository.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
+            }
+            if (!AccountStore.AccountSessionRepository.DeleteSession(this.Identifier))
+            {
+                this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
             }
         }
     }
