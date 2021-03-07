@@ -29,7 +29,6 @@ namespace Classic.Auth
 
         public SecureRemotePasswordProtocol SRP { get; internal set; }
 
-        public GameVersion GameVersion { get; internal set; }
         public int Build { get; internal set; }
 
         protected override async Task HandlePacket(byte[] packet)
