@@ -1,19 +1,19 @@
-using Classic.Auth.Entities;
 using Classic.Auth.Cryptography;
 using Classic.Shared;
 using static Classic.Auth.Opcode;
+using Classic.Shared.Data;
 
 namespace Classic.Auth.Challenges
 {
     public class ServerLogonProof
     {
         private readonly SecureRemotePasswordProtocol srp;
-        private readonly GameVersion gameVersion;
+        private readonly int build;
 
-        public ServerLogonProof(SecureRemotePasswordProtocol srp, GameVersion gameVersion)
+        public ServerLogonProof(SecureRemotePasswordProtocol srp, int build)
         {
             this.srp = srp;
-            this.gameVersion = gameVersion;
+            this.build = build;
         }
 
         public byte[] Get(byte[] clientPublicValue, byte[] clientProof)
@@ -27,7 +27,7 @@ namespace Classic.Auth.Challenges
                     .WriteBytes( /* M[20] */ this.srp.M)
                     .WriteUInt32(/* unk   */ 0);
 
-                if (this.gameVersion == GameVersion.WotLK)
+                if (this.build > ClientBuild.Vanilla)
                 {
                     packet
                         .WriteUInt32(/* unk2 */ 0)

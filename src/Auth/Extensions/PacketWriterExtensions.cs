@@ -1,21 +1,21 @@
-﻿using Classic.Auth.Entities;
-using Classic.Shared;
+﻿using Classic.Shared;
+using Classic.Shared.Data;
 
 namespace Classic.Auth.Extensions
 {
     internal static class PacketWriterExtensions
     {
-        public static PacketWriter WriteNumberOfRealms(this PacketWriter writer, int numberOfRealms, GameVersion gameVersion) => gameVersion switch
+        public static PacketWriter WriteNumberOfRealms(this PacketWriter writer, int numberOfRealms, int build) => build switch
         {
-            GameVersion.Classic => writer.WriteUInt8((byte)numberOfRealms),
-            GameVersion.WotLK => writer.WriteUInt16((ushort)numberOfRealms),
+            ClientBuild.Vanilla => writer.WriteUInt8((byte)numberOfRealms),
+            ClientBuild.TBC or ClientBuild.WotLK => writer.WriteUInt16((ushort)numberOfRealms),
             _ => throw new System.NotImplementedException(),
         };
 
-        public static PacketWriter WriteRealmType(this PacketWriter writer, int realmType, GameVersion gameVersion) => gameVersion switch
+        public static PacketWriter WriteRealmType(this PacketWriter writer, int realmType, int build) => build switch
         {
-            GameVersion.Classic => writer.WriteUInt32((uint)realmType),
-            GameVersion.WotLK => writer.WriteUInt8((byte)realmType),
+            ClientBuild.Vanilla => writer.WriteUInt32((uint)realmType),
+            ClientBuild.TBC or ClientBuild.WotLK => writer.WriteUInt8((byte)realmType),
             _ => throw new System.NotImplementedException(),
         };
     }

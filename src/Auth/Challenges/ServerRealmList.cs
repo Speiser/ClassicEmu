@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Classic.Auth.Entities;
 using Classic.Auth.Extensions;
 using Classic.Shared;
+using Classic.Shared.Data;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
@@ -27,13 +28,13 @@ namespace Classic.Auth.Challenges
         {
             using var info = new PacketWriter()
                 .WriteUInt32(/* unk */ 0)
-                .WriteNumberOfRealms(Realmlist.Count, client.GameVersion);
+                .WriteNumberOfRealms(Realmlist.Count, client.Build);
 
             foreach (var realm in Realmlist)
             {
-                info.WriteRealmType(realm.Type, client.GameVersion);
+                info.WriteRealmType(realm.Type, client.Build);
 
-                if (client.GameVersion == GameVersion.WotLK)
+                if (client.Build > ClientBuild.Vanilla)
                 {
                     info.WriteUInt8(realm.Lock); // 1 is lock
                 }
@@ -46,22 +47,22 @@ namespace Classic.Auth.Challenges
                     .WriteUInt8( /* num_chars  */ 0)
                     .WriteUInt8(realm.TimeZone);
 
-                if (client.GameVersion == GameVersion.Classic)
+                if (client.Build == ClientBuild.Vanilla)
                 {
                     info.WriteUInt8( /* unk */ 0);
                 }
-                else if (client.GameVersion == GameVersion.WotLK)
+                else
                 {
                     // Realm ID for tbc and wotlk
                     info.WriteUInt8(0x2C);
                 }
             }
 
-            if (client.GameVersion == GameVersion.Classic)
+            if (client.Build == ClientBuild.Vanilla)
             {
                 info.WriteUInt16(0x0002);
             }
-            else if (client.GameVersion == GameVersion.WotLK)
+            else
             {
                 info.WriteUInt16(0x0010);
             }

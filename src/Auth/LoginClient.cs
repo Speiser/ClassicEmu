@@ -1,12 +1,12 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Challenges;
+using Classic.Auth.Cryptography;
 using Classic.Auth.Entities;
 using Classic.Shared;
-using Classic.Auth.Cryptography;
+using Classic.Shared.Data;
 using Microsoft.Extensions.Logging;
 using static Classic.Auth.Opcode;
-using Classic.Shared.Data;
 
 namespace Classic.Auth
 {
@@ -30,6 +30,7 @@ namespace Classic.Auth
         public SecureRemotePasswordProtocol SRP { get; internal set; }
 
         public GameVersion GameVersion { get; internal set; }
+        public int Build { get; internal set; }
 
         protected override async Task HandlePacket(byte[] packet)
         {
