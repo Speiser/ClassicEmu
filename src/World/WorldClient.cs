@@ -58,6 +58,7 @@ namespace Classic.World
         }
 
         public int Build { get; internal set; }
+        public bool IsInWorld { get; internal set; }
         public string Identifier { get; internal set; }
 
         public PlayerEntity Player { get; internal set; }

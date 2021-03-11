@@ -82,6 +82,7 @@ namespace Classic.World.Handler
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 
             await args.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, args.Client.Build, out var player));
+            args.Client.IsInWorld = true;
             args.Client.Player = player;
 
             // TODO: Implement for TBC
@@ -119,6 +120,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogoutRequested(HandlerArguments args)
         {
             await args.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+            args.Client.IsInWorld = false;
             args.Client.Player = null;
 
             // TODO: Remove from other clients
