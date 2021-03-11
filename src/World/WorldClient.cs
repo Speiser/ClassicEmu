@@ -84,7 +84,7 @@ namespace Classic.World
                 Array.Copy(data, i + 6, packet, 0, length - 4);
 
                 var handler = packetHandler.GetHandler(opcode);
-                await handler(new HandlerArguments
+                await handler(new PacketHandlerContext
                 {
                     Client = this,
                     Data = packet,

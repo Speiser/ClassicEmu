@@ -18,23 +18,23 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-        public static async Task OnPlayerMovePrototype(HandlerArguments args)
+        public static async Task OnPlayerMovePrototype(PacketHandlerContext c)
         {
-            var request = new MSG_MOVE_GENERIC(args.Data, args.Client.Build);
+            var request = new MSG_MOVE_GENERIC(c.Data, c.Client.Build);
 
             // Always trust the client (for now..)
-            args.Client.Character.Position.X = request.MapX;
-            args.Client.Character.Position.Y = request.MapY;
-            args.Client.Character.Position.Z = request.MapZ;
-            args.Client.Character.Position.Orientation = request.MapO;
+            c.Client.Character.Position.X = request.MapX;
+            c.Client.Character.Position.Y = request.MapY;
+            c.Client.Character.Position.Z = request.MapZ;
+            c.Client.Character.Position.Orientation = request.MapO;
 
-            foreach (var client in args.WorldState.Connections)
+            foreach (var client in c.WorldState.Connections)
             {
                 if (client.Character is null) continue;
-                if (client.Character.Id == args.Client.Character.Id) continue; // Should not happen?
+                if (client.Character.Id == c.Client.Character.Id) continue; // Should not happen?
 
                 // Put that in a queue and dont await it?
-                await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode, client.Build));
+                await client.SendPacket(new MovementUpdate(c.Client.Character, request, c.Opcode, client.Build));
             }
         }
     }

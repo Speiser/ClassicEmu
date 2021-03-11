@@ -15,46 +15,46 @@ namespace Classic.World.Handler
         private const string MessageOfTheDay = "https://github.com/Speiser/ClassicEmu";
 
         [OpcodeHandler(Opcode.CMSG_PLAYER_LOGIN)]
-        public static async Task OnPlayerLogin(HandlerArguments args)
+        public static async Task OnPlayerLogin(PacketHandlerContext c)
         {
-            var request = new CMSG_PLAYER_LOGIN(args.Data);
+            var request = new CMSG_PLAYER_LOGIN(c.Data);
             var character = DataStore.CharacterRepository.GetCharacter(request.CharacterID);
-            var account = AccountStore.AccountRepository.GetAccount(args.Client.Identifier);
+            var account = AccountStore.AccountRepository.GetAccount(c.Client.Identifier);
 
             // Login with a deleted character or a character from another account. 
             // TODO: Split for different log messages.
             if (character is null || !account.Characters.Contains(character.Id))
             {
-                args.Client.Log(
+                c.Client.Log(
                     $"{account.Identifier} tried to login with a deleted character or a character from another account.",
                     LogLevel.Warning);
                 return;
             }
 
-            args.Client.Log($"Player logged in with char {character.Name}");
+            c.Client.Log($"Player logged in with char {character.Name}");
 
-            if (args.IsTBC())
+            if (c.IsTBC())
             {
-                await args.SendPacket<MSG_SET_DUNGEON_DIFFICULTY>();
+                await c.SendPacket<MSG_SET_DUNGEON_DIFFICULTY>();
             }
 
-            await args.Client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
-            await args.SendPacket<SMSG_ACCOUNT_DATA_TIMES>();
+            await c.Client.SendPacket(new SMSG_LOGIN_VERIFY_WORLD(character));
+            await c.SendPacket<SMSG_ACCOUNT_DATA_TIMES>();
 
-            if (args.IsTBC())
+            if (c.IsTBC())
             {
-                await args.SendPacket<SMSG_FEATURE_SYSTEM_STATUS>();
+                await c.SendPacket<SMSG_FEATURE_SYSTEM_STATUS>();
             }
 
-            await args.Client.SendPacket(new SMSG_EXPECTED_SPAM_RECORDS(Enumerable.Empty<string>()));
+            await c.Client.SendPacket(new SMSG_EXPECTED_SPAM_RECORDS(Enumerable.Empty<string>()));
 
-            if (args.IsVanilla())
+            if (c.IsVanilla())
             {
-                await args.Client.SendPacket(new SMSG_MESSAGECHAT(character.Id, MessageOfTheDay));
+                await c.Client.SendPacket(new SMSG_MESSAGECHAT(character.Id, MessageOfTheDay));
             }
-            else if (args.IsTBC())
+            else if (c.IsTBC())
             {
-                await args.Client.SendPacket(new SMSG_MOTD(MessageOfTheDay));
+                await c.Client.SendPacket(new SMSG_MOTD(MessageOfTheDay));
             }
 
             // await args.Client.SendPacket(new SMSG_NAME_QUERY_RESPONSE(character, args.Client.Build));
@@ -62,42 +62,42 @@ namespace Classic.World.Handler
 
             if (character.Stats.Life == 0)
             {
-                await args.SendPacket<SMSG_CORPSE_RECLAIM_DELAY>();
+                await c.SendPacket<SMSG_CORPSE_RECLAIM_DELAY>();
             }
 
-            await args.SendPacket<SMSG_SET_REST_START>();
-            await args.Client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
-            await args.SendPacket<SMSG_TUTORIAL_FLAGS>();
+            await c.SendPacket<SMSG_SET_REST_START>();
+            await c.Client.SendPacket(new SMSG_BINDPOINTUPDATE(character));
+            await c.SendPacket<SMSG_TUTORIAL_FLAGS>();
 
-            if (args.IsTBC())
+            if (c.IsTBC())
             {
-                await args.SendPacket<SMSG_INSTANCE_DIFFICULTY>();
+                await c.SendPacket<SMSG_INSTANCE_DIFFICULTY>();
             }
 
-            await args.Client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
+            await c.Client.SendPacket(new SMSG_INITIAL_SPELLS(character.Spells));
             // SMSG_SEND_UNLEARN_SPELLS
-            await args.Client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
-            await args.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.Vanilla)); // BUG??
-            await args.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
+            await c.Client.SendPacket(new SMSG_ACTION_BUTTONS(character.ActionBar));
+            await c.Client.SendPacket(new SMSG_INITIALIZE_FACTIONS(ClientBuild.Vanilla)); // BUG??
+            await c.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 
-            await args.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, args.Client.Build, out var player));
-            args.Client.IsInWorld = true;
-            args.Client.Player = player;
+            await c.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, c.Client.Build, out var player));
+            c.Client.IsInWorld = true;
+            c.Client.Player = player;
 
             // TODO: Implement for TBC
-            if (args.IsVanilla())
+            if (c.IsVanilla())
             {
                 // Initially spawn all creatures
-                foreach (var unit in args.WorldState.Creatures)
+                foreach (var unit in c.WorldState.Creatures)
                 {
                     // TODO: Add range check
-                    await args.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(unit));
+                    await c.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(unit));
                 }
 
             }
 
-            await args.WorldState.SpawnPlayer(character, args.Client.Build);
+            await c.WorldState.SpawnPlayer(character, c.Client.Build);
 
             // if (GROUP) -> SMSG_GROUP_LIST
             // if Vanilla
@@ -106,9 +106,9 @@ namespace Classic.World.Handler
             // if TBC
             //     SMSG_CONTACT_LIST
 
-            if (args.IsTBC())
+            if (c.IsTBC())
             {
-                await args.SendPacket<SMSG_TIME_SYNC_REQ>();
+                await c.SendPacket<SMSG_TIME_SYNC_REQ>();
             }
             
             // SMSG_ITEM_ENCHANT_TIME_UPDATE
@@ -117,11 +117,11 @@ namespace Classic.World.Handler
         }
 
         [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
-        public static async Task OnPlayerLogoutRequested(HandlerArguments args)
+        public static async Task OnPlayerLogoutRequested(PacketHandlerContext c)
         {
-            await args.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
-            args.Client.IsInWorld = false;
-            args.Client.Player = null;
+            await c.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+            c.Client.IsInWorld = false;
+            c.Client.Player = null;
 
             // TODO: Remove from other clients
         }

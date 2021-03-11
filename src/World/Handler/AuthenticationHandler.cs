@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Classic.Shared;
 using Classic.Shared.Data;
+using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -14,14 +15,14 @@ namespace Classic.World.Handler
     public class AuthenticationHandler
     {
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
-        public static async Task OnClientAuthenticationSession(HandlerArguments args)
+        public static async Task OnClientAuthenticationSession(PacketHandlerContext c)
         {
-            var (build, request) = CMSG_AUTH_SESSION.Read(args.Data);
+            var (build, request) = CMSG_AUTH_SESSION.Read(c.Data);
 
-            if (args.Client.Build != build)
+            if (c.Client.Build != build)
             {
-                args.Client.Log($"Expected build {args.Client.Build} but is {build}.", LogLevel.Warning);
-                args.Client.Build = build;
+                c.Client.Log($"Expected build {c.Client.Build} but is {build}.", LogLevel.Warning);
+                c.Client.Build = build;
             }
 
             var session = AccountStore.AccountSessionRepository.GetSession(request.Identifier);
@@ -52,11 +53,11 @@ namespace Classic.World.Handler
                     throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
                 }
 
-                args.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
+                c.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
             }
 
-            args.Client.Identifier = request.Identifier;
-            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
+            c.Client.Identifier = request.Identifier;
+            await c.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
         }
 
         // TODO: How to use with wotlk?

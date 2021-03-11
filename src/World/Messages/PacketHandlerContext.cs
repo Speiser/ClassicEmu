@@ -1,6 +1,6 @@
-﻿namespace Classic.World
+﻿namespace Classic.World.Messages
 {
-    public class HandlerArguments
+    public class PacketHandlerContext
     {
         public WorldClient Client { get; init; }
         public Opcode Opcode { get; init; }
