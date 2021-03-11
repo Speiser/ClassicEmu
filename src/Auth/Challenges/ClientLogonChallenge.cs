@@ -20,7 +20,7 @@ namespace Classic.Auth.Challenges
             }
 
             this.client.SRP = new SecureRemotePasswordProtocol(this.identifier, this.identifier); // TODO: Quick hack
-            AccountStore.AccountSessionRepository.AddClientBuildForAddress(this.client.Address, this.client.Port, this.build);
+            this.client.AccountService.AddClientBuildForAddress(this.client.Address, this.client.Port, this.build);
 
             // Create and send a ServerLogonChallenge as response.
             await this.client.Send(new ServerLogonChallenge(this.client.SRP).Get());

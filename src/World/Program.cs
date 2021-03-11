@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Classic.Shared;
+using Classic.Shared.Extensions;
 using Classic.World.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,14 +12,13 @@ namespace Classic.World
     {
         static async Task Main(string[] args)
         {
-            //await DataStore.Init();
-
             await Host.CreateDefaultBuilder()
                 .ConfigureLogging(logging => logging
                     .AddConsole()
                     .SetMinimumLevel(LogLevel.Trace))
                 .ConfigureServices(services => services
                     .AddSingleton<ErrorHandler>()
+                    .AddAccountService()
                     .AddWorldServer())
                 .RunConsoleAsync();
         }

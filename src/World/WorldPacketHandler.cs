@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Classic.World.Extensions;
+using Classic.World.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World

@@ -16,7 +16,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CHAR_ENUM)]
         public static async Task OnCharacterEnum(PacketHandlerContext c)
         {
-            var account = AccountStore.AccountRepository.GetAccount(c.Client.Identifier);
+            var account = c.AccountService.GetAccount(c.Client.Identifier);
             var characters = new List<Character>();
 
             foreach (var id in account.Characters)
@@ -58,9 +58,9 @@ namespace Classic.World.Handler
             }
             else
             {
-                var account = AccountStore.AccountRepository.GetAccount(c.Client.Identifier);
+                var account = c.AccountService.GetAccount(c.Client.Identifier);
                 account.Characters.Add(character.Id);
-                AccountStore.AccountRepository.UpdateAccount(account);
+                c.AccountService.UpdateAccount(account);
 
                 status = c.Client.Build switch
                 {
@@ -77,7 +77,7 @@ namespace Classic.World.Handler
         public static async Task OnCharacterDelete(PacketHandlerContext c)
         {
             var request = new CMSG_CHAR_DELETE(c.Data);
-            var account = AccountStore.AccountRepository.GetAccount(c.Client.Identifier);
+            var account = c.AccountService.GetAccount(c.Client.Identifier);
 
             // Removing character of other account
             if (!account.Characters.Contains(request.CharacterId))
@@ -93,7 +93,7 @@ namespace Classic.World.Handler
             }
 
             account.Characters.Remove(request.CharacterId);
-            AccountStore.AccountRepository.UpdateAccount(account);
+            c.AccountService.UpdateAccount(account);
 
             var status = c.Client.Build switch
             {

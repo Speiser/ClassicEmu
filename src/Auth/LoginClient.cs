@@ -5,6 +5,7 @@ using Classic.Auth.Cryptography;
 using Classic.Auth.Entities;
 using Classic.Shared;
 using Classic.Shared.Data;
+using Classic.Shared.Services;
 using Microsoft.Extensions.Logging;
 using static Classic.Auth.Opcode;
 
@@ -14,9 +15,12 @@ namespace Classic.Auth
     {
         private bool isReconnect;
 
-        public LoginClient(ILogger<LoginClient> logger) : base(logger)
+        public LoginClient(ILogger<LoginClient> logger, AccountService accountService) : base(logger)
         {
+            this.AccountService = accountService;
         }
+
+        public AccountService AccountService { get; }
 
         public override async Task Initialize(TcpClient client)
         {
@@ -57,17 +61,17 @@ namespace Classic.Auth
                 case REALMLIST:
                     if (!this.isReconnect)
                     {
-                        var account = AccountStore.AccountRepository.GetAccount(this.SRP.I);
+                        var account = this.AccountService.GetAccount(this.SRP.I);
 
                         // for development, create new account if not found
                         if (account is null)
                         {
                             account = new Account { Identifier = this.SRP.I };
-                            AccountStore.AccountRepository.AddAccount(account);
+                            this.AccountService.AddAccount(account);
                         }
 
                         var session = new AccountSession(this.SRP.I, this.SRP.SessionKey);
-                        AccountStore.AccountSessionRepository.AddSession(session);
+                        this.AccountService.AddSession(session);
                     }
                     await ServerRealmlist.Send(this);
                     break;

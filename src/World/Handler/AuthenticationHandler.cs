@@ -25,7 +25,7 @@ namespace Classic.World.Handler
                 c.Client.Build = build;
             }
 
-            var session = AccountStore.AccountSessionRepository.GetSession(request.Identifier);
+            var session = c.AccountService.GetSession(request.Identifier);
 
             if (session is null)
             {

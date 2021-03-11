@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Classic.Auth.Extensions;
 using Classic.Shared;
+using Classic.Shared.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ namespace Classic.Auth
                     .SetMinimumLevel(LogLevel.Trace))
                 .ConfigureServices(services => services
                     .AddSingleton<ErrorHandler>()
+                    .AddAccountService()
                     .AddAuthenticationServer())
                 .RunConsoleAsync();
         }

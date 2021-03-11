@@ -19,7 +19,7 @@ namespace Classic.World.Handler
         {
             var request = new CMSG_PLAYER_LOGIN(c.Data);
             var character = DataStore.CharacterRepository.GetCharacter(request.CharacterID);
-            var account = AccountStore.AccountRepository.GetAccount(c.Client.Identifier);
+            var account = c.AccountService.GetAccount(c.Client.Identifier);
 
             // Login with a deleted character or a character from another account. 
             // TODO: Split for different log messages.

@@ -1,19 +1,32 @@
 ﻿using System;
 using System.Linq;
+using Classic.Shared.Data;
 using LiteDB;
 
-namespace Classic.Shared.Data.Repositories
+namespace Classic.Shared.Services
 {
-    public class AccountSessionRepository
+    public class AccountService
     {
+        private readonly ILiteCollection<Account> accounts;
         private readonly ILiteCollection<AccountSession> sessions;
         private readonly ILiteCollection<AddressToClientBuildMap> addressBuildMap;
 
-        public AccountSessionRepository(ILiteDatabase db)
+        public AccountService(ILiteDatabase db)
         {
+            this.accounts = db.GetCollection<Account>("accounts");
             this.sessions = db.GetCollection<AccountSession>("accountSessions");
             this.addressBuildMap = db.GetCollection<AddressToClientBuildMap>("addressBuildMap");
         }
+
+        public Account GetAccount(string identifier) => this.accounts.FindOne(x => x.Identifier == identifier);
+
+        public void AddAccount(Account account)
+        {
+            this.accounts.Insert(account);
+            this.accounts.EnsureIndex(x => x.Identifier);
+        }
+
+        public void UpdateAccount(Account account) => this.accounts.Update(account);
 
         public AccountSession GetSession(string identifier) => this.sessions.FindOne(x => x.Identifier == identifier);
 

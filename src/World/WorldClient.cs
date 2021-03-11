@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Shared;
 using Classic.Shared.Data;
+using Classic.Shared.Services;
 using Classic.World.Cryptography;
 using Classic.World.Data;
 using Classic.World.Entities;
@@ -16,13 +17,20 @@ namespace Classic.World
     public class WorldClient : ClientBase
     {
         private readonly WorldPacketHandler packetHandler;
+        private readonly AccountService accountService;
         private readonly WorldState worldState;
         private AddressToClientBuildMap addressToClientBuildMap;
 
-        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt, WorldServer world) : base(logger)
+        public WorldClient(
+            WorldPacketHandler packetHandler,
+            ILogger<WorldClient> logger,
+            AuthCrypt crypt,
+            WorldServer world,
+            AccountService accountService) : base(logger)
         {
             this.packetHandler = packetHandler;
             this.Crypt = crypt;
+            this.accountService = accountService;
             this.worldState = world.State;
         }
 
@@ -30,7 +38,7 @@ namespace Classic.World
         {
             await base.Initialize(client);
 
-            this.addressToClientBuildMap = AccountStore.AccountSessionRepository.GetClientBuildFromAddress(this.Address, this.Port);
+            this.addressToClientBuildMap = this.accountService.GetClientBuildFromAddress(this.Address, this.Port);
 
             if (this.addressToClientBuildMap is null)
             {
@@ -89,7 +97,8 @@ namespace Classic.World
                     Client = this,
                     Data = packet,
                     Opcode = opcode,
-                    WorldState = this.worldState
+                    WorldState = this.worldState,
+                    AccountService = this.accountService,
                 });
 
                 i += 2 + (length - 1);
@@ -130,9 +139,9 @@ namespace Classic.World
             this.worldState.Connections.Remove(this);
             if (this.addressToClientBuildMap is not null)
             {
-                AccountStore.AccountSessionRepository.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
+                this.accountService.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
             }
-            if (!AccountStore.AccountSessionRepository.DeleteSession(this.Identifier))
+            if (!this.accountService.DeleteSession(this.Identifier))
             {
                 this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
             }
