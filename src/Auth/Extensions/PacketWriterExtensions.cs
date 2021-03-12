@@ -1,5 +1,6 @@
 ﻿using Classic.Shared;
 using Classic.Shared.Data;
+using Classic.Shared.Data.Enums;
 
 namespace Classic.Auth.Extensions
 {
@@ -12,7 +13,7 @@ namespace Classic.Auth.Extensions
             _ => throw new System.NotImplementedException(),
         };
 
-        public static PacketWriter WriteRealmType(this PacketWriter writer, int realmType, int build) => build switch
+        public static PacketWriter WriteRealmType(this PacketWriter writer, RealmType realmType, int build) => build switch
         {
             ClientBuild.Vanilla => writer.WriteUInt32((uint)realmType),
             ClientBuild.TBC or ClientBuild.WotLK => writer.WriteUInt8((byte)realmType),

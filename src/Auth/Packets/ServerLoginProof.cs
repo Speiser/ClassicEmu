@@ -1,5 +1,5 @@
 using Classic.Auth.Cryptography;
-using Classic.Auth.Data.Enums;
+using Classic.Auth.Packets.Enums;
 using Classic.Shared;
 using Classic.Shared.Data;
 

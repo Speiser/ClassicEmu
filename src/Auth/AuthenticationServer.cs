@@ -15,9 +15,14 @@ namespace Classic.Auth
         private readonly IServiceProvider services;
         private readonly AccountService accountService;
 
-        public AuthenticationServer(IServiceProvider services, ILogger<AuthenticationServer> logger, AccountService accountService)
+        public AuthenticationServer(
+            IServiceProvider services,
+            ILogger<AuthenticationServer> logger,
+            AccountService accountService,
+            RealmlistService realmlistService)
             : base(new IPEndPoint(IPAddress.Loopback, 3724), logger)
         {
+            realmlistService.Clear();
             this.services = services;
             this.accountService = accountService;
         }

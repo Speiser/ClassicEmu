@@ -1,6 +1,6 @@
 using System;
 using Classic.Shared;
-using Classic.Auth.Data.Enums;
+using Classic.Auth.Packets.Enums;
 using System.Text;
 
 namespace Classic.Auth.Packets

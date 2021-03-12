@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Classic.Auth.Data;
-using Classic.Auth.Extensions;
+﻿using Classic.Auth.Extensions;
 using Classic.Shared;
 using Classic.Shared.Data;
 
@@ -9,44 +6,30 @@ namespace Classic.Auth.Packets
 {
     public class ServerRealmlist
     {
-        private static readonly List<Realm> Realmlist = new List<Realm>
-        {
-            new Realm
-            {
-                Type = 1,
-                Lock = 0,
-                Flags = 0,
-                Name = "TestServer",
-                Address = "127.0.0.1:13250",
-                Population = 0,
-                TimeZone = 1, // 1 seems to be needed for wotlk
-            }
-        };
-
-        public static async Task Send(LoginClient client)
+        public static byte[] Get(Realm[] realms, int build)
         {
             using var info = new PacketWriter()
                 .WriteUInt32(/* unk */ 0)
-                .WriteNumberOfRealms(Realmlist.Count, client.Build);
+                .WriteNumberOfRealms(realms.Length, build);
 
-            foreach (var realm in Realmlist)
+            foreach (var realm in realms)
             {
-                info.WriteRealmType(realm.Type, client.Build);
+                info.WriteRealmType(realm.Type, build);
 
-                if (client.Build > ClientBuild.Vanilla)
+                if (build > ClientBuild.Vanilla)
                 {
                     info.WriteUInt8(realm.Lock); // 1 is lock
                 }
 
                 info
-                    .WriteUInt8(realm.Flags)
+                    .WriteUInt8((byte)realm.Flags)
                     .WriteString(realm.Name)
                     .WriteString(realm.Address)
                     .WriteUInt32(realm.Population)
                     .WriteUInt8( /* num_chars  */ 0)
                     .WriteUInt8(realm.TimeZone);
 
-                if (client.Build == ClientBuild.Vanilla)
+                if (build == ClientBuild.Vanilla)
                 {
                     info.WriteUInt8( /* unk */ 0);
                 }
@@ -57,7 +40,7 @@ namespace Classic.Auth.Packets
                 }
             }
 
-            if (client.Build == ClientBuild.Vanilla)
+            if (build == ClientBuild.Vanilla)
             {
                 info.WriteUInt16(0x0002);
             }
@@ -72,7 +55,7 @@ namespace Classic.Auth.Packets
                 .WriteUInt8((byte)Opcode.Realmlist)
                 .WriteUInt16((ushort)infoPacket.Length);
 
-            await client.Send(header.WriteBytes(infoPacket).Build());
+            return header.WriteBytes(infoPacket).Build();
         }
     }
 }

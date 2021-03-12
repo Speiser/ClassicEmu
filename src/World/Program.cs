@@ -18,7 +18,7 @@ namespace Classic.World
                     .SetMinimumLevel(LogLevel.Trace))
                 .ConfigureServices(services => services
                     .AddSingleton<ErrorHandler>()
-                    .AddAccountService()
+                    .AddSharedServices()
                     .AddWorldServer())
                 .RunConsoleAsync();
         }

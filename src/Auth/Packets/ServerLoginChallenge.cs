@@ -1,6 +1,6 @@
 using Classic.Auth.Cryptography;
 using Classic.Auth.Cryptography.Extensions;
-using Classic.Auth.Data.Enums;
+using Classic.Auth.Packets.Enums;
 using Classic.Shared;
 
 namespace Classic.Auth.Packets

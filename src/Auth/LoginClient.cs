@@ -13,12 +13,15 @@ namespace Classic.Auth
     public class LoginClient : ClientBase
     {
         private readonly AccountService accountService;
+        private readonly RealmlistService realmlistService;
         private SecureRemotePasswordProtocol srp;
         private bool isReconnect;
 
-        public LoginClient(ILogger<LoginClient> logger, AccountService accountService) : base(logger)
+        public LoginClient(ILogger<LoginClient> logger, AccountService accountService, RealmlistService realmlistService)
+            : base(logger)
         {
             this.accountService = accountService;
+            this.realmlistService = realmlistService;
         }
 
         public override async Task Initialize(TcpClient client)
@@ -104,7 +107,8 @@ namespace Classic.Auth
                 this.accountService.AddSession(session);
             }
 
-            await ServerRealmlist.Send(this);
+            var realms = this.realmlistService.GetRealms();
+            await this.Send(ServerRealmlist.Get(realms, this.Build));
         }
 
         private async Task HandleReconnectChallenge()

@@ -6,7 +6,7 @@ namespace Classic.Shared.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAccountService(this IServiceCollection services)
+        public static IServiceCollection AddSharedServices(this IServiceCollection services)
         {
             var db = new LiteDatabase(new ConnectionString
             {
@@ -14,7 +14,9 @@ namespace Classic.Shared.Extensions
                 Connection = ConnectionType.Shared,
             });
 
-            return services.AddSingleton(_ => new AccountService(db));
+            return services
+                .AddSingleton(_ => new AccountService(db))
+                .AddSingleton(_ => new RealmlistService(db));
         }
     }
 }

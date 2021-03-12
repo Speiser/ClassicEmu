@@ -18,7 +18,7 @@ namespace Classic.Auth
                     .SetMinimumLevel(LogLevel.Trace))
                 .ConfigureServices(services => services
                     .AddSingleton<ErrorHandler>()
-                    .AddAccountService()
+                    .AddSharedServices()
                     .AddAuthenticationServer())
                 .RunConsoleAsync();
         }

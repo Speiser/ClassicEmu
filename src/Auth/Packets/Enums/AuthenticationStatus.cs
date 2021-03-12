@@ -1,4 +1,4 @@
-﻿namespace Classic.Auth.Data.Enums
+﻿namespace Classic.Auth.Packets.Enums
 {
     public enum AuthenticationStatus
     {
