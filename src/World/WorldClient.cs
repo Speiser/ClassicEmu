@@ -95,7 +95,7 @@ namespace Classic.World
                 await handler(new PacketHandlerContext
                 {
                     Client = this,
-                    Data = packet,
+                    Packet = packet,
                     Opcode = opcode,
                     World = this.world,
                     AccountService = this.accountService,

@@ -44,7 +44,7 @@ namespace Classic.World.Handler
         public static async Task OnCharacterCreate(PacketHandlerContext c)
         {
             byte status;
-            var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Data));
+            var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Packet));
             if (!c.World.CharacterService.AddCharacter(character))
             {
                 c.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
@@ -75,7 +75,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CHAR_DELETE)]
         public static async Task OnCharacterDelete(PacketHandlerContext c)
         {
-            var request = new CMSG_CHAR_DELETE(c.Data);
+            var request = new CMSG_CHAR_DELETE(c.Packet);
             var account = c.AccountService.GetAccount(c.Client.Identifier);
 
             // Removing character of other account

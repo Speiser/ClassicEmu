@@ -16,7 +16,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_PLAYER_LOGIN)]
         public static async Task OnPlayerLogin(PacketHandlerContext c)
         {
-            var request = new CMSG_PLAYER_LOGIN(c.Data);
+            var request = new CMSG_PLAYER_LOGIN(c.Packet);
             var character = c.GetCharacter(request.CharacterID);
             var account = c.AccountService.GetAccount(c.Client.Identifier);
 

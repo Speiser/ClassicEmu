@@ -21,7 +21,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
         public static async Task OnPlayerMovePrototype(PacketHandlerContext c)
         {
-            var request = new MSG_MOVE_GENERIC(c.Data, c.Client.Build);
+            var request = new MSG_MOVE_GENERIC(c.Packet, c.Client.Build);
             var character = c.GetCharacter();
             // Always trust the client (for now..)
             character.Position.X = request.MapX;

@@ -11,7 +11,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_MESSAGECHAT)]
         public static async Task OnMessageChat(PacketHandlerContext c)
         {
-            var request = new CMSG_MESSAGECHAT(c.Data);
+            var request = new CMSG_MESSAGECHAT(c.Packet);
 
             // debugging stuff :D
             if (request.Message.StartsWith(".spawn"))

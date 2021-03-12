@@ -11,14 +11,14 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_PING)]
         public static async Task OnPing(PacketHandlerContext c)
         {
-            var request = new CMSG_PING(c.Data);
+            var request = new CMSG_PING(c.Packet);
             await c.Client.SendPacket(new SMSG_PONG(request.Latency));
         }
 
         [OpcodeHandler(Opcode.CMSG_NAME_QUERY)]
         public static async Task OnNameQuery(PacketHandlerContext c)
         {
-            var request = new CMSG_NAME_QUERY(c.Data);
+            var request = new CMSG_NAME_QUERY(c.Packet);
             var character = c.World.CharacterService.GetCharacter(request.CharacterID);
             if (character is null)
                 return;
@@ -32,7 +32,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_REALM_SPLIT)]
         public static async Task OnRealmSplit(PacketHandlerContext c)
         {
-            using var reader = new PacketReader(c.Data);
+            using var reader = new PacketReader(c.Packet);
             var decision = reader.ReadUInt32();
 
             await c.Client.SendPacket(new SMSG_REALM_SPLIT(decision));

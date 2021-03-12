@@ -12,7 +12,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_SET_SELECTION)]
         public static Task OnSetSelection(PacketHandlerContext c)
         {
-            var request = new CMSG_SET_SELECTION(c.Data);
+            var request = new CMSG_SET_SELECTION(c.Packet);
             c.Client.Player.TargetId = request.TargetId;
             return Task.CompletedTask;
         }
@@ -20,7 +20,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_ATTACKSWING)]
         public static async Task OnAttackSwing(PacketHandlerContext c)
         {
-            var request = new CMSG_ATTACKSWING(c.Data);
+            var request = new CMSG_ATTACKSWING(c.Packet);
 
             // TODO: Also check players
             var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.Guid);
@@ -49,7 +49,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_SETSHEATHED)]
         public static async Task OnSetSheathed(PacketHandlerContext c)
         {
-            var request = new CMSG_SETSHEATHED(c.Data);
+            var request = new CMSG_SETSHEATHED(c.Packet);
             c.Client.Log(request.Sheated.ToString());
         }
 
@@ -62,7 +62,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_CAST_SPELL)]
         public static async Task OnCastSpell(PacketHandlerContext c)
         {
-            var request = new CMSG_CAST_SPELL(c.Data);
+            var request = new CMSG_CAST_SPELL(c.Packet);
             c.Client.Log($"Casting: {request.SpellId}");
 
             var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.TargetId);

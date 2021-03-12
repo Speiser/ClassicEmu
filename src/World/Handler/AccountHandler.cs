@@ -9,7 +9,7 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_UPDATE_ACCOUNT_DATA)]
         public static Task UpdateAccountData(PacketHandlerContext c)
         {
-            var request = new CMSG_UPDATE_ACCOUNT_DATA(c.Data);
+            var request = new CMSG_UPDATE_ACCOUNT_DATA(c.Packet);
             return Task.CompletedTask;
         }
     }
