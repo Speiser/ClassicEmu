@@ -1,4 +1,4 @@
-﻿namespace Classic.Auth.Entities
+﻿namespace Classic.Auth.Data
 {
     public class Realm
     {

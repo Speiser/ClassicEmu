@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Classic.Auth.Data.Enums;
 using Classic.Shared;
 
 namespace Classic.Auth.Challenges.Abstract
@@ -7,7 +8,7 @@ namespace Classic.Auth.Challenges.Abstract
     public abstract class ClientChallengeBase : ClientMessageBase
     {
         protected readonly Opcode cmd;
-        protected readonly byte error;
+        protected readonly AuthenticationStatus error;
         protected readonly ushort size;
         protected readonly string gameName;
         protected readonly byte majorVersion;
@@ -26,7 +27,7 @@ namespace Classic.Auth.Challenges.Abstract
             using var reader = new PacketReader(this.packet);
 
             this.cmd = (Opcode)reader.ReadByte();
-            this.error = reader.ReadByte();
+            this.error = (AuthenticationStatus)reader.ReadByte();
             this.size = reader.ReadUInt16();
             this.gameName = Encoding.ASCII.GetString(reader.ReadBytes(4));
             this.majorVersion = reader.ReadByte();

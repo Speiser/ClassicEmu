@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Classic.Auth.Entities;
+using Classic.Auth.Data;
 using Classic.Auth.Extensions;
 using Classic.Shared;
 using Classic.Shared.Data;

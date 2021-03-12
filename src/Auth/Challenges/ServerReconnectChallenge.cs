@@ -1,12 +1,13 @@
-﻿using Classic.Shared;
+﻿using Classic.Auth.Data.Enums;
+using Classic.Shared;
 
 namespace Classic.Auth.Challenges
 {
     public class ServerReconnectChallenge
     {
         public byte[] Get() => new PacketWriter()
-            .WriteUInt8((byte)Opcode.RECONNECT_CHALLENGE) //cmd
-            .WriteUInt8(0) // error
+            .WriteUInt8((byte)Opcode.RECONNECT_CHALLENGE)
+            .WriteUInt8((byte)AuthenticationStatus.Success)
             .WriteBytes(/* challenge_data  */
                 0x2A, 0xD5, 0x48, 0xCC, 0x9B, 0x9D, 0xA1, 0x99,
                 0xCC, 0x04, 0x7A, 0x60, 0x91, 0x15, 0x6C, 0x51)

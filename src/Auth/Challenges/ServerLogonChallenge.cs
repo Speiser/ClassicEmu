@@ -1,5 +1,6 @@
 using Classic.Auth.Cryptography;
 using Classic.Auth.Cryptography.Extensions;
+using Classic.Auth.Data.Enums;
 using Classic.Shared;
 using static Classic.Auth.Opcode;
 
@@ -20,7 +21,7 @@ namespace Classic.Auth.Challenges
             {
                 return packet
                     .WriteUInt8(/* cmd   */ (byte)LOGIN_CHALL)
-                    .WriteUInt8(/* error */ 0)
+                    .WriteUInt8(/* error */ (byte)AuthenticationStatus.Success)
                     .WriteUInt8(/* unk2  */ 0)
                     .WriteBytes(/* B[32] */ this.srp.B)
                     .WriteUInt8(/* g_len */ 1)

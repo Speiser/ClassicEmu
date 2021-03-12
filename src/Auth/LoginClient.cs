@@ -2,7 +2,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Challenges;
 using Classic.Auth.Cryptography;
-using Classic.Auth.Entities;
+using Classic.Auth.Data;
 using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
