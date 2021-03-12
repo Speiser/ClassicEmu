@@ -7,8 +7,8 @@ using Classic.Shared.Services;
 using Classic.World.Cryptography;
 using Classic.World.Entities;
 using Classic.World.HeaderUtil;
-using Classic.World.Messages;
-using Classic.World.Messages.Server;
+using Classic.World.Packets;
+using Classic.World.Packets.Server;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World
@@ -52,7 +52,7 @@ namespace Classic.World
             this.HeaderUtil = HeaderUtilFactory.Create(this.Build, this.Crypt);
             this.logger.LogDebug($"{this.ClientInfo} - connected");
 
-            ServerMessageBase<Opcode> message = this.Build switch
+            ServerPacketBase<Opcode> message = this.Build switch
             {
                 ClientBuild.Vanilla or ClientBuild.TBC => new SMSG_AUTH_CHALLENGE_VANILLA_TBC(),
                 ClientBuild.WotLK => new SMSG_AUTH_CHALLENGE_WOTLK(),
@@ -105,7 +105,7 @@ namespace Classic.World
             }
         }
 
-        public async Task SendPacket(ServerMessageBase<Opcode> message)
+        public async Task SendPacket(ServerPacketBase<Opcode> message)
         {
             var data = this.HeaderUtil.Encode(message);
             await this.Send(data);

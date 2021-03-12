@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Classic.World.Data;
 using Classic.World.Extensions;
-using Classic.World.Messages;
-using Classic.World.Messages.Client;
+using Classic.World.Packets;
+using Classic.World.Packets.Client;
 
 namespace Classic.World.Handler
 {

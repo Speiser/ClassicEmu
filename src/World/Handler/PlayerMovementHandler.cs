@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Classic.World.Extensions;
-using Classic.World.Messages;
+using Classic.World.Packets;
+using Classic.World.Packets.Shared;
 
 namespace Classic.World.Handler
 {

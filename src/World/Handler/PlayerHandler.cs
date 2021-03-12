@@ -2,9 +2,10 @@
 using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Extensions;
-using Classic.World.Messages;
-using Classic.World.Messages.Client;
-using Classic.World.Messages.Server;
+using Classic.World.Packets;
+using Classic.World.Packets.Client;
+using Classic.World.Packets.Server;
+using Classic.World.Packets.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler

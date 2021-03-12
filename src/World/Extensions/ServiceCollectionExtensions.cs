@@ -1,5 +1,6 @@
 ﻿using Classic.Shared;
 using Classic.World.Cryptography;
+using Classic.World.Packets;
 using Classic.World.Services;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;

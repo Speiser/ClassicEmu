@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Classic.World.Cryptography;
-using Classic.World.Messages;
+using Classic.World.Packets;
 
 namespace Classic.World.HeaderUtil
 {
@@ -14,7 +14,7 @@ namespace Classic.World.HeaderUtil
         }
 
         // https://github.com/drolean/Servidor-Wow/blob/f77520bc8ad5d123139e34d3d0c8f40d161ad352/RealmServer/RealmServerSession.cs#L227
-        public byte[] Encode(ServerMessageBase<Opcode> message)
+        public byte[] Encode(ServerPacketBase<Opcode> message)
         {
             var data = message.Get();
             var index = 0;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Data;
-using Classic.World.Messages;
-using Classic.World.Messages.Client;
-using Classic.World.Messages.Server;
+using Classic.World.Packets;
+using Classic.World.Packets.Client;
+using Classic.World.Packets.Server;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
@@ -30,7 +30,7 @@ namespace Classic.World.Handler
                 characters.Add(character);
             }
 
-            ServerMessageBase<Opcode> characterEnum = c.Client.Build switch
+            ServerPacketBase<Opcode> characterEnum = c.Client.Build switch
             {
                 ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(characters),
                 ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(characters),

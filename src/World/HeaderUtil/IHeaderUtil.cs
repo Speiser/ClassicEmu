@@ -1,9 +1,9 @@
-﻿using Classic.World.Messages;
+﻿using Classic.World.Packets;
 
 namespace Classic.World.HeaderUtil
 {
     public interface IHeaderUtil
     {
-        byte[] Encode(ServerMessageBase<Opcode> message);
+        byte[] Encode(ServerPacketBase<Opcode> message);
     }
 }

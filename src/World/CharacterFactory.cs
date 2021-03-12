@@ -2,7 +2,7 @@
 using Classic.World.Data;
 using Classic.World.Data.Enums.Character;
 using Classic.World.Data.Enums.Map;
-using Classic.World.Messages.Client;
+using Classic.World.Packets.Client;
 
 namespace Classic.World
 {

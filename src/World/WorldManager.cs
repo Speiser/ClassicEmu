@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Data;
-using Classic.World.Messages.Server;
+using Classic.World.Packets.Server;
 using Classic.World.Services;
 
 namespace Classic.World

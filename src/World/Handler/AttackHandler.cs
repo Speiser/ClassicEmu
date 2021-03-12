@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Classic.World.Messages;
-using Classic.World.Messages.Client;
-using Classic.World.Messages.Server;
+using Classic.World.Packets;
+using Classic.World.Packets.Client;
+using Classic.World.Packets.Server;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
