@@ -1,8 +1,7 @@
 using Classic.Auth.Cryptography;
-using Classic.Shared;
-using static Classic.Auth.Opcode;
-using Classic.Shared.Data;
 using Classic.Auth.Data.Enums;
+using Classic.Shared;
+using Classic.Shared.Data;
 
 namespace Classic.Auth.Challenges
 {
@@ -23,7 +22,7 @@ namespace Classic.Auth.Challenges
             {
                 using var packet = new PacketWriter();
                 packet
-                    .WriteUInt8( /* cmd   */ (byte)LOGIN_PROOF)
+                    .WriteUInt8( /* cmd   */ (byte)Opcode.LoginProof)
                     .WriteUInt8( /* error */ (byte)AuthenticationStatus.Success)
                     .WriteBytes( /* M[20] */ this.srp.M)
                     .WriteUInt32(/* unk   */ 0);

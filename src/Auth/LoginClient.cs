@@ -2,12 +2,10 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Challenges;
 using Classic.Auth.Cryptography;
-using Classic.Auth.Data;
 using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
 using Microsoft.Extensions.Logging;
-using static Classic.Auth.Opcode;
 
 namespace Classic.Auth
 {
@@ -43,10 +41,10 @@ namespace Classic.Auth
 
             switch (cmd)
             {
-                case LOGIN_CHALL:
+                case Opcode.LoginChallenge:
                     await new ClientLogonChallenge(packet, this).Execute();
                     break;
-                case LOGIN_PROOF:
+                case Opcode.LoginProof:
                     var success = await new ClientLogonProof(packet, this).Execute();
                     if (success)
                     {
@@ -58,7 +56,7 @@ namespace Classic.Auth
                         this.LogAuthState("Client authentication failed");
                     }
                     break;
-                case REALMLIST:
+                case Opcode.Realmlist:
                     if (!this.isReconnect)
                     {
                         var account = this.AccountService.GetAccount(this.SRP.I);
@@ -75,11 +73,11 @@ namespace Classic.Auth
                     }
                     await ServerRealmlist.Send(this);
                     break;
-                case RECONNECT_CHALLENGE:
+                case Opcode.ReconnectChallenge:
                     this.isReconnect = true;
                     await new ClientReconnectChallenge(packet, this).Execute();
                     break;
-                case RECONNECT_PROOF:
+                case Opcode.ReconnectProof:
                     await new ClientReconnectProof(packet, this).Execute();
                     break;
             }

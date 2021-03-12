@@ -4,7 +4,6 @@ using Classic.Auth.Data;
 using Classic.Auth.Extensions;
 using Classic.Shared;
 using Classic.Shared.Data;
-using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges
 {
@@ -70,8 +69,8 @@ namespace Classic.Auth.Challenges
             var infoPacket = info.Build();
 
             using var header = new PacketWriter()
-                .WriteUInt8( /* cmd  */ (byte)REALMLIST)
-                .WriteUInt16(/* size */ (ushort)(infoPacket.Length));
+                .WriteUInt8((byte)Opcode.Realmlist)
+                .WriteUInt16((ushort)infoPacket.Length);
 
             await client.Send(header.WriteBytes(infoPacket).Build());
         }

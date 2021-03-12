@@ -3,10 +3,10 @@
     // https://wowdev.wiki/Packets/Login/Vanilla
     public enum Opcode
     {
-        LOGIN_CHALL = 0x00,
-        LOGIN_PROOF = 0x01,
-        RECONNECT_CHALLENGE = 0x02,
-        RECONNECT_PROOF = 0x03,
-        REALMLIST = 0x10
+        LoginChallenge = 0x00,
+        LoginProof = 0x01,
+        ReconnectChallenge = 0x02,
+        ReconnectProof = 0x03,
+        Realmlist = 0x10
     }
 }

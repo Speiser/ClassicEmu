@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Classic.Auth.Challenges.Abstract;
-using Classic.Shared;
 using Classic.Auth.Cryptography;
 using Classic.Shared.Data;
 
