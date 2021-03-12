@@ -46,7 +46,7 @@ namespace Classic.Auth
                 Opcode.LoginChallenge => this.HandleLoginChallenge(packet),
                 Opcode.LoginProof => this.HandleLoginProof(packet),
                 Opcode.Realmlist => this.HandleRealmlist(),
-                Opcode.ReconnectChallenge => this.HandleReconnectChallenge(),
+                Opcode.ReconnectChallenge => this.HandleReconnectChallenge(packet),
                 Opcode.ReconnectProof => this.HandleReconnectProof(),
                 _ => throw new ArgumentOutOfRangeException(nameof(cmd), $"Unknown auth opcode {cmd}"),
             };
@@ -92,7 +92,7 @@ namespace Classic.Auth
 
         private async Task HandleRealmlist()
         {
-            if (!this.isReconnect)
+            if (!this.isReconnect) // TODO: This should not be done in here?
             {
                 var account = this.accountService.GetAccount(this.srp.I);
 
@@ -111,10 +111,11 @@ namespace Classic.Auth
             await this.Send(ServerRealmlist.Get(realms, this.Build));
         }
 
-        private async Task HandleReconnectChallenge()
+        private async Task HandleReconnectChallenge(byte[] packet)
         {
-            // This packet is also of type ClientLoginChallenge (but unused for now)
             this.isReconnect = true;
+            var request = new ClientLoginChallenge(packet);
+            this.Build = request.Build;
             await this.Send(ServerReconnectChallenge.Success());
         }
 
