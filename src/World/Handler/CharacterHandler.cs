@@ -1,70 +1,118 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared.Data;
+using Classic.World.Data;
+using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
+using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler
 {
     public class CharacterHandler
     {
         [OpcodeHandler(Opcode.CMSG_CHAR_ENUM)]
-        public static async Task OnCharacterEnum(HandlerArguments args)
+        public static async Task OnCharacterEnum(PacketHandlerContext c)
         {
-            ServerMessageBase<Opcode> characterEnum = args.Client.Build switch
+            var account = c.AccountService.GetAccount(c.Client.Identifier);
+            var characters = new List<Character>();
+
+            foreach (var id in account.Characters)
             {
-                ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(args.Client.Session.Account.Characters),
-                ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(args.Client.Session.Account.Characters),
-                _ => throw new NotImplementedException($"OnCharacterEnum(build: {args.Client.Build})"),
+                var character = c.World.CharacterService.GetCharacter(id);
+                if (character is null)
+                {
+                    c.Client.Log($"Could not find character with id {id} from player {account.Identifier}.", LogLevel.Warning);
+                    continue;
+                }
+
+                characters.Add(character);
+            }
+
+            ServerMessageBase<Opcode> characterEnum = c.Client.Build switch
+            {
+                ClientBuild.Vanilla => new SMSG_CHAR_ENUM_VANILLA(characters),
+                ClientBuild.TBC => new SMSG_CHAR_ENUM_TBC(characters),
+                _ => throw new NotImplementedException($"OnCharacterEnum(build: {c.Client.Build})"),
             };
 
-            await args.Client.SendPacket(characterEnum);
+            await c.Client.SendPacket(characterEnum);
         }
 
         [OpcodeHandler(Opcode.CMSG_CHAR_CREATE)]
-        public static async Task OnCharacterCreate(HandlerArguments args)
+        public static async Task OnCharacterCreate(PacketHandlerContext c)
         {
-            var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(args.Data));
-            args.Client.Session.Account.Characters.Add(character);
-
-            var status = args.Client.Build switch
+            byte status;
+            var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Packet));
+            if (!c.World.CharacterService.AddCharacter(character))
             {
-                ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
-                ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_CREATE_SUCCESS,
-                _ => throw new NotImplementedException($"OnCharacterCreate(build: {args.Client.Build})"),
-            };
+                c.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
+                status = c.Client.Build switch
+                {
+                    ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_ERROR,
+                    ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_CREATE_ERROR,
+                    _ => throw new NotImplementedException($"OnCharacterCreate(build: {c.Client.Build})"),
+                };
+            }
+            else
+            {
+                var account = c.AccountService.GetAccount(c.Client.Identifier);
+                account.Characters.Add(character.Id);
+                c.AccountService.UpdateAccount(account);
 
-            await args.Client.SendPacket(new SMSG_CHAR_CREATE(status));
+                status = c.Client.Build switch
+                {
+                    ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
+                    ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_CREATE_SUCCESS,
+                    _ => throw new NotImplementedException($"OnCharacterCreate(build: {c.Client.Build})"),
+                };
+            }
+
+            await c.Client.SendPacket(new SMSG_CHAR_CREATE(status));
         }
 
         [OpcodeHandler(Opcode.CMSG_CHAR_DELETE)]
-        public static async Task OnCharacterDelete(HandlerArguments args)
+        public static async Task OnCharacterDelete(PacketHandlerContext c)
         {
-            var request = new CMSG_CHAR_DELETE(args.Data);
+            var request = new CMSG_CHAR_DELETE(c.Packet);
+            var account = c.AccountService.GetAccount(c.Client.Identifier);
 
-            var toBeDeleted = args.Client.Session.Account.Characters.Where(c => c.ID == request.CharacterID).SingleOrDefault();
-
-            if (toBeDeleted is null || !args.Client.Session.Account.Characters.TryTake(out toBeDeleted))
+            // Removing character of other account
+            if (!account.Characters.Contains(request.CharacterId))
             {
-                var failedStatus = args.Client.Build switch
-                {
-                    ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_DELETE_FAILED,
-                    ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_DELETE_FAILED,
-                    _ => throw new NotImplementedException($"OnCharacterDelete(build: {args.Client.Build})"),
-                };
-                await args.Client.SendPacket(new SMSG_CHAR_DELETE(failedStatus));
+                await c.Client.SendPacket(GetFailedPacket(c.Client.Build));
                 return;
             }
 
-            var status = args.Client.Build switch
+            if (!c.World.CharacterService.DeleteCharacter(request.CharacterId))
+            {
+                await c.Client.SendPacket(GetFailedPacket(c.Client.Build));
+                return;
+            }
+
+            account.Characters.Remove(request.CharacterId);
+            c.AccountService.UpdateAccount(account);
+
+            var status = c.Client.Build switch
             {
                 ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_DELETE_SUCCESS,
                 ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_DELETE_SUCCESS,
-                _ => throw new NotImplementedException($"OnCharacterDelete(build: {args.Client.Build})"),
+                _ => throw new NotImplementedException($"OnCharacterDelete(build: {c.Client.Build})"),
             };
 
-            await args.Client.SendPacket(new SMSG_CHAR_DELETE(status));
+            await c.Client.SendPacket(new SMSG_CHAR_DELETE(status));
+        }
+
+        private static SMSG_CHAR_DELETE GetFailedPacket(int build)
+        {
+            var failedStatus = build switch
+            {
+                ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_DELETE_FAILED,
+                ClientBuild.TBC => (byte)CharacterHandlerCode_TBC.CHAR_DELETE_FAILED,
+                _ => throw new NotImplementedException($"OnCharacterDelete(build: {build})"),
+            };
+            return new SMSG_CHAR_DELETE(failedStatus);
         }
     }
 

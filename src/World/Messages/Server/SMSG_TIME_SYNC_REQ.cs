@@ -1,6 +1,4 @@
-﻿using Classic.Common;
-
-namespace Classic.World.Messages.Server
+﻿namespace Classic.World.Messages.Server
 {
     public class SMSG_TIME_SYNC_REQ : ServerMessageBase<Opcode>
     {

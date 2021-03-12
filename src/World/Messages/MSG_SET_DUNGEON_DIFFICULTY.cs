@@ -1,5 +1,4 @@
 ﻿using System;
-using Classic.Common;
 
 namespace Classic.World.Messages
 {

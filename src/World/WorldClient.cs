@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Classic.Common;
-using Classic.Cryptography;
-using Classic.Data;
+using Classic.Shared;
+using Classic.Shared.Data;
+using Classic.Shared.Services;
+using Classic.World.Cryptography;
 using Classic.World.Entities;
 using Classic.World.HeaderUtil;
+using Classic.World.Messages;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
 
@@ -14,26 +16,38 @@ namespace Classic.World
     public class WorldClient : ClientBase
     {
         private readonly WorldPacketHandler packetHandler;
-        private readonly WorldState worldState;
+        private readonly AccountService accountService;
+        private readonly IWorldManager world;
+        private AddressToClientBuildMap addressToClientBuildMap;
 
-        public WorldClient(WorldPacketHandler packetHandler, ILogger<WorldClient> logger, AuthCrypt crypt, WorldServer world) : base(logger)
+        public WorldClient(
+            WorldPacketHandler packetHandler,
+            ILogger<WorldClient> logger,
+            AuthCrypt crypt,
+            IWorldManager world,
+            AccountService accountService) : base(logger)
         {
             this.packetHandler = packetHandler;
             this.Crypt = crypt;
-            this.worldState = world.State;
+            this.accountService = accountService;
+            this.world = world;
         }
 
         public override async Task Initialize(TcpClient client)
         {
             await base.Initialize(client);
 
-            if (!DataStore.PortToClientBuild.TryGetValue(this.Port - 1, out var build))
-            {
-                this.logger.LogWarning($"Could not find client build for {this.Port - 1}.");
-                build = ClientBuild.Vanilla;
-            }
+            this.addressToClientBuildMap = this.accountService.GetClientBuildFromAddress(this.Address, this.Port);
 
-            this.Build = build;
+            if (this.addressToClientBuildMap is null)
+            {
+                this.logger.LogWarning($"Could not find client build for {this.Address}:{this.Port - 1}.");
+                this.Build = ClientBuild.Vanilla;
+            }
+            else
+            {
+                this.Build = this.addressToClientBuildMap.ClientBuild;
+            }
 
             this.HeaderUtil = HeaderUtilFactory.Create(this.Build, this.Crypt);
             this.logger.LogDebug($"{this.ClientInfo} - connected");
@@ -51,10 +65,12 @@ namespace Classic.World
         }
 
         public int Build { get; internal set; }
+        public bool IsInWorld => this.CharacterId != default;
 
-        public AccountSession Session { get; internal set; }
+        public string Identifier { get; internal set; }
+        public ulong CharacterId { get; internal set; }
+
         public PlayerEntity Player { get; internal set; }
-        public Character Character => Player?.Character;
 
         public AuthCrypt Crypt { get; internal set; }
 
@@ -76,12 +92,13 @@ namespace Classic.World
                 Array.Copy(data, i + 6, packet, 0, length - 4);
 
                 var handler = packetHandler.GetHandler(opcode);
-                await handler(new HandlerArguments
+                await handler(new PacketHandlerContext
                 {
                     Client = this,
-                    Data = packet,
+                    Packet = packet,
                     Opcode = opcode,
-                    WorldState = this.worldState
+                    World = this.world,
+                    AccountService = this.accountService,
                 });
 
                 i += 2 + (length - 1);
@@ -119,11 +136,14 @@ namespace Classic.World
 
         protected override void OnDisconnected()
         {
-            this.worldState.Connections.Remove(this);
-            var identifier = this.Session.Account.Identifier;
-            if (!DataStore.Sessions.TryRemove(identifier, out var _))
+            this.world.Connections.Remove(this);
+            if (this.addressToClientBuildMap is not null)
             {
-                this.logger.LogError($"Could not remove session \"{identifier}\"");
+                this.accountService.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
+            }
+            if (!this.accountService.DeleteSession(this.Identifier))
+            {
+                this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
             }
         }
     }

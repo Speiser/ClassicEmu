@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Classic.Common;
-using Classic.Data;
-using Classic.Data.Enums.Character;
+using Classic.World.Data;
+using Classic.World.Data.Enums.Character;
 using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Server
@@ -22,7 +21,7 @@ namespace Classic.World.Messages.Server
             foreach (var c in this.characters.OrderBy(c => c.Created))
             {
                 this.Writer
-                    .WriteUInt64(c.ID)
+                    .WriteUInt64(c.Id)
                     .WriteString(c.Name)
                     .WriteUInt8((byte)c.Race)
                     .WriteUInt8((byte)c.Class)
@@ -74,7 +73,7 @@ namespace Classic.World.Messages.Server
             foreach (var c in this.characters.OrderBy(c => c.Created))
             {
                 this.Writer
-                    .WriteUInt64(c.ID)
+                    .WriteUInt64(c.Id)
                     .WriteString(c.Name)
                     .WriteUInt8((byte)c.Race)
                     .WriteUInt8((byte)c.Class)

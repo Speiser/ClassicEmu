@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Classic.World.Extensions;
 using Classic.World.Messages;
 
 namespace Classic.World.Handler
@@ -18,23 +19,23 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
         [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-        public static async Task OnPlayerMovePrototype(HandlerArguments args)
+        public static async Task OnPlayerMovePrototype(PacketHandlerContext c)
         {
-            var request = new MSG_MOVE_GENERIC(args.Data, args.Client.Build);
-
+            var request = new MSG_MOVE_GENERIC(c.Packet, c.Client.Build);
+            var character = c.GetCharacter();
             // Always trust the client (for now..)
-            args.Client.Character.Position.X = request.MapX;
-            args.Client.Character.Position.Y = request.MapY;
-            args.Client.Character.Position.Z = request.MapZ;
-            args.Client.Character.Position.Orientation = request.MapO;
+            character.Position.X = request.MapX;
+            character.Position.Y = request.MapY;
+            character.Position.Z = request.MapZ;
+            character.Position.Orientation = request.MapO;
 
-            foreach (var client in args.WorldState.Connections)
+            foreach (var client in c.World.Connections)
             {
-                if (client.Character is null) continue;
-                if (client.Character.ID == args.Client.Character.ID) continue; // Should not happen?
+                if (!client.IsInWorld) continue;
+                if (client.CharacterId == c.Client.CharacterId) continue;
 
                 // Put that in a queue and dont await it?
-                await client.SendPacket(new MovementUpdate(args.Client.Character, request, args.Opcode, client.Build));
+                await client.SendPacket(new MovementUpdate(character, request, c.Opcode, client.Build));
             }
         }
     }

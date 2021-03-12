@@ -1,4 +1,4 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
 using static Classic.Auth.Opcode;
 
 namespace Classic.Auth.Challenges

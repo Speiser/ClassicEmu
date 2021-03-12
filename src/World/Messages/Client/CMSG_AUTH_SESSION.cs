@@ -1,10 +1,11 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
+using Classic.Shared.Data;
 
 namespace Classic.World.Messages.Client
 {
     public abstract class CMSG_AUTH_SESSION
     {
-        public string AccountName { get; protected set; }
+        public string Identifier { get; protected set; }
         public uint Seed { get; protected set; }
         public byte[] Digest { get; protected set; }
 
@@ -27,7 +28,7 @@ namespace Classic.World.Messages.Client
             using var reader = new PacketReader(data);
             this.Build = reader.ReadUInt32();
             this.Session = reader.ReadUInt32();
-            base.AccountName = reader.ReadString();
+            base.Identifier = reader.ReadString();
             base.Seed = reader.ReadUInt32();
             base.Digest = reader.ReadBytes(20);
             this.AddonSize = reader.ReadUInt32();
@@ -45,7 +46,7 @@ namespace Classic.World.Messages.Client
             using var reader = new PacketReader(data);
             this.Build = reader.ReadUInt32();
             this.Session = reader.ReadUInt32();
-            base.AccountName = reader.ReadString();
+            base.Identifier = reader.ReadString();
             var unk1 = reader.ReadUInt32();
             base.Seed = reader.ReadUInt32();
             var unk2 = reader.ReadUInt32();

@@ -1,5 +1,5 @@
-﻿using Classic.Common;
-using Classic.Data;
+﻿using Classic.Shared.Data;
+using Classic.World.Data;
 
 namespace Classic.World.Messages.Server
 {
@@ -18,7 +18,7 @@ namespace Classic.World.Messages.Server
         public override byte[] Get()
         {
             this.Writer
-                .WriteUInt64(character.ID)
+                .WriteUInt64(character.Id)
                 .WriteString(character.Name)
                 .WriteUInt8(0)
                 .WriteUInt32((uint)character.Race)

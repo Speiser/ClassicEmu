@@ -1,6 +1,6 @@
 using System;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
 using Classic.World.Extensions;
@@ -12,7 +12,7 @@ namespace Classic.World.Entities
         public new int Model;
 
         public PlayerEntity(Character character, int build)
-            : base(new ObjectGuid((uint)character.ID, TypeId.TypeidPlayer, HighGuid.HighguidPlayer), build)
+            : base(new ObjectGuid((uint)character.Id, TypeId.TypeidPlayer, HighGuid.HighguidPlayer), build)
         {
             Character = character;
             Model = character.Race.GetModel(character.Gender);
@@ -130,7 +130,7 @@ namespace Classic.World.Entities
         private void SetUpdateField_TBC(Character character)
         {
             // ObjectField.GUID,
-            SetUpdateField((int)ObjectFields.Guid, character.ID.ToPackedUInt64());
+            SetUpdateField((int)ObjectFields.Guid, character.Id.ToPackedUInt64());
 
             // ObjectField.TYPE,
             SetUpdateField((int)ObjectFields.Type, (uint)0x19);

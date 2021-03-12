@@ -18,7 +18,7 @@ namespace Classic.Auth.Challenges
         public override async Task<bool> Execute()
         {
             var (clientPublicValue, clientProof) = GetClientValues(this.packet);
-            var data = new ServerLogonProof(this.client.SRP, this.client.GameVersion).Get(clientPublicValue, clientProof);
+            var data = new ServerLogonProof(this.client.SRP, this.client.Build).Get(clientPublicValue, clientProof);
             await this.client.Send(data);
             return data.Length != 3;
         }

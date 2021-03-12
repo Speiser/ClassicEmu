@@ -3,7 +3,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared.Data;
+using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -13,20 +14,22 @@ namespace Classic.World.Handler
     public class AuthenticationHandler
     {
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
-        public static async Task OnClientAuthenticationSession(HandlerArguments args)
+        public static async Task OnClientAuthenticationSession(PacketHandlerContext c)
         {
-            var (build, request) = CMSG_AUTH_SESSION.Read(args.Data);
+            var (build, request) = CMSG_AUTH_SESSION.Read(c.Packet);
 
-            if (args.Client.Build != build)
+            if (c.Client.Build != build)
             {
-                args.Client.Log($"Expected build {args.Client.Build} but is {build}.", LogLevel.Warning);
-                args.Client.Build = build;
+                c.Client.Log($"Expected build {c.Client.Build} but is {build}.", LogLevel.Warning);
+                c.Client.Build = build;
             }
 
-            if (!DataStore.Sessions.TryGetValue(request.AccountName, out var session))
+            var session = c.AccountService.GetSession(request.Identifier);
+
+            if (session is null)
             {
                 // return [SMSG_AUTH_RESPONSE, 21]
-                throw new ArgumentException($"No user with name {request.AccountName} found in db.");
+                throw new ArgumentException($"No user with name {request.Identifier} found in db.");
             }
 
             ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
@@ -36,7 +39,7 @@ namespace Classic.World.Handler
             {
                 using var sha = new SHA1CryptoServiceProvider();
                 var calculatedDigest = sha.ComputeHash(
-                    Encoding.ASCII.GetBytes(request.AccountName)
+                    Encoding.ASCII.GetBytes(request.Identifier)
                         .Concat(new byte[] { 0, 0, 0, 0 })
                         .Concat(BitConverter.GetBytes(request.Seed))
                         .Concat(SMSG_AUTH_CHALLENGE_VANILLA_TBC.AuthSeed)
@@ -49,11 +52,11 @@ namespace Classic.World.Handler
                     throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
                 }
 
-                args.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
+                c.Client.Crypt.SetKey(GenerateAuthCryptKey(session.SessionKey, build));
             }
 
-            await args.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
-            args.Client.Session = session;
+            c.Client.Identifier = request.Identifier;
+            await c.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
         }
 
         // TODO: How to use with wotlk?

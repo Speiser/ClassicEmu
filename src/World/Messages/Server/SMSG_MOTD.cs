@@ -1,6 +1,4 @@
-﻿using Classic.Common;
-
-namespace Classic.World.Messages.Server
+﻿namespace Classic.World.Messages.Server
 {
     // NOT IMPLEMENTED FOR VANILLA
     public class SMSG_MOTD : ServerMessageBase<Opcode>

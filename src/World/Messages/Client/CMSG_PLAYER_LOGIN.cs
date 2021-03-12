@@ -1,4 +1,4 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
 
 namespace Classic.World.Messages.Client
 {

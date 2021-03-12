@@ -1,6 +1,6 @@
 ﻿using System;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
 using Classic.World.Entities;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
@@ -21,7 +21,7 @@ namespace Classic.World.Messages.Server
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-                .WriteBytes(character.ID.ToPackedUInt64())
+                .WriteBytes(character.Id.ToPackedUInt64())
 
                 .WriteUInt8((byte)TypeId.TypeidPlayer);
 
@@ -69,8 +69,8 @@ namespace Classic.World.Messages.Server
 
             player = new PlayerEntity(character, build)
             {
-                ObjectGuid = new ObjectGuid(character.ID),
-                Guid = character.ID
+                ObjectGuid = new ObjectGuid(character.Id),
+                Guid = character.Id
             };
 
             player.WriteUpdateFields(update.Writer);
@@ -86,7 +86,7 @@ namespace Classic.World.Messages.Server
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-                .WriteBytes(character.ID.ToPackedUInt64())
+                .WriteBytes(character.Id.ToPackedUInt64())
 
                 .WriteUInt8((byte)TypeId.TypeidPlayer);
 
@@ -133,8 +133,8 @@ namespace Classic.World.Messages.Server
             // TODO: Can be done somewhere else?
             var player = new PlayerEntity(character, build)
             {
-                ObjectGuid = new ObjectGuid(character.ID),
-                Guid = character.ID
+                ObjectGuid = new ObjectGuid(character.Id),
+                Guid = character.Id
             };
 
             player.WriteUpdateFields(update.Writer);
@@ -196,7 +196,7 @@ namespace Classic.World.Messages.Server
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
-                .WriteBytes(player.Character.ID.ToPackedUInt64());
+                .WriteBytes(player.Character.Id.ToPackedUInt64());
 
             player.WriteUpdateFields(update.Writer);
             return update;

@@ -1,5 +1,4 @@
-﻿using Classic.Common;
-using Classic.World.Extensions;
+﻿using Classic.World.Extensions;
 
 namespace Classic.World.Messages.Server
 {

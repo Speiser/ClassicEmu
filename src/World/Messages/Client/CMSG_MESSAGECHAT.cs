@@ -1,5 +1,5 @@
-﻿using Classic.Common;
-using Classic.Data.Enums.Chat;
+﻿using Classic.Shared;
+using Classic.World.Data.Enums.Chat;
 
 namespace Classic.World.Messages.Client
 {

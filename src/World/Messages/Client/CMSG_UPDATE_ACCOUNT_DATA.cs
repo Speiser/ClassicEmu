@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Classic.Common;
+using Classic.Shared;
 using Classic.World.HeaderUtil;
 
 namespace Classic.World.Messages.Client

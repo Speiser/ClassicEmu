@@ -3,7 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Classic.Common;
+using Classic.Shared;
+using Classic.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -12,11 +13,13 @@ namespace Classic.Auth
     public class AuthenticationServer : ServerBase
     {
         private readonly IServiceProvider services;
+        private readonly AccountService accountService;
 
-        public AuthenticationServer(IServiceProvider services, ILogger<AuthenticationServer> logger)
+        public AuthenticationServer(IServiceProvider services, ILogger<AuthenticationServer> logger, AccountService accountService)
             : base(new IPEndPoint(IPAddress.Loopback, 3724), logger)
         {
             this.services = services;
+            this.accountService = accountService;
         }
 
         protected override async Task ProcessClient(TcpClient client)
@@ -27,7 +30,7 @@ namespace Classic.Auth
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            await DataStore.Save();
+            this.accountService.ClearAccountSessions();
             await base.StopAsync(cancellationToken);
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
 using Classic.World.Extensions;
 
 namespace Classic.World.Messages
@@ -21,7 +21,7 @@ namespace Classic.World.Messages
         public override byte[] Get()
         {
             this.Writer
-                .WriteBytes(this.character.ID.ToPackedUInt64())
+                .WriteBytes(this.character.Id.ToPackedUInt64())
                 .WriteUInt32((uint)this.original.MovementFlags)
                 .WriteUInt32((uint)Environment.TickCount);
 

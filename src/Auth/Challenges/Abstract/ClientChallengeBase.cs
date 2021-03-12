@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
-using Classic.Auth.Entities;
-using Classic.Common;
+using Classic.Shared;
 
 namespace Classic.Auth.Challenges.Abstract
 {
@@ -40,17 +39,10 @@ namespace Classic.Auth.Challenges.Abstract
             this.timezone = reader.ReadUInt32();
             this.ip = reader.ReadUInt32();
 
-            this.client.GameVersion = GetGameVersion(majorVersion);
-
             var identifierLength = Convert.ToInt32(this.packet[33]);
             this.identifier = Encoding.ASCII.GetString(((Span<byte>)this.packet).Slice(34, identifierLength));
-        }
 
-        private static GameVersion GetGameVersion(byte v1) => v1 switch
-        {
-            1 => GameVersion.Classic,
-            2 or 3 => GameVersion.WotLK,
-            _ => throw new ArgumentOutOfRangeException(),
-        };
+            this.client.Build = this.build;
+        }
     }
 }

@@ -3,13 +3,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Classic.World.Extensions;
+using Classic.World.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace Classic.World
 {
     public class WorldPacketHandler
     {
-        public delegate Task PacketHandler(HandlerArguments args);
+        public delegate Task PacketHandler(PacketHandlerContext args);
 
         private readonly Dictionary<Opcode, PacketHandler> handlers = new Dictionary<Opcode, PacketHandler>();
         private readonly ILogger<WorldPacketHandler> logger;

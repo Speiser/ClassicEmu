@@ -1,6 +1,6 @@
 using System;
-using Classic.Common;
-using Classic.Data;
+using Classic.Shared.Data;
+using Classic.World.Data;
 using Classic.World.Entities.Enums;
 using Classic.World.Entities.Utils;
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Classic.World.Messages;
 using Classic.World.Messages.Client;
 using Classic.World.Messages.Server;
 using Microsoft.Extensions.Logging;
@@ -9,71 +10,71 @@ namespace Classic.World.Handler
     public class AttackHandler
     {
         [OpcodeHandler(Opcode.CMSG_SET_SELECTION)]
-        public static Task OnSetSelection(HandlerArguments args)
+        public static Task OnSetSelection(PacketHandlerContext c)
         {
-            var request = new CMSG_SET_SELECTION(args.Data);
-            args.Client.Player.TargetId = request.TargetId;
+            var request = new CMSG_SET_SELECTION(c.Packet);
+            c.Client.Player.TargetId = request.TargetId;
             return Task.CompletedTask;
         }
 
         [OpcodeHandler(Opcode.CMSG_ATTACKSWING)]
-        public static async Task OnAttackSwing(HandlerArguments args)
+        public static async Task OnAttackSwing(PacketHandlerContext c)
         {
-            var request = new CMSG_ATTACKSWING(args.Data);
+            var request = new CMSG_ATTACKSWING(c.Packet);
 
             // TODO: Also check players
-            var unit = args.WorldState.Creatures.SingleOrDefault(c => c.ID == request.Guid);
+            var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.Guid);
 
             if (unit is null)
             {
-                args.Client.Log($"Could not find unit: {request.Guid}");
+                c.Client.Log($"Could not find unit: {request.Guid}");
                 return;
             }
 
             // TODO: Checks if can attack, range check etc.
-            await args.Client.SendPacket(new SMSG_ATTACKSTART(args.Client.Character.ID, unit.ID));
+            await c.Client.SendPacket(new SMSG_ATTACKSTART(c.Client.CharacterId, unit.ID));
 
             // TODO: Do this somewhere else (Add AttackController to Player??)
             _ = Task.Run(async () =>
             {
-                args.Client.Log("Attacking...", LogLevel.Information);
+                c.Client.Log("Attacking...", LogLevel.Information);
                 for (var i = 0; i < 500; i++)
                 {
                     await Task.Delay(500);
-                    await args.Client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(args.Client.Character.ID, unit.ID));
+                    await c.Client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(c.Client.CharacterId, unit.ID));
                 }
             });
         }
 
         [OpcodeHandler(Opcode.CMSG_SETSHEATHED)]
-        public static async Task OnSetSheathed(HandlerArguments args)
+        public static async Task OnSetSheathed(PacketHandlerContext c)
         {
-            var request = new CMSG_SETSHEATHED(args.Data);
-            args.Client.Log(request.Sheated.ToString());
+            var request = new CMSG_SETSHEATHED(c.Packet);
+            c.Client.Log(request.Sheated.ToString());
         }
 
         [OpcodeHandler(Opcode.CMSG_ATTACKSTOP)]
-        public static async Task OnAttackStop(HandlerArguments args)
+        public static async Task OnAttackStop(PacketHandlerContext c)
         {
             // AttackController.Stop???
         }
 
         [OpcodeHandler(Opcode.CMSG_CAST_SPELL)]
-        public static async Task OnCastSpell(HandlerArguments args)
+        public static async Task OnCastSpell(PacketHandlerContext c)
         {
-            var request = new CMSG_CAST_SPELL(args.Data);
-            args.Client.Log($"Casting: {request.SpellId}");
+            var request = new CMSG_CAST_SPELL(c.Packet);
+            c.Client.Log($"Casting: {request.SpellId}");
 
-            var unit = args.WorldState.Creatures.SingleOrDefault(c => c.ID == request.TargetId);
+            var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.TargetId);
 
             if (unit is null)
             {
-                args.Client.Log($"Could not find unit: {request.TargetId}");
+                c.Client.Log($"Could not find unit: {request.TargetId}");
                 return;
             }
             else
             {
-                args.Client.Log($"{unit.ID} - {unit.Model}");
+                c.Client.Log($"{unit.ID} - {unit.Model}");
             }
 
             // ????

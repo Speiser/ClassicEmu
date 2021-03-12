@@ -1,4 +1,4 @@
-﻿using Classic.Common;
+﻿using Classic.Shared;
 
 namespace Classic.Auth.Challenges
 {
