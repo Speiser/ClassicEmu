@@ -5,7 +5,7 @@ using Classic.Auth.Extensions;
 using Classic.Shared;
 using Classic.Shared.Data;
 
-namespace Classic.Auth.Challenges
+namespace Classic.Auth.Packets
 {
     public class ServerRealmlist
     {

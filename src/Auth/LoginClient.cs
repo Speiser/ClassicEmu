@@ -1,7 +1,8 @@
+using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Classic.Auth.Challenges;
 using Classic.Auth.Cryptography;
+using Classic.Auth.Packets;
 using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
@@ -11,14 +12,14 @@ namespace Classic.Auth
 {
     public class LoginClient : ClientBase
     {
+        private readonly AccountService accountService;
+        private SecureRemotePasswordProtocol srp;
         private bool isReconnect;
 
         public LoginClient(ILogger<LoginClient> logger, AccountService accountService) : base(logger)
         {
-            this.AccountService = accountService;
+            this.accountService = accountService;
         }
-
-        public AccountService AccountService { get; }
 
         public override async Task Initialize(TcpClient client)
         {
@@ -29,9 +30,7 @@ namespace Classic.Auth
             await HandleConnection();
         }
 
-        public SecureRemotePasswordProtocol SRP { get; internal set; }
-
-        public int Build { get; internal set; }
+        public int Build { get; private set; }
 
         protected override async Task HandlePacket(byte[] packet)
         {
@@ -39,48 +38,90 @@ namespace Classic.Auth
             var cmd = (Opcode)reader.ReadByte();
             this.LogAuthState($"Recv {cmd} ({packet.Length} bytes)");
 
-            switch (cmd)
+            var task = cmd switch
             {
-                case Opcode.LoginChallenge:
-                    await new ClientLogonChallenge(packet, this).Execute();
-                    break;
-                case Opcode.LoginProof:
-                    var success = await new ClientLogonProof(packet, this).Execute();
-                    if (success)
-                    {
-                        this.LogAuthState("Client authenticated");
-                    }
-                    else
-                    {
-                        this.isConnected = false;
-                        this.LogAuthState("Client authentication failed");
-                    }
-                    break;
-                case Opcode.Realmlist:
-                    if (!this.isReconnect)
-                    {
-                        var account = this.AccountService.GetAccount(this.SRP.I);
+                Opcode.LoginChallenge => this.HandleLoginChallenge(packet),
+                Opcode.LoginProof => this.HandleLoginProof(packet),
+                Opcode.Realmlist => this.HandleRealmlist(),
+                Opcode.ReconnectChallenge => this.HandleReconnectChallenge(),
+                Opcode.ReconnectProof => this.HandleReconnectProof(),
+                _ => throw new ArgumentOutOfRangeException(nameof(cmd), $"Unknown auth opcode {cmd}"),
+            };
 
-                        // for development, create new account if not found
-                        if (account is null)
-                        {
-                            account = new Account { Identifier = this.SRP.I };
-                            this.AccountService.AddAccount(account);
-                        }
+            await task;
+        }
 
-                        var session = new AccountSession(this.SRP.I, this.SRP.SessionKey);
-                        this.AccountService.AddSession(session);
-                    }
-                    await ServerRealmlist.Send(this);
-                    break;
-                case Opcode.ReconnectChallenge:
-                    this.isReconnect = true;
-                    await new ClientReconnectChallenge(packet, this).Execute();
-                    break;
-                case Opcode.ReconnectProof:
-                    await new ClientReconnectProof(packet, this).Execute();
-                    break;
+        private async Task HandleLoginChallenge(byte[] packet)
+        {
+            var request = new ClientLoginChallenge(packet);
+
+            if (request.Build > ClientBuild.WotLK)
+            {
+                // Send failed event
+                this.Log($"Login with unsupported build {Build}");
+                return;
             }
+
+            this.Build = request.Build;
+
+            this.srp = new SecureRemotePasswordProtocol(request.Identifier, request.Identifier); // TODO: Quick hack
+            this.accountService.AddClientBuildForAddress(this.Address, this.Port, this.Build);
+
+            // Create and send a ServerLogonChallenge as response.
+            await this.Send(ServerLoginChallenge.Success(this.srp));
+        }
+
+        private async Task HandleLoginProof(byte[] packet)
+        {
+            var request = new ClientLoginProof(packet);
+
+            if (!this.srp.ValidateClientProof(request.PublicValue, request.Proof))
+            {
+                await this.Send(ServerLoginProof.Failed());
+                this.LogAuthState("Client authentication failed");
+                this.isConnected = false;
+                return;
+            }
+
+            await this.Send(ServerLoginProof.Success(this.srp, this.Build));
+            this.LogAuthState("Client authenticated");
+        }
+
+        private async Task HandleRealmlist()
+        {
+            if (!this.isReconnect)
+            {
+                var account = this.accountService.GetAccount(this.srp.I);
+
+                // for development, create new account if not found
+                if (account is null)
+                {
+                    account = new Account { Identifier = this.srp.I };
+                    this.accountService.AddAccount(account);
+                }
+
+                var session = new AccountSession(this.srp.I, this.srp.SessionKey);
+                this.accountService.AddSession(session);
+            }
+
+            await ServerRealmlist.Send(this);
+        }
+
+        private async Task HandleReconnectChallenge()
+        {
+            // This packet is also of type ClientLoginChallenge (but unused for now)
+            this.isReconnect = true;
+            await this.Send(ServerReconnectChallenge.Success());
+        }
+
+        private async Task HandleReconnectProof()
+        {
+            // uint8    cmd
+            // char[16] proof_data
+            // char[20] client_proof
+            // char[20] unk_hash
+            // uint8    unk
+            await this.Send(ServerReconnectProof.Success());
         }
 
         private void LogAuthState(string message) => this.logger.LogTrace($"{this.ClientInfo} - {message}");
