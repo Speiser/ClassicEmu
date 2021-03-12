@@ -3,7 +3,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.World.Messages;
 using Classic.World.Messages.Client;

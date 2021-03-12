@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Classic.World.Data;
+using Classic.World.Extensions;
 using Classic.World.Messages;
 using Classic.World.Messages.Client;
 
@@ -16,7 +17,7 @@ namespace Classic.World.Handler
             if (request.Message.StartsWith(".spawn"))
             {
                 var spawnId = int.Parse(request.Message.Split(" ")[1]);
-                var creature = new Creature { Model = spawnId, Position = c.Client.Character.Position.Copy() };
+                var creature = new Creature { Model = spawnId, Position = c.GetCharacter().Position.Copy() };
                 await c.World.SpawnCreature(creature);
             }
         }

@@ -5,7 +5,6 @@ using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
 using Classic.World.Cryptography;
-using Classic.World.Data;
 using Classic.World.Entities;
 using Classic.World.HeaderUtil;
 using Classic.World.Messages;
@@ -66,11 +65,12 @@ namespace Classic.World
         }
 
         public int Build { get; internal set; }
-        public bool IsInWorld { get; internal set; }
+        public bool IsInWorld => this.CharacterId != default;
+
         public string Identifier { get; internal set; }
+        public ulong CharacterId { get; internal set; }
 
         public PlayerEntity Player { get; internal set; }
-        public Character Character => Player?.Character;
 
         public AuthCrypt Crypt { get; internal set; }
 

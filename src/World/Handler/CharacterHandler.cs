@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Messages;

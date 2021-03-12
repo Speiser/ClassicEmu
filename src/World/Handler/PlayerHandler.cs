@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.World.Extensions;
 using Classic.World.Messages;
@@ -18,7 +17,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogin(PacketHandlerContext c)
         {
             var request = new CMSG_PLAYER_LOGIN(c.Data);
-            var character = c.World.CharacterService.GetCharacter(request.CharacterID);
+            var character = c.GetCharacter(request.CharacterID);
             var account = c.AccountService.GetAccount(c.Client.Identifier);
 
             // Login with a deleted character or a character from another account. 
@@ -81,8 +80,8 @@ namespace Classic.World.Handler
             await c.SendPacket<SMSG_LOGIN_SETTIMESPEED>();
             // await args.Client.SendPacket(new SMSG_TRIGGER_CINEMATIC(CinematicID.NightElf));
 
+            c.Client.CharacterId = character.Id;
             await c.Client.SendPacket(SMSG_UPDATE_OBJECT.CreateOwnPlayerObject(character, c.Client.Build, out var player));
-            c.Client.IsInWorld = true;
             c.Client.Player = player;
 
             // TODO: Implement for TBC
@@ -120,7 +119,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogoutRequested(PacketHandlerContext c)
         {
             await c.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
-            c.Client.IsInWorld = false;
+            c.Client.CharacterId = default;
             c.Client.Player = null;
 
             // TODO: Remove from other clients

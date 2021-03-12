@@ -27,16 +27,18 @@ namespace Classic.World
                 { ClientBuild.TBC, SMSG_UPDATE_OBJECT.CreatePlayer(character, ClientBuild.TBC) },
             };
 
-            var _this = this.Connections.Single(x => x.Character?.Id == character.Id);
+            var _this = this.Connections.Single(x => x.CharacterId == character.Id);
 
             foreach (var other in this.Connections)
             {
-                if (other.Character is null) continue;
-                if (other.Character.Id == character.Id) continue;
-                
-                if (!IsInRange(character, other.Character)) continue;
+                if (!other.IsInWorld) continue;
+                if (other.CharacterId == character.Id) continue;
 
-                await _this.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(other.Character, build));
+                var otherCharacter = this.CharacterService.GetCharacter(other.CharacterId);
+
+                if (!IsInRange(character, otherCharacter)) continue;
+
+                await _this.SendPacket(SMSG_UPDATE_OBJECT.CreatePlayer(otherCharacter, build));
                 await other.SendPacket(updateForOtherActivePlayers[other.Build]);
             }
         }
@@ -47,9 +49,10 @@ namespace Classic.World
 
             foreach (var connection in this.Connections)
             {
-                if (connection.Character is null) continue;
+                var character = this.CharacterService.GetCharacter(connection.CharacterId);
+                if (character is null) continue;
 
-                if (!IsInRange(connection.Character, creature)) continue;
+                if (!IsInRange(character, creature)) continue;
 
                 await connection.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(creature));
             }

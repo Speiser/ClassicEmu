@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Classic.World.Extensions;
 using Classic.World.Messages;
 
 namespace Classic.World.Handler
@@ -21,20 +22,20 @@ namespace Classic.World.Handler
         public static async Task OnPlayerMovePrototype(PacketHandlerContext c)
         {
             var request = new MSG_MOVE_GENERIC(c.Data, c.Client.Build);
-
+            var character = c.GetCharacter();
             // Always trust the client (for now..)
-            c.Client.Character.Position.X = request.MapX;
-            c.Client.Character.Position.Y = request.MapY;
-            c.Client.Character.Position.Z = request.MapZ;
-            c.Client.Character.Position.Orientation = request.MapO;
+            character.Position.X = request.MapX;
+            character.Position.Y = request.MapY;
+            character.Position.Z = request.MapZ;
+            character.Position.Orientation = request.MapO;
 
             foreach (var client in c.World.Connections)
             {
-                if (client.Character is null) continue;
-                if (client.Character.Id == c.Client.Character.Id) continue; // Should not happen?
+                if (!client.IsInWorld) continue;
+                if (client.CharacterId == c.Client.CharacterId) continue;
 
                 // Put that in a queue and dont await it?
-                await client.SendPacket(new MovementUpdate(c.Client.Character, request, c.Opcode, client.Build));
+                await client.SendPacket(new MovementUpdate(character, request, c.Opcode, client.Build));
             }
         }
     }
