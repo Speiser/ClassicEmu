@@ -4,13 +4,20 @@ using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Messages.Server;
+using Classic.World.Services;
 
 namespace Classic.World
 {
-    public class WorldState
+    public class WorldManager : IWorldManager
     {
+        public WorldManager(CharacterService characterService)
+        {
+            this.CharacterService = characterService;
+        }
+
         public List<WorldClient> Connections { get; } = new List<WorldClient>();
         public List<Creature> Creatures { get; } = new List<Creature>();
+        public CharacterService CharacterService { get; }
 
         public async Task SpawnPlayer(Character character, int build)
         {

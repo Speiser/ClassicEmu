@@ -18,20 +18,20 @@ namespace Classic.World
     {
         private readonly WorldPacketHandler packetHandler;
         private readonly AccountService accountService;
-        private readonly WorldState worldState;
+        private readonly IWorldManager world;
         private AddressToClientBuildMap addressToClientBuildMap;
 
         public WorldClient(
             WorldPacketHandler packetHandler,
             ILogger<WorldClient> logger,
             AuthCrypt crypt,
-            WorldServer world,
+            IWorldManager world,
             AccountService accountService) : base(logger)
         {
             this.packetHandler = packetHandler;
             this.Crypt = crypt;
             this.accountService = accountService;
-            this.worldState = world.State;
+            this.world = world;
         }
 
         public override async Task Initialize(TcpClient client)
@@ -97,7 +97,7 @@ namespace Classic.World
                     Client = this,
                     Data = packet,
                     Opcode = opcode,
-                    WorldState = this.worldState,
+                    World = this.world,
                     AccountService = this.accountService,
                 });
 
@@ -136,7 +136,7 @@ namespace Classic.World
 
         protected override void OnDisconnected()
         {
-            this.worldState.Connections.Remove(this);
+            this.world.Connections.Remove(this);
             if (this.addressToClientBuildMap is not null)
             {
                 this.accountService.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);

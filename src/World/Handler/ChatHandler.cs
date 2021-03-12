@@ -17,7 +17,7 @@ namespace Classic.World.Handler
             {
                 var spawnId = int.Parse(request.Message.Split(" ")[1]);
                 var creature = new Creature { Model = spawnId, Position = c.Client.Character.Position.Copy() };
-                await c.WorldState.SpawnCreature(creature);
+                await c.World.SpawnCreature(creature);
             }
         }
     }

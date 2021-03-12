@@ -21,7 +21,7 @@ namespace Classic.World.Handler
 
             foreach (var id in account.Characters)
             {
-                var character = DataStore.CharacterRepository.GetCharacter(id);
+                var character = c.World.CharacterService.GetCharacter(id);
                 if (character is null)
                 {
                     c.Client.Log($"Could not find character with id {id} from player {account.Identifier}.", LogLevel.Warning);
@@ -46,7 +46,7 @@ namespace Classic.World.Handler
         {
             byte status;
             var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Data));
-            if (!DataStore.CharacterRepository.AddCharacter(character))
+            if (!c.World.CharacterService.AddCharacter(character))
             {
                 c.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
                 status = c.Client.Build switch
@@ -86,7 +86,7 @@ namespace Classic.World.Handler
                 return;
             }
 
-            if (!DataStore.CharacterRepository.DeleteCharacter(request.CharacterId))
+            if (!c.World.CharacterService.DeleteCharacter(request.CharacterId))
             {
                 await c.Client.SendPacket(GetFailedPacket(c.Client.Build));
                 return;

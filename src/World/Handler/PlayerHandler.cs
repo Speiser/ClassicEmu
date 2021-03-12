@@ -18,7 +18,7 @@ namespace Classic.World.Handler
         public static async Task OnPlayerLogin(PacketHandlerContext c)
         {
             var request = new CMSG_PLAYER_LOGIN(c.Data);
-            var character = DataStore.CharacterRepository.GetCharacter(request.CharacterID);
+            var character = c.World.CharacterService.GetCharacter(request.CharacterID);
             var account = c.AccountService.GetAccount(c.Client.Identifier);
 
             // Login with a deleted character or a character from another account. 
@@ -89,7 +89,7 @@ namespace Classic.World.Handler
             if (c.IsVanilla())
             {
                 // Initially spawn all creatures
-                foreach (var unit in c.WorldState.Creatures)
+                foreach (var unit in c.World.Creatures)
                 {
                     // TODO: Add range check
                     await c.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(unit));
@@ -97,7 +97,7 @@ namespace Classic.World.Handler
 
             }
 
-            await c.WorldState.SpawnPlayer(character, c.Client.Build);
+            await c.World.SpawnPlayer(character, c.Client.Build);
 
             // if (GROUP) -> SMSG_GROUP_LIST
             // if Vanilla

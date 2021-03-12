@@ -7,7 +7,7 @@ namespace Classic.World.Messages
         public WorldClient Client { get; init; }
         public Opcode Opcode { get; init; }
         public byte[] Data { get; init; }
-        public WorldState WorldState { get; init; }
+        public IWorldManager World { get; init; }
         public AccountService AccountService { get; init; }
     }
 }

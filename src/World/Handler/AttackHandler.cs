@@ -23,7 +23,7 @@ namespace Classic.World.Handler
             var request = new CMSG_ATTACKSWING(c.Data);
 
             // TODO: Also check players
-            var unit = c.WorldState.Creatures.SingleOrDefault(creature => creature.ID == request.Guid);
+            var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.Guid);
 
             if (unit is null)
             {
@@ -65,7 +65,7 @@ namespace Classic.World.Handler
             var request = new CMSG_CAST_SPELL(c.Data);
             c.Client.Log($"Casting: {request.SpellId}");
 
-            var unit = c.WorldState.Creatures.SingleOrDefault(creature => creature.ID == request.TargetId);
+            var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.TargetId);
 
             if (unit is null)
             {

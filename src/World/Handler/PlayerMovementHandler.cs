@@ -28,7 +28,7 @@ namespace Classic.World.Handler
             c.Client.Character.Position.Z = request.MapZ;
             c.Client.Character.Position.Orientation = request.MapO;
 
-            foreach (var client in c.WorldState.Connections)
+            foreach (var client in c.World.Connections)
             {
                 if (client.Character is null) continue;
                 if (client.Character.Id == c.Client.Character.Id) continue; // Should not happen?

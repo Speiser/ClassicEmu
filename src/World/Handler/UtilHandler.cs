@@ -19,7 +19,7 @@ namespace Classic.World.Handler
         public static async Task OnNameQuery(PacketHandlerContext c)
         {
             var request = new CMSG_NAME_QUERY(c.Data);
-            var character = DataStore.CharacterRepository.GetCharacter(request.CharacterID);
+            var character = c.World.CharacterService.GetCharacter(request.CharacterID);
             if (character is null)
                 return;
             await c.Client.SendPacket(new SMSG_NAME_QUERY_RESPONSE(character, c.Client.Build));
