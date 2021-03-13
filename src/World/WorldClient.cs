@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Shared;
@@ -6,7 +7,6 @@ using Classic.Shared.Data;
 using Classic.Shared.Services;
 using Classic.World.Cryptography;
 using Classic.World.Entities;
-using Classic.World.HeaderUtil;
 using Classic.World.Packets;
 using Classic.World.Packets.Server;
 using Microsoft.Extensions.Logging;
@@ -23,12 +23,10 @@ namespace Classic.World
         public WorldClient(
             WorldPacketHandler packetHandler,
             ILogger<WorldClient> logger,
-            AuthCrypt crypt,
             IWorldManager world,
             AccountService accountService) : base(logger)
         {
             this.packetHandler = packetHandler;
-            this.Crypt = crypt;
             this.accountService = accountService;
             this.world = world;
         }
@@ -49,13 +47,12 @@ namespace Classic.World
                 this.Build = this.addressToClientBuildMap.ClientBuild;
             }
 
-            this.HeaderUtil = HeaderUtilFactory.Create(this.Build, this.Crypt);
             this.logger.LogDebug($"{this.ClientInfo} - connected");
 
             ServerPacketBase<Opcode> message = this.Build switch
             {
-                ClientBuild.Vanilla or ClientBuild.TBC => new SMSG_AUTH_CHALLENGE_VANILLA_TBC(),
-                ClientBuild.WotLK => new SMSG_AUTH_CHALLENGE_WOTLK(),
+                ClientBuild.Vanilla or ClientBuild.TBC => SMSG_AUTH_CHALLENGE.VanillaTBC(),
+                ClientBuild.WotLK => SMSG_AUTH_CHALLENGE.WotLK(),
                 _ => throw new NotImplementedException($"SMSG_AUTH_CHALLENGE(build: {this.Build})"),
             };
 
@@ -72,9 +69,7 @@ namespace Classic.World
 
         public PlayerEntity Player { get; internal set; }
 
-        public AuthCrypt Crypt { get; internal set; }
-
-        public IHeaderUtil HeaderUtil { get; internal set; }
+        public IHeaderCrypt HeaderCrypt { get; internal set; }
 
         protected override async Task HandlePacket(byte[] data)
         {
@@ -107,7 +102,7 @@ namespace Classic.World
 
         public async Task SendPacket(ServerPacketBase<Opcode> message)
         {
-            var data = this.HeaderUtil.Encode(message);
+            var data = this.Encode(message);
             await this.Send(data);
             this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
             message.Dispose();
@@ -119,9 +114,9 @@ namespace Classic.World
             ushort length;
             short opcode;
 
-            if (this.Crypt.IsInitialized)
+            if (this.HeaderCrypt is not null)
             {
-                this.Crypt.Decrypt(packet, 6);
+                this.HeaderCrypt.Decrypt(packet);
                 length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
                 opcode = BitConverter.ToInt16(new[] { packet[2], packet[3] });
             }
@@ -145,6 +140,37 @@ namespace Classic.World
             {
                 this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
             }
+        }
+
+        private byte[] Encode(ServerPacketBase<Opcode> message)
+        {
+            var data = message.Get();
+            var index = 0;
+            var header = new byte[4];
+
+            // TODO: Fix for TBC...
+            //if (message.Opcode == Opcode.SMSG_UPDATE_OBJECT && data.Length > 98)
+            //{
+            //    var uncompressed = data.Length;
+            //    message.Opcode = Opcode.SMSG_COMPRESSED_UPDATE_OBJECT;
+            //    data = Compression.Compress(data);
+            //    data = new PacketWriter().WriteUInt32((uint)uncompressed).WriteBytes(data).Build();
+            //}
+
+            var newSize = data.Length + 2;
+
+            // TODO
+            //if (newSize > 0x7FFF)
+            //    header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
+
+            header[index++] = (byte)(0xFF & (newSize >> 8));
+            header[index++] = (byte)(0xFF & newSize);
+            header[index++] = (byte)(0xFF & (int)message.Opcode);
+            header[index] = (byte)(0xFF & ((int)message.Opcode >> 8));
+
+            header = this.HeaderCrypt.Encrypt(header);
+
+            return header.Concat(data).ToArray();
         }
     }
 }

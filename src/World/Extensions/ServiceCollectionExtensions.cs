@@ -20,7 +20,6 @@ namespace Classic.World.Extensions
 
             return services
                 .AddSingleton(prov => new CharacterService(db, prov.GetService<ILogger<CharacterService>>()))
-                .AddTransient<AuthCrypt>()
                 .AddTransient<WorldClient>()
                 .AddSingleton<IWorldManager, WorldManager>()
                 .AddSingleton<WorldPacketHandler>()

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
-namespace Classic.World.HeaderUtil
+namespace Classic.World.Cryptography
 {
     public class Compression
     {

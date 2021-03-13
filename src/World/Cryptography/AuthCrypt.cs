@@ -2,19 +2,23 @@
 {
     // Based on
     // https://github.com/cmangos/mangos-classic/blob/master/src/shared/Auth/AuthCrypt.cpp
-    public class AuthCrypt
+    public class AuthCrypt : IHeaderCrypt
     {
-        private byte[] key;
+        private const int HeaderSize = 6;
+        private readonly byte[] key;
         private int send_i = 0;
         private int send_j = 0;
         private int recv_i = 0;
         private int recv_j = 0;
 
-        public bool IsInitialized { get; private set; }
-
-        public byte[] Decrypt(byte[] data, int size)
+        public AuthCrypt(byte[] key)
         {
-            for (var i = 0; i < size; i++)
+            this.key = key;
+        }
+
+        public byte[] Decrypt(byte[] data)
+        {
+            for (var i = 0; i < HeaderSize; i++)
             {
                 this.recv_i %= (byte)this.key.Length;
                 var x = (byte)((data[i] - this.recv_j) ^ this.key[this.recv_i]);
@@ -38,12 +42,6 @@
             }
 
             return data;
-        }
-
-        public void SetKey(byte[] key)
-        {
-            this.key = key;
-            this.IsInitialized = true;
         }
     }
 }
