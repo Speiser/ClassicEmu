@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Classic.Shared;
-using Classic.World.HeaderUtil;
+using Classic.World.Cryptography;
 
 namespace Classic.World.Packets.Client
 {
