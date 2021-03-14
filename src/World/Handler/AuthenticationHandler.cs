@@ -51,27 +51,9 @@ namespace Classic.World.Handler
                 throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
             }
 
-            c.Client.HeaderCrypt = GenerateHeaderCrypt(session.SessionKey, build);
+            c.Client.HeaderCrypt = HeaderCryptFactory.Create(session.SessionKey, build);
             c.Client.Identifier = request.Identifier;
             await c.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
-        }
-
-        private static IHeaderCrypt GenerateHeaderCrypt(byte[] sessionKey, int build)
-        {
-            return build switch
-            {
-                ClientBuild.Vanilla => new AuthCrypt(sessionKey),
-                ClientBuild.TBC => new AuthCrypt(GenerateTBCCryptKey(sessionKey)),
-                ClientBuild.WotLK => new ARC4(sessionKey),
-                _ => throw new NotImplementedException($"GenerateHeaderCrypt(build: {build})"),
-            };
-        }
-
-        private static byte[] GenerateTBCCryptKey(byte[] sessionKey)
-        {
-            var temp = new byte[] { 0x38, 0xA7, 0x83, 0x15, 0xF8, 0x92, 0x25, 0x30, 0x71, 0x98, 0x67, 0xB1, 0x8C, 0x4, 0xE2, 0xAA };
-            using var hash = new HMACSHA1(temp);
-            return hash.ComputeHash(sessionKey);
         }
     }
 }
