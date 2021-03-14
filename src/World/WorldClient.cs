@@ -116,15 +116,11 @@ namespace Classic.World
 
             if (this.HeaderCrypt is not null)
             {
-                this.HeaderCrypt.Decrypt(packet);
-                length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
-                opcode = BitConverter.ToInt16(new[] { packet[2], packet[3] });
+                packet = this.HeaderCrypt.Decrypt(packet);
             }
-            else
-            {
-                length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
-                opcode = BitConverter.ToInt16(packet, 2);
-            }
+            
+            length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
+            opcode = BitConverter.ToInt16(packet, 2);
 
             return (length, (Opcode)opcode);
         }
@@ -159,9 +155,10 @@ namespace Classic.World
 
             var newSize = data.Length + 2;
 
-            // TODO
             //if (newSize > 0x7FFF)
+            //{
             //    header[index++] = (byte)(0x80 | (0xFF & (newSize >> 16)));
+            //}
 
             header[index++] = (byte)(0xFF & (newSize >> 8));
             header[index++] = (byte)(0xFF & newSize);
