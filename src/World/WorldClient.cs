@@ -71,33 +71,49 @@ namespace Classic.World
 
         public IHeaderCrypt HeaderCrypt { get; internal set; }
 
-        protected override async Task HandlePacket(byte[] data)
+        protected override async Task HandleIncomingPacket()
         {
-            for (var i = 0; i < data.Length; i++)
+            const int packetHeaderLength = 6;
+            var header = new byte[packetHeaderLength];
+            var headerReadLength = await this.ReadInto(header);
+
+            if (headerReadLength != packetHeaderLength)
             {
-                // TODO: Spans instead of array.copy!
-                var header = new byte[6];
-                Array.Copy(data, i, header, 0, 6);
-
-                var (length, opcode) = this.Decode(header);
-
-                this.logger.LogTrace($"{this.ClientInfo} - Recv {opcode} ({length} bytes)");
-
-                var packet = new byte[length];
-                Array.Copy(data, i + 6, packet, 0, length - 4);
-
-                var handler = packetHandler.GetHandler(opcode);
-                await handler(new PacketHandlerContext
-                {
-                    Client = this,
-                    Packet = packet,
-                    Opcode = opcode,
-                    World = this.world,
-                    AccountService = this.accountService,
-                });
-
-                i += 2 + (length - 1);
+                this.logger.LogError($"Invalid packet header length: {headerReadLength} -> disconnected");
+                this.isConnected = false;
+                return;
             }
+
+            var (length, opcode) = this.Decode(header);
+
+            // Remove the remaining 4 header bytes from length
+            length -= 4;
+
+            this.logger.LogTrace($"{this.ClientInfo} - Recv {opcode} ({length} bytes)");
+            var packet = new byte[length];
+
+            if (length > 0)
+            {
+                // TODO: Read in while loop until length is reached?
+                var packetReadLength = await this.ReadInto(packet);
+
+                if (length != packetReadLength)
+                {
+                    this.logger.LogError($"Expected packet read length to be {length}, but was {packetReadLength} -> disconnected");
+                    this.isConnected = false;
+                    return;
+                }
+            }
+
+            var handler = packetHandler.GetHandler(opcode);
+            await handler(new PacketHandlerContext
+            {
+                Client = this,
+                Packet = packet,
+                Opcode = opcode,
+                World = this.world,
+                AccountService = this.accountService,
+            });
         }
 
         public async Task SendPacket(ServerPacketBase<Opcode> message)

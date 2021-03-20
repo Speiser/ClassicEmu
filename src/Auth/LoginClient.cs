@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Classic.Auth.Cryptography;
@@ -24,6 +25,8 @@ namespace Classic.Auth
             this.realmlistService = realmlistService;
         }
 
+        public int Build { get; private set; }
+
         public override async Task Initialize(TcpClient client)
         {
             await base.Initialize(client);
@@ -33,9 +36,30 @@ namespace Classic.Auth
             await HandleConnection();
         }
 
-        public int Build { get; private set; }
+        protected override async Task HandleIncomingPacket()
+        {
+            var buffer = new byte[1024];
+            var length = await this.ReadInto(buffer);
 
-        protected override async Task HandlePacket(byte[] packet)
+            if (length == 0)
+            {
+                this.Log($"disconnected");
+                this.isConnected = false;
+                return;
+            }
+
+            // Do not await
+            try
+            {
+                await this.HandlePacket(buffer.Take(length).ToArray());
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e.ToString());
+            }
+        }
+
+        private async Task HandlePacket(byte[] packet)
         {
             using var reader = new PacketReader(packet);
             var cmd = (Opcode)reader.ReadByte();
