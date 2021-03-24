@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Linq;
 using Classic.World.Data;
 using LiteDB;
 using Microsoft.Extensions.Logging;
@@ -31,6 +32,20 @@ namespace Classic.World.Services
             return character;
         }
 
+        public Character GetCharacter(string name)
+        {
+            var character = this.cache.Values.SingleOrDefault(c => c.Name == name);
+            if (character is null)
+            {
+                character = this.characters.FindOne(c => c.Name == name);
+                if (character is not null)
+                {
+                    this.cache.TryAdd(character.Id, character);
+                }
+            }
+            return character;
+        }
+
         public bool AddCharacter(Character character)
         {
             if (this.GetCharacter(character.Id) is not null)
@@ -39,6 +54,7 @@ namespace Classic.World.Services
             }
 
             this.characters.Insert(character);
+            this.characters.EnsureIndex(c => c.Name);
             return true;
         }
 

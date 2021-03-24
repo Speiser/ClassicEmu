@@ -17,7 +17,8 @@ namespace Classic.World.Handler
         [OpcodeHandler(Opcode.CMSG_AUTH_SESSION)]
         public static async Task OnClientAuthenticationSession(PacketHandlerContext c)
         {
-            var (build, request) = CMSG_AUTH_SESSION.Read(c.Packet);
+            var request = CMSG_AUTH_SESSION.Read(c.Packet);
+            var build = (int)request.Build;
 
             if (c.Client.Build != build)
             {

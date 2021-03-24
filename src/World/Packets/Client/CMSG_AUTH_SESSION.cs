@@ -5,19 +5,21 @@ namespace Classic.World.Packets.Client
 {
     public abstract class CMSG_AUTH_SESSION
     {
+        public uint Build { get; protected set; }
+        public uint Session { get; protected set; }
         public string Identifier { get; protected set; }
         public uint Seed { get; protected set; }
         public byte[] Digest { get; protected set; }
 
-        public static (int build, CMSG_AUTH_SESSION request) Read(byte[] data)
+        public static CMSG_AUTH_SESSION Read(byte[] data)
         {
             using var reader = new PacketReader(data);
             var build = (int)reader.ReadUInt32();
             if (build == ClientBuild.Vanilla || build == ClientBuild.TBC)
             {
-                return (build, new CMSG_AUTH_SESSION_VANILLA_TBC(data));
+                return new CMSG_AUTH_SESSION_VANILLA_TBC(data);
             }
-            return (build, new CMSG_AUTH_SESSION_WOTLK(data));
+            return new CMSG_AUTH_SESSION_WOTLK(data);
         }
     }
 
@@ -26,7 +28,7 @@ namespace Classic.World.Packets.Client
         public CMSG_AUTH_SESSION_VANILLA_TBC(byte[] data)
         {
             using var reader = new PacketReader(data);
-            this.Build = reader.ReadUInt32();
+            base.Build = reader.ReadUInt32();
             this.Session = reader.ReadUInt32();
             base.Identifier = reader.ReadString();
             base.Seed = reader.ReadUInt32();
@@ -34,8 +36,6 @@ namespace Classic.World.Packets.Client
             this.AddonSize = reader.ReadUInt32();
         }
 
-        public uint Build { get; }
-        public uint Session { get; }
         public uint AddonSize { get; }
     }
 
@@ -44,7 +44,7 @@ namespace Classic.World.Packets.Client
         public CMSG_AUTH_SESSION_WOTLK(byte[] data)
         {
             using var reader = new PacketReader(data);
-            this.Build = reader.ReadUInt32();
+            base.Build = reader.ReadUInt32();
             this.Session = reader.ReadUInt32();
             base.Identifier = reader.ReadString();
             var unk1 = reader.ReadUInt32();
@@ -55,8 +55,5 @@ namespace Classic.World.Packets.Client
             var unk5 = reader.ReadUInt64();
             base.Digest = reader.ReadBytes(20);
         }
-
-        public uint Build { get; }
-        public uint Session { get; }
     }
 }
