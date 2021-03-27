@@ -196,7 +196,7 @@ namespace Classic.World.Packets.Server
                 .WriteUInt8(0) // hasTransport
 
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
-                .WriteBytes(player.Character.Id.ToPackedUInt64());
+                .WriteBytes(player.CharacterId.ToPackedUInt64());
 
             player.WriteUpdateFields(update.Writer);
             return update;

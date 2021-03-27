@@ -10,7 +10,10 @@ namespace Classic.World.Packets.Shared
         {
             using var reader = new PacketReader(data);
             MovementFlags = (MovementFlags)reader.ReadUInt32();
-            if (build == ClientBuild.TBC) reader.ReadByte(); // moveflags2
+            if (build == ClientBuild.TBC)
+            {
+                this.MovementFlags2 = reader.ReadByte(); 
+            }
             Time = reader.ReadUInt32();
             MapX = reader.ReadFloat();
             MapY = reader.ReadFloat();
@@ -19,6 +22,7 @@ namespace Classic.World.Packets.Shared
         }
 
         public MovementFlags MovementFlags { get; }
+        public byte MovementFlags2 { get; } // Introduced in TBC
         public uint Time { get; }
         public float MapX { get; }
         public float MapY { get; }

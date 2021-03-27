@@ -14,7 +14,6 @@ namespace Classic.World.Entities
         public PlayerEntity(Character character, int build)
             : base(new ObjectGuid((uint)character.Id, TypeId.TypeidPlayer, HighGuid.HighguidPlayer), build)
         {
-            Character = character;
             Model = character.Race.GetModel(character.Gender);
             Scale = character.Race.GetScale(character.Gender);
 
@@ -36,8 +35,7 @@ namespace Classic.World.Entities
             _ => throw new NotImplementedException($"PlayerEntity.GetDatalength(build: {build})"),
         };
 
-        public Character Character { get; }
-        public override string Name => Character.Name;
+        public ulong CharacterId { get; set; }
         public ulong TargetId { get; set; }
 
         private void SetUpdateField_Vanilla(Character character)
@@ -124,7 +122,7 @@ namespace Classic.World.Entities
             SetUpdateField((int)PlayerFields_Vanilla.PLAYER_SKILL_INFO_1_1, 26); // Needed??
             SetUpdateField((int)PlayerFields_Vanilla.PLAYER_FIELD_WATCHED_FACTION_INDEX, character.WatchFaction);
 
-            SkillGenerate_Vanilla();
+            SkillGenerate_Vanilla(character);
         }
 
         private void SetUpdateField_TBC(Character character)
@@ -320,13 +318,13 @@ namespace Classic.World.Entities
             SetUpdateField((int)UnitFields_TBC.UNIT_FIELD_BASE_HEALTH, character.Stats.Life);
             SetUpdateField((int)PlayerFields_TBC.PLAYER_FIELD_WATCHED_FACTION_INDEX, character.WatchFaction);
 
-            SkillGenerate_TBC();
+            SkillGenerate_TBC(character);
         }
 
-        private void SkillGenerate_Vanilla()
+        private void SkillGenerate_Vanilla(Character character)
         {
             var a = 0;
-            foreach (var skill in Character.Skills)
+            foreach (var skill in character.Skills)
             {
                 SetUpdateField((int)PlayerFields_Vanilla.PLAYER_SKILL_INFO_1_1 + a * 3, skill.Id);
                 SetUpdateField((int)PlayerFields_Vanilla.PLAYER_SKILL_INFO_1_1 + a * 3 + 1, skill.Current + (skill.Max << 16));
@@ -334,10 +332,10 @@ namespace Classic.World.Entities
             }
         }
 
-        private void SkillGenerate_TBC()
+        private void SkillGenerate_TBC(Character character)
         {
             var a = 0;
-            foreach (var skill in Character.Skills)
+            foreach (var skill in character.Skills)
             {
                 SetUpdateField((int)PlayerFields_TBC.PLAYER_SKILL_INFO_1_1 + a * 3, skill.Id);
                 SetUpdateField((int)PlayerFields_TBC.PLAYER_SKILL_INFO_1_1 + a * 3 + 1, skill.Current + (skill.Max << 16));
