@@ -3,33 +3,32 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Classic.Shared
+namespace Classic.Shared;
+
+public class PacketReader : BinaryReader
 {
-    public class PacketReader : BinaryReader
+    public PacketReader(byte[] packet) : base(new MemoryStream(packet)) { }
+
+    public void Skip(int amount) => this.ReadBytes(amount);
+
+    public ushort ReadUInt16Reverse()
     {
-        public PacketReader(byte[] packet) : base(new MemoryStream(packet)) { }
+        var bytes = this.ReadBytes(2);
+        return BitConverter.ToUInt16(new [] { bytes[1], bytes[0] });
+    }
 
-        public void Skip(int amount) => this.ReadBytes(amount);
+    public float ReadFloat() => ReadSingle();
 
-        public ushort ReadUInt16Reverse()
+    public override string ReadString()
+    {
+        var account = new List<byte>();
+
+        while (this.PeekChar() != 0)
         {
-            var bytes = this.ReadBytes(2);
-            return BitConverter.ToUInt16(new [] { bytes[1], bytes[0] });
+            account.Add(this.ReadByte());
         }
 
-        public float ReadFloat() => ReadSingle();
-
-        public override string ReadString()
-        {
-            var account = new List<byte>();
-
-            while (this.PeekChar() != 0)
-            {
-                account.Add(this.ReadByte());
-            }
-
-            this.ReadByte(); // skip the "\0"
-            return Encoding.ASCII.GetString(account.ToArray());
-        }
+        this.ReadByte(); // skip the "\0"
+        return Encoding.ASCII.GetString(account.ToArray());
     }
 }

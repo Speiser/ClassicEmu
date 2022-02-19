@@ -1,33 +1,32 @@
 ﻿using System.Collections.Generic;
 using Classic.World.Data;
 
-namespace Classic.World.Packets.Server
+namespace Classic.World.Packets.Server;
+
+public class SMSG_INITIAL_SPELLS : ServerPacketBase<Opcode>
 {
-    public class SMSG_INITIAL_SPELLS : ServerPacketBase<Opcode>
+    private readonly List<Spell> spells;
+
+    public SMSG_INITIAL_SPELLS(List<Spell> spells) : base(Opcode.SMSG_INITIAL_SPELLS)
     {
-        private readonly List<Spell> spells;
+        this.spells = spells;
+    }
 
-        public SMSG_INITIAL_SPELLS(List<Spell> spells) : base(Opcode.SMSG_INITIAL_SPELLS)
-        {
-            this.spells = spells;
-        }
+    public override byte[] Get()
+    {
+        this.Writer
+            .WriteUInt8(0) // ??
+            .WriteUInt16((ushort)this.spells.Count);
 
-        public override byte[] Get()
+        ushort slot = 1;
+        foreach (var spell in this.spells)
         {
             this.Writer
-                .WriteUInt8(0) // ??
-                .WriteUInt16((ushort)this.spells.Count);
-
-            ushort slot = 1;
-            foreach (var spell in this.spells)
-            {
-                this.Writer
-                    .WriteUInt16((ushort)spell.Id)
-                    .WriteUInt16(slot++);
-            }
-
-            this.Writer.WriteUInt16(0); // Cooldown count
-            return this.Writer.Build();
+                .WriteUInt16((ushort)spell.Id)
+                .WriteUInt16(slot++);
         }
+
+        this.Writer.WriteUInt16(0); // Cooldown count
+        return this.Writer.Build();
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace Classic.World.Data.Enums.Character
+﻿namespace Classic.World.Data.Enums.Character;
+
+public enum RestedState
 {
-    public enum RestedState
-    {
-        Rested = 1,
-        Normal = 2,
-    }
+    Rested = 1,
+    Normal = 2,
 }

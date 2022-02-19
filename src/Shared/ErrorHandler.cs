@@ -1,16 +1,15 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
-namespace Classic.Shared
+namespace Classic.Shared;
+
+public class ErrorHandler
 {
-    public class ErrorHandler
+    public ErrorHandler(ILogger<ErrorHandler> logger)
     {
-        public ErrorHandler(ILogger<ErrorHandler> logger)
-        {
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => logger.LogError($"UnhandledException: {JsonConvert.SerializeObject(e)}");
-            TaskScheduler.UnobservedTaskException += (s, e) => logger.LogError($"UnobservedTaskException: {JsonConvert.SerializeObject(e)}");
-        }
+        AppDomain.CurrentDomain.UnhandledException += (s, e) => logger.LogError($"UnhandledException: {JsonSerializer.Serialize(e)}");
+        TaskScheduler.UnobservedTaskException += (s, e) => logger.LogError($"UnobservedTaskException: {JsonSerializer.Serialize(e)}");
     }
 }

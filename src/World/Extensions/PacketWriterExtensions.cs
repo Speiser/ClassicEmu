@@ -1,17 +1,16 @@
 using Classic.Shared;
 using Classic.World.Data;
 
-namespace Classic.World.Extensions
+namespace Classic.World.Extensions;
+
+internal static class PacketWriterExtensions
 {
-    internal static class PacketWriterExtensions
+    public static PacketWriter WriteMap(this PacketWriter writer, Map map)
     {
-        public static PacketWriter WriteMap(this PacketWriter writer, Map map)
-        {
-            return writer
-                .WriteFloat(map.X)
-                .WriteFloat(map.Y)
-                .WriteFloat(map.Z)
-                .WriteFloat(map.Orientation);
-        }
+        return writer
+            .WriteFloat(map.X)
+            .WriteFloat(map.Y)
+            .WriteFloat(map.Z)
+            .WriteFloat(map.Orientation);
     }
 }
