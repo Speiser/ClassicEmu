@@ -1,8 +1,7 @@
-﻿namespace Classic.World.Cryptography
+﻿namespace Classic.World.Cryptography;
+
+public interface IHeaderCrypt
 {
-    public interface IHeaderCrypt
-    {
-        byte[] Decrypt(byte[] data);
-        byte[] Encrypt(byte[] data);
-    }
+    byte[] Decrypt(byte[] data);
+    byte[] Encrypt(byte[] data);
 }

@@ -1,7 +1,6 @@
-﻿namespace Classic.World.Data.Enums.Chat
+﻿namespace Classic.World.Data.Enums.Chat;
+
+public enum MessageLanguage
 {
-    public enum MessageLanguage
-    {
-        Universal = 0,
-    }
+    Universal = 0,
 }

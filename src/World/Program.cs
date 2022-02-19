@@ -6,21 +6,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Classic.World
+namespace Classic.World;
+
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
-        {
-            await Host.CreateDefaultBuilder()
-                .ConfigureLogging(logging => logging
-                    .AddConsole()
-                    .SetMinimumLevel(LogLevel.Trace))
-                .ConfigureServices(services => services
-                    .AddSingleton<ErrorHandler>()
-                    .AddSharedServices()
-                    .AddWorldServer())
-                .RunConsoleAsync();
-        }
+        await Host.CreateDefaultBuilder()
+            .ConfigureLogging(logging => logging
+                .AddConsole()
+                .SetMinimumLevel(LogLevel.Trace))
+            .ConfigureServices(services => services
+                .AddSingleton<ErrorHandler>()
+                .AddSharedServices()
+                .AddWorldServer())
+            .RunConsoleAsync();
     }
 }

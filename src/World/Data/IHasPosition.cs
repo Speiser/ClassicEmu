@@ -1,7 +1,6 @@
-﻿namespace Classic.World.Data
+﻿namespace Classic.World.Data;
+
+public interface IHasPosition
 {
-    public interface IHasPosition
-    {
-        Map Position { get; }
-    }
+    Map Position { get; }
 }

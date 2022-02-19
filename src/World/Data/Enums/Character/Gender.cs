@@ -1,8 +1,7 @@
-﻿namespace Classic.World.Data.Enums.Character
+﻿namespace Classic.World.Data.Enums.Character;
+
+public enum Gender
 {
-    public enum Gender
-    {
-        Male = 0,
-        Female = 1
-    }
+    Male = 0,
+    Female = 1
 }

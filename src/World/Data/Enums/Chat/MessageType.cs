@@ -1,8 +1,7 @@
-﻿namespace Classic.World.Data.Enums.Chat
+﻿namespace Classic.World.Data.Enums.Chat;
+
+public enum MessageType
 {
-    public enum MessageType
-    {
-        Say = 0,
-        System = 10,
-    }
+    Say = 0,
+    System = 10,
 }
