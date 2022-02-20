@@ -6,11 +6,13 @@ public class SMSG_ATTACKERSTATEUPDATE : ServerPacketBase<Opcode>
 {
     private readonly ulong playerId;
     private readonly ulong targetId;
+    private readonly uint damage;
 
-    public SMSG_ATTACKERSTATEUPDATE(ulong playerId, ulong targetId) : base(Opcode.SMSG_ATTACKERSTATEUPDATE)
+    public SMSG_ATTACKERSTATEUPDATE(ulong playerId, ulong targetId, uint damage) : base(Opcode.SMSG_ATTACKERSTATEUPDATE)
     {
         this.playerId = playerId;
         this.targetId = targetId;
+        this.damage = damage;
     }
 
     public override byte[] Get()
@@ -19,7 +21,7 @@ public class SMSG_ATTACKERSTATEUPDATE : ServerPacketBase<Opcode>
             .WriteUInt32(0x00000002) // HITINFO_NORMALSWING2
             .WriteBytes(playerId.ToPackedUInt64())
             .WriteBytes(targetId.ToPackedUInt64())
-            .WriteUInt32(10) // Total damage
+            .WriteUInt32(this.damage) // Total damage
             .WriteUInt8(1) // lines.Count
                 // foreach line in lines
                 .WriteUInt32(0) // spell school (0 == normal)

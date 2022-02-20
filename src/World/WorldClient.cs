@@ -6,6 +6,7 @@ using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
 using Classic.World.Cryptography;
+using Classic.World.Data;
 using Classic.World.Entities;
 using Classic.World.Packets;
 using Classic.World.Packets.Server;
@@ -29,6 +30,7 @@ public class WorldClient : ClientBase
         this.packetHandler = packetHandler;
         this.accountService = accountService;
         this.world = world;
+        this.AttackController = new(this); // TODO :(
     }
 
     public override async Task Initialize(TcpClient client)
@@ -68,6 +70,8 @@ public class WorldClient : ClientBase
     public ulong CharacterId { get; internal set; }
 
     public PlayerEntity Player { get; internal set; }
+
+    public AttackController AttackController { get; }
 
     public IHeaderCrypt HeaderCrypt { get; internal set; }
 
@@ -184,5 +188,48 @@ public class WorldClient : ClientBase
         header = this.HeaderCrypt.Encrypt(header);
 
         return header.Concat(data).ToArray();
+    }
+}
+
+public class AttackController
+{
+    private readonly WorldClient client;
+    private bool isAttacking;
+
+    public AttackController(WorldClient client)
+    {
+        this.client = client;
+    }
+
+    public async Task StartAttacking(Creature unit)
+    {
+        if (this.isAttacking)
+        {
+            return;
+        }
+
+        this.isAttacking = true;
+
+        // TODO: Checks if can attack, range check etc.
+        await this.client.SendPacket(new SMSG_ATTACKSTART(this.client.CharacterId, unit.ID));
+
+        // TODO: CancellationToken???
+        _ = Task.Run(async () =>
+        {
+            this.client.Log("Attacking...", LogLevel.Information);
+            while (this.isAttacking)
+            {
+                uint damage = 10; // TODO: Calculate? :D
+                await this.client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(this.client.CharacterId, unit.ID, damage));
+                unit.Life -= damage;
+                this.client.Log($"Unit {unit.ID} takes {damage} damage and has {unit.Life} hp remaining.");
+                await Task.Delay(500);
+            }
+        });
+    }
+
+    public void StopAttacking()
+    {
+        this.isAttacking = false;
     }
 }

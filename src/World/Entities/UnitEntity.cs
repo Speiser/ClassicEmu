@@ -25,9 +25,9 @@ public class UnitEntity : ObjectEntity
 
         SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_FACTIONTEMPLATE, 954); // FactionAlliance
 
-        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_HEALTH, 3517); // Health
-        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_MAXHEALTH, 3517); // Health
-        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_LEVEL, 50); // Level
+        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_HEALTH, unit.Life); // Health
+        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_MAXHEALTH, unit.MaxLife); // Health
+        SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_LEVEL, 5); // Level
 
         SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_COMBATREACH, 10f);
         SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_ATTACK_POWER, 0);

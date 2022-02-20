@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
-using Classic.World.Packets.Server;
-using Microsoft.Extensions.Logging;
 
 namespace Classic.World.Handler;
 
@@ -31,19 +29,7 @@ public class AttackHandler
             return;
         }
 
-        // TODO: Checks if can attack, range check etc.
-        await c.Client.SendPacket(new SMSG_ATTACKSTART(c.Client.CharacterId, unit.ID));
-
-        // TODO: Do this somewhere else (Add AttackController to Player??)
-        _ = Task.Run(async () =>
-        {
-            c.Client.Log("Attacking...", LogLevel.Information);
-            for (var i = 0; i < 500; i++)
-            {
-                await Task.Delay(500);
-                await c.Client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(c.Client.CharacterId, unit.ID));
-            }
-        });
+        await c.Client.AttackController.StartAttacking(unit);
     }
 
     [OpcodeHandler(Opcode.CMSG_SETSHEATHED)]
@@ -54,9 +40,10 @@ public class AttackHandler
     }
 
     [OpcodeHandler(Opcode.CMSG_ATTACKSTOP)]
-    public static async Task OnAttackStop(PacketHandlerContext c)
+    public static Task OnAttackStop(PacketHandlerContext c)
     {
-        // AttackController.Stop???
+        c.Client.AttackController.StopAttacking();
+        return Task.CompletedTask;
     }
 
     [OpcodeHandler(Opcode.CMSG_CAST_SPELL)]

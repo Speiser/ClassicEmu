@@ -202,5 +202,26 @@ public class SMSG_UPDATE_OBJECT_VANILLA : ServerPacketBase<Opcode>
         return update;
     }
 
+    public static SMSG_UPDATE_OBJECT_VANILLA UpdateValues(Creature unit)
+    {
+        var update = new SMSG_UPDATE_OBJECT_VANILLA();
+
+        var entity = new UnitEntity(unit, ClientBuild.Vanilla)
+        {
+            ObjectGuid = new ObjectGuid(unit.ID),
+            Guid = unit.ID
+        };
+
+        update.Writer
+            .WriteUInt32(1) // blocks.Count
+            .WriteUInt8(0) // hasTransport
+
+            .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
+            .WriteBytes(unit.ID.ToPackedUInt64());
+
+        entity.WriteUpdateFields(update.Writer);
+        return update;
+    }
+
     public override byte[] Get() => this.Writer.Build();
 }
