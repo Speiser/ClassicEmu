@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Entities;
@@ -202,24 +203,30 @@ public class SMSG_UPDATE_OBJECT_VANILLA : ServerPacketBase<Opcode>
         return update;
     }
 
-    public static SMSG_UPDATE_OBJECT_VANILLA UpdateValues(Creature unit)
+    public static SMSG_UPDATE_OBJECT_VANILLA UpdateValues(List<Creature> units)
     {
         var update = new SMSG_UPDATE_OBJECT_VANILLA();
 
-        var entity = new UnitEntity(unit, ClientBuild.Vanilla)
-        {
-            ObjectGuid = new ObjectGuid(unit.ID),
-            Guid = unit.ID
-        };
-
         update.Writer
-            .WriteUInt32(1) // blocks.Count
+            .WriteUInt32((uint)units.Count) // blocks.Count
             .WriteUInt8(0) // hasTransport
+            ;
 
-            .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
-            .WriteBytes(unit.ID.ToPackedUInt64());
+        foreach (var unit in units)
+        {
+            var entity = new UnitEntity(unit, ClientBuild.Vanilla)
+            {
+                ObjectGuid = new ObjectGuid(unit.ID),
+                Guid = unit.ID
+            };
 
-        entity.WriteUpdateFields(update.Writer);
+            update.Writer
+                .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
+                .WriteBytes(unit.ID.ToPackedUInt64());
+
+            entity.WriteUpdateFields(update.Writer);
+        }
+
         return update;
     }
 

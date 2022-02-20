@@ -19,11 +19,7 @@ public class ChatHandler
         {
             if (c.IsVanilla())
             {
-                foreach (var unit in c.World.Creatures)
-                {
-                    await c.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.UpdateValues(unit));
-                }
-
+                await c.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.UpdateValues(c.World.Creatures));
             }
             return;
         }
