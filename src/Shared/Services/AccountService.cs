@@ -32,6 +32,7 @@ public class AccountService
 
     public void AddSession(AccountSession session)
     {
+        this.DeleteSession(session.Identifier);
         this.sessions.Insert(session);
         this.sessions.EnsureIndex(x => x.Identifier);
     }
