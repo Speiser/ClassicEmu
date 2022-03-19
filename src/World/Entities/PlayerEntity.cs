@@ -12,7 +12,7 @@ public class PlayerEntity : ObjectEntity
     public PlayerEntity(Character character, int build)
         : base(new ObjectGuid((uint)character.Id, TypeId.TypeidPlayer, HighGuid.HighguidPlayer), build)
     {
-        this.SetUpdateField((int)ObjectFields.Type, (uint)19);
+        this.SetUpdateField((int)ObjectFields.Type, (uint)0x19);
         this.SetUpdateField((int)ObjectFields.ScaleX, character.Race.GetScale(character.Gender));
         this.SetUpdateField((int)ObjectFields.Padding, 0);
 
