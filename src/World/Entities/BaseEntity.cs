@@ -6,12 +6,6 @@ namespace Classic.World.Entities;
 
 public abstract class BaseEntity
 {
-    public static int Level = 1;
-    public int Model = 0;
-
-    // Base Stats
-    public float Size = 1.0f;
-
     protected BaseEntity(int build)
     {
         var dataLength = this.GetDatalength(build);
@@ -29,52 +23,52 @@ public abstract class BaseEntity
 
     public virtual string Name { get; set; }
 
-    public void SetUpdateField<T>(int index, T value)
+    protected void SetUpdateField<T>(int index, T value)
     {
-        UpdateCount++;
-        Mask.Set(index, true);
+        this.UpdateCount++;
+        this.Mask.Set(index, true);
         switch (value)
         {
             case byte _:
             case ushort _:
                 var _update = (uint)Convert.ChangeType(value, typeof(uint));
 
-                if (UpdateData.ContainsKey(index))
-                    UpdateData[index] = (uint)UpdateData[index] | _update;
-                else
-                    UpdateData[index] = _update;
+                this.UpdateData[index] = this.UpdateData.ContainsKey(index) ? (uint)this.UpdateData[index] | _update : _update;
                 break;
-            case long l:
-                Mask.Set(index + 1, true);
-               
-                UpdateData[index] = (uint) (l & int.MaxValue);
-                UpdateData[index + 1] = (uint) ((l >> 32) & int.MaxValue);
-                break;
-            case ulong u:
-                Mask.Set(index + 1, true);
 
-                UpdateData[index] = (uint) (u & uint.MaxValue);
-                UpdateData[index + 1] = (uint) ((u >> 32) & uint.MaxValue);
+            case long l:
+                this.Mask.Set(index + 1, true);
+
+                this.UpdateData[index] = (uint)(l & int.MaxValue);
+                this.UpdateData[index + 1] = (uint)((l >> 32) & int.MaxValue);
                 break;
+
+            case ulong u:
+                this.Mask.Set(index + 1, true);
+
+                this.UpdateData[index] = (uint)(u & uint.MaxValue);
+                this.UpdateData[index + 1] = (uint)((u >> 32) & uint.MaxValue);
+                break;
+
             default:
-                UpdateData[index] = value;
+                this.UpdateData[index] = value;
                 break;
         }
     }
 
     public void WriteUpdateFields(PacketWriter writer)
     {
-        writer.WriteUInt8((byte) MaskSize);
-        
-        var bufferarray = new byte[Convert.ToByte((Mask.Length + 8) / 8) + 1];
-        Mask.CopyTo(bufferarray, 0);
-        writer.WriteByteArrayWithLength(bufferarray, MaskSize * 4);
+        writer.WriteUInt8((byte)this.MaskSize);
 
-        for (var i = 0; i < Mask.Count; i++)
+        var bufferarray = new byte[Convert.ToByte((this.Mask.Length + 8) / 8) + 1];
+        this.Mask.CopyTo(bufferarray, 0);
+        writer.WriteByteArrayWithLength(bufferarray, this.MaskSize * 4);
+
+        for (var i = 0; i < this.Mask.Count; i++)
         {
-            if (!Mask.Get(i)) continue;
+            if (!this.Mask.Get(i)) continue;
 
-            switch (UpdateData[i])
+            switch (this.UpdateData[i])
             {
                 case uint u:
                     writer.WriteUInt32(u);
@@ -83,12 +77,12 @@ public abstract class BaseEntity
                     writer.WriteFloat(f);
                     break;
                 default:
-                    writer.WriteInt32((int) UpdateData[i]);
+                    writer.WriteInt32((int)this.UpdateData[i]);
                     break;
             }
         }
 
-        Mask.SetAll(false);
-        UpdateCount = 0;
+        this.Mask.SetAll(false);
+        this.UpdateCount = 0;
     }
 }

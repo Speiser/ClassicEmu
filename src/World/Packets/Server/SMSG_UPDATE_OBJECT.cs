@@ -68,11 +68,7 @@ public class SMSG_UPDATE_OBJECT : ServerPacketBase<Opcode>
             .WriteFloat(3.14f) // TurnSpeed
             .WriteUInt32(0); // ??
 
-        player = new PlayerEntity(character, build)
-        {
-            ObjectGuid = new ObjectGuid(character.Id),
-            Guid = character.Id
-        };
+        player = new PlayerEntity(character, build);
 
         player.WriteUpdateFields(update.Writer);
         return update;
