@@ -3,7 +3,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Classic.Shared.Data;
 using Classic.World.Cryptography;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
@@ -37,7 +36,7 @@ public class AuthenticationHandler
         ////: if server is full and NOT GM return [SMSG_AUTH_RESPONSE, 21]
         ////: if player is already connected return [SMSG_AUTH_RESPONSE, 13]
 
-        using var sha = new SHA1CryptoServiceProvider();
+        using var sha = SHA1.Create();
         var calculatedDigest = sha.ComputeHash(
             Encoding.ASCII.GetBytes(request.Identifier)
                 .Concat(new byte[] { 0, 0, 0, 0 })
