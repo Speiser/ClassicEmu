@@ -76,15 +76,13 @@ public abstract class BaseEntity
                 case float f:
                     writer.WriteFloat(f);
                     break;
+                case byte[] b:
+                    // If this is missing it fails on this.UpdateData[0]??
+                    // Maybe the guid does not need to be set??
+                    writer.WriteBytes(b);
+                    break;
                 default:
-                    try
-                    {
-                        writer.WriteInt32((int)this.UpdateData[i]);
-                    }
-                    catch
-                    {
-                        var x = this.UpdateData[i];
-                    }
+                    writer.WriteInt32((int)this.UpdateData[i]);
                     break;
             }
         }
