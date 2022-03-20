@@ -118,9 +118,6 @@ public class PlayerEntity : ObjectEntity
 
     private void SetUpdateField_TBC(Character character)
     {
-        // ObjectField.GUID,
-        this.SetUpdateField((int)ObjectFields.Guid, character.Id.ToPackedUInt64()); // TODO: Check
-
         // UnitField.HEALTH,
         this.SetUpdateField((int)UnitFields_TBC.UNIT_FIELD_HEALTH, character.Stats.Life);
 
