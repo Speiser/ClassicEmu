@@ -8,7 +8,7 @@ namespace Classic.World.Entities;
 
 public class PlayerEntity : ObjectEntity
 {
-    public PlayerEntity(Character character, int build) : base((uint)character.Id, build)
+    public PlayerEntity(Character character, int build) : base(character.Id, build)
     {
         this.SetUpdateField((int)ObjectFields.Type, (uint)0x19);
         this.SetUpdateField((int)ObjectFields.ScaleX, character.Race.GetScale(character.Gender));

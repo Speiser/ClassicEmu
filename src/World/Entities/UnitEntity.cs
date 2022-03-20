@@ -7,7 +7,7 @@ namespace Classic.World.Entities;
 
 public class UnitEntity : ObjectEntity
 {
-    public UnitEntity(Creature unit, int build) : base((uint)unit.ID, build)
+    public UnitEntity(Creature unit, int build) : base(unit.ID, build)
     {
         this.SetUpdateField((int)ObjectFields.Type, (byte)(ObjectType.TYPE_OBJECT + (int)ObjectType.TYPE_UNIT));
         this.SetUpdateField((int)ObjectFields.ScaleX, 1f);

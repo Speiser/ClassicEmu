@@ -4,7 +4,6 @@ using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Entities;
 using Classic.World.Entities.Enums;
-using Classic.World.Entities.Utils;
 using Classic.World.Extensions;
 
 namespace Classic.World.Packets.Server;
@@ -185,7 +184,7 @@ public class SMSG_UPDATE_OBJECT_VANILLA : ServerPacketBase<Opcode>
             .WriteUInt8(0) // hasTransport
 
             .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)
-            .WriteBytes(player.CharacterId.ToPackedUInt64());
+            .WriteBytes(player.CharacterId.ToPackedUInt64()); // CharacterId is NOT set
 
         player.WriteUpdateFields(update.Writer);
         return update;
