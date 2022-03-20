@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 await Host.CreateDefaultBuilder()
     .ConfigureLogging(logging => logging
         .AddConsole()
-        .SetMinimumLevel(LogLevel.Trace))
+        .SetMinimumLevel(LogLevel.Debug))
     .ConfigureServices(services => services
         .AddSingleton<ErrorHandler>()
         .AddSharedServices()

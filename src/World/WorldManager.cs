@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Classic.Shared.Data;
@@ -10,6 +11,9 @@ namespace Classic.World;
 
 public class WorldManager : IWorldManager
 {
+    private const int SleepConst = 100;
+    private bool isStopped;
+
     public WorldManager(CharacterService characterService)
     {
         this.CharacterService = characterService;
@@ -57,6 +61,52 @@ public class WorldManager : IWorldManager
             await connection.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.CreateUnit(creature));
         }
     }
+
+    public void StartWorldLoop()
+    {
+        Task.Run(async () =>
+        {
+            var lastUpdateFinished = DateTime.Now;
+
+            while (!this.isStopped)
+            {
+                var beforeCurrent = DateTime.Now;
+                var dt = GetDeltaTime(lastUpdateFinished, beforeCurrent);
+                await this.Update(dt);
+                lastUpdateFinished = beforeCurrent;
+                var executionDeltaTime = GetDeltaTime(beforeCurrent, DateTime.Now);
+                if (executionDeltaTime < SleepConst)
+                {
+                    await Task.Delay(SleepConst - (int)executionDeltaTime);
+                }
+            }
+        });
+    }
+
+    public void StopWorldLoop()
+    {
+        this.isStopped = true;
+    }
+
+    private async Task Update(double dt)
+    {
+        foreach (var client in this.Connections)
+        {
+            if (!client.IsInWorld)
+            {
+                continue;
+            }
+
+            await client.Update(dt);
+
+            if (client.Build == ClientBuild.Vanilla)
+            {
+                await client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.UpdateValues(this.Creatures));
+            }
+        }
+    }
+
+    private static double GetDeltaTime(DateTime prev, DateTime curr) => (curr - prev).TotalMilliseconds;
 
     // Pseudo "range check"
     private static bool IsInRange(IHasPosition a, IHasPosition b) => a.Position.Zone == b.Position.Zone;

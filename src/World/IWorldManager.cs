@@ -12,4 +12,6 @@ public interface IWorldManager
     CharacterService CharacterService { get; }
     Task SpawnPlayer(Character character, int build);
     Task SpawnCreature(Creature creature);
+    void StartWorldLoop();
+    void StopWorldLoop();
 }

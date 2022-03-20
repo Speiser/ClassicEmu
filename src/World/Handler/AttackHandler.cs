@@ -33,17 +33,17 @@ public class AttackHandler
     }
 
     [OpcodeHandler(Opcode.CMSG_SETSHEATHED)]
-    public static async Task OnSetSheathed(PacketHandlerContext c)
+    public static Task OnSetSheathed(PacketHandlerContext c)
     {
         var request = new CMSG_SETSHEATHED(c.Packet);
-        c.Client.Log(request.Sheated.ToString());
+        c.Client.Player.SheathState = request.Sheated;
+        return Task.CompletedTask;
     }
 
     [OpcodeHandler(Opcode.CMSG_ATTACKSTOP)]
-    public static Task OnAttackStop(PacketHandlerContext c)
+    public static async Task OnAttackStop(PacketHandlerContext c)
     {
-        c.Client.AttackController.StopAttacking();
-        return Task.CompletedTask;
+        await c.Client.AttackController.StopAttacking();
     }
 
     [OpcodeHandler(Opcode.CMSG_CAST_SPELL)]
