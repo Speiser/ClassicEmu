@@ -2,15 +2,13 @@ using System;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Entities.Enums;
-using Classic.World.Entities.Utils;
 using Classic.World.Extensions;
 
 namespace Classic.World.Entities;
 
 public class PlayerEntity : ObjectEntity
 {
-    public PlayerEntity(Character character, int build)
-        : base(new ObjectGuid((uint)character.Id, TypeId.TypeidPlayer, HighGuid.HighguidPlayer), build)
+    public PlayerEntity(Character character, int build) : base((uint)character.Id, build)
     {
         this.SetUpdateField((int)ObjectFields.Type, (uint)0x19);
         this.SetUpdateField((int)ObjectFields.ScaleX, character.Race.GetScale(character.Gender));

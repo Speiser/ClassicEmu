@@ -2,14 +2,12 @@ using System;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Entities.Enums;
-using Classic.World.Entities.Utils;
 
 namespace Classic.World.Entities;
 
 public class UnitEntity : ObjectEntity
 {
-    public UnitEntity(Creature unit, int build)
-        : base(new ObjectGuid((uint)unit.ID, TypeId.TypeidUnit, HighGuid.HighguidUnit), build)
+    public UnitEntity(Creature unit, int build) : base((uint)unit.ID, build)
     {
         this.SetUpdateField((int)ObjectFields.Type, (byte)(ObjectType.TYPE_OBJECT + (int)ObjectType.TYPE_UNIT));
         this.SetUpdateField((int)ObjectFields.ScaleX, 1f);

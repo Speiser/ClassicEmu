@@ -128,11 +128,7 @@ public class SMSG_UPDATE_OBJECT : ServerPacketBase<Opcode>
             .WriteUInt32(0); // ??
 
         // TODO: Can be done somewhere else?
-        var player = new PlayerEntity(character, build)
-        {
-            ObjectGuid = new ObjectGuid(character.Id),
-            Guid = character.Id
-        };
+        var player = new PlayerEntity(character, build);
 
         player.WriteUpdateFields(update.Writer);
         return update;
@@ -148,11 +144,7 @@ public class SMSG_UPDATE_OBJECT_VANILLA : ServerPacketBase<Opcode>
     public static SMSG_UPDATE_OBJECT_VANILLA CreateUnit(Creature unit)
     {
         var update = new SMSG_UPDATE_OBJECT_VANILLA();
-        var entity = new UnitEntity(unit, ClientBuild.Vanilla)
-        {
-            ObjectGuid = new ObjectGuid(unit.ID),
-            Guid = unit.ID
-        };
+        var entity = new UnitEntity(unit, ClientBuild.Vanilla);
 
         update.Writer
             .WriteUInt32(1) // blocks.Count
@@ -210,11 +202,7 @@ public class SMSG_UPDATE_OBJECT_VANILLA : ServerPacketBase<Opcode>
 
         foreach (var unit in units)
         {
-            var entity = new UnitEntity(unit, ClientBuild.Vanilla)
-            {
-                ObjectGuid = new ObjectGuid(unit.ID),
-                Guid = unit.ID
-            };
+            var entity = new UnitEntity(unit, ClientBuild.Vanilla);
 
             update.Writer
                 .WriteUInt8((byte)ObjectUpdateType.UPDATETYPE_VALUES)

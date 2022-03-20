@@ -77,7 +77,14 @@ public abstract class BaseEntity
                     writer.WriteFloat(f);
                     break;
                 default:
-                    writer.WriteInt32((int)this.UpdateData[i]);
+                    try
+                    {
+                        writer.WriteInt32((int)this.UpdateData[i]);
+                    }
+                    catch
+                    {
+                        var x = this.UpdateData[i];
+                    }
                     break;
             }
         }

@@ -2,6 +2,7 @@ using Classic.World.Entities.Enums;
 
 namespace Classic.World.Entities.Utils;
 
+// DELETE?
 public class ObjectGuid
 {
     public ObjectGuid(ulong guid)
