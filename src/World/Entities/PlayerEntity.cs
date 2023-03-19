@@ -33,7 +33,7 @@ public class PlayerEntity : ObjectEntity
     };
 
     public ulong CharacterId { get; set; }
-    public ulong TargetId { get; set; }
+    public Creature Target { get; set; }
     public SheathState SheathState { get; set; }
 
     private void SetUpdateField_Vanilla(Character character)

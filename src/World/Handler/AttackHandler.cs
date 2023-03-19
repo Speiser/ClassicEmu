@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Classic.World.Extensions;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
 
@@ -11,7 +12,7 @@ public class AttackHandler
     public static Task OnSetSelection(PacketHandlerContext c)
     {
         var request = new CMSG_SET_SELECTION(c.Packet);
-        c.Client.Player.TargetId = request.TargetId;
+        c.TrySetTarget(request.TargetId);
         return Task.CompletedTask;
     }
 
@@ -20,16 +21,13 @@ public class AttackHandler
     {
         var request = new CMSG_ATTACKSWING(c.Packet);
 
-        // TODO: Also check players
-        var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == request.Guid);
-
-        if (unit is null)
+        if (!c.TrySetTarget(request.Guid))
         {
-            c.Client.Log($"Could not find unit: {request.Guid}");
+            // return error?
             return;
         }
 
-        await c.Client.AttackController.StartAttacking(unit);
+        await c.Client.AttackController.StartAttacking();
     }
 
     [OpcodeHandler(Opcode.CMSG_SETSHEATHED)]

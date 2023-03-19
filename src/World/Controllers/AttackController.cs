@@ -12,15 +12,14 @@ public class AttackController
     private bool isAttacking;
     private double remainingCooldown;
 
-    // TODO: Reuse targetId from PlayerEntity?
-    private Creature target;
-
     public AttackController(WorldClient client)
     {
         this.client = client;
     }
 
-    public async Task StartAttacking(Creature unit)
+    private Creature Target => this.client.Player.Target;
+
+    public async Task StartAttacking()
     {
         if (this.isAttacking)
         {
@@ -28,10 +27,9 @@ public class AttackController
         }
 
         this.isAttacking = true;
-        this.target = unit;
 
         // TODO: Checks if can attack, range check etc.
-        await this.client.SendPacket(new SMSG_ATTACKSTART(this.client.CharacterId, unit.ID));
+        await this.client.SendPacket(new SMSG_ATTACKSTART(this.client.CharacterId, this.Target.ID));
     }
 
     public async Task Update(double dt)
@@ -45,7 +43,7 @@ public class AttackController
             return;
         }
 
-        if (this.target is null)
+        if (this.client.Player.Target is null)
         {
             return; // Throw??
         }
@@ -56,15 +54,15 @@ public class AttackController
             return;
         }
 
-        await this.client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(this.client.CharacterId, this.target.ID, Damage));
-        this.target.Life -= Damage;
+        await this.client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(this.client.CharacterId, this.Target.ID, Damage));
+        this.Target.Life -= Damage;
         this.remainingCooldown += Cooldown;
     }
 
     public async Task StopAttacking()
     {
         this.isAttacking = false;
-        await this.client.SendPacket(new SMSG_ATTACKSTOP(this.client.CharacterId, this.target.ID));
+        await this.client.SendPacket(new SMSG_ATTACKSTOP(this.client.CharacterId, this.Target.ID));
     }
 }
 
