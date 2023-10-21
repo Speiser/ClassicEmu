@@ -3,7 +3,6 @@ using Classic.World.Data;
 using Classic.World.Extensions;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
-using Classic.World.Packets.Server;
 
 namespace Classic.World.Handler;
 
@@ -14,15 +13,6 @@ public class ChatHandler
     {
         var request = new CMSG_MESSAGECHAT(c.Packet);
 
-        // debugging stuff :D
-        if (request.Message == ".update")
-        {
-            if (c.IsVanilla())
-            {
-                await c.Client.SendPacket(SMSG_UPDATE_OBJECT_VANILLA.UpdateValues(c.World.Creatures));
-            }
-            return;
-        }
         if (request.Message.StartsWith(".spawn"))
         {
             var spawnId = int.Parse(request.Message.Split(" ")[1]);

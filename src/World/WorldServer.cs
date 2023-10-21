@@ -40,12 +40,14 @@ public class WorldServer : ServerBase
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         this.realmlistService.AddRealm(this.realmInfo);
+        this.World.StartWorldLoop();
         return base.StartAsync(cancellationToken);
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         this.cacheSaveTimer.Dispose();
+        this.World.StopWorldLoop();
         this.SaveCache();
         this.realmlistService.RemoveRealm(this.realmInfo);
         await base.StopAsync(cancellationToken);

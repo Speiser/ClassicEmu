@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Classic.Shared;
 using Classic.Shared.Data;
 using Classic.Shared.Services;
+using Classic.World.Controllers;
 using Classic.World.Cryptography;
-using Classic.World.Data;
 using Classic.World.Entities;
 using Classic.World.Packets;
 using Classic.World.Packets.Server;
@@ -30,7 +30,7 @@ public class WorldClient : ClientBase
         this.packetHandler = packetHandler;
         this.accountService = accountService;
         this.world = world;
-        this.AttackController = new(this); // TODO :(
+        this.AttackController = new(this);
     }
 
     public override async Task Initialize(TcpClient client)
@@ -58,9 +58,9 @@ public class WorldClient : ClientBase
             _ => throw new NotImplementedException($"SMSG_AUTH_CHALLENGE(build: {this.Build})"),
         };
 
-        await Send(message.Get());
+        await this.Send(message.Get());
         this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
-        await HandleConnection();
+        await this.HandleConnection();
     }
 
     public int Build { get; internal set; }
@@ -109,7 +109,7 @@ public class WorldClient : ClientBase
             }
         }
 
-        var handler = packetHandler.GetHandler(opcode);
+        var handler = this.packetHandler.GetHandler(opcode);
         await handler(new PacketHandlerContext
         {
             Client = this,
@@ -128,6 +128,11 @@ public class WorldClient : ClientBase
         message.Dispose();
     }
 
+    public async Task Update(double dt)
+    {
+        await this.AttackController.Update(dt);
+    }
+
     // https://github.com/drolean/Servidor-Wow/blob/f77520bc8ad5d123139e34d3d0c8f40d161ad352/RealmServer/RealmServerSession.cs#L245
     private (ushort length, Opcode opcode) Decode(byte[] packet)
     {
@@ -138,7 +143,7 @@ public class WorldClient : ClientBase
         {
             packet = this.HeaderCrypt.Decrypt(packet);
         }
-        
+
         length = BitConverter.ToUInt16(new[] { packet[1], packet[0] });
         opcode = BitConverter.ToInt16(packet, 2);
 
@@ -188,48 +193,5 @@ public class WorldClient : ClientBase
         header = this.HeaderCrypt.Encrypt(header);
 
         return header.Concat(data).ToArray();
-    }
-}
-
-public class AttackController
-{
-    private readonly WorldClient client;
-    private bool isAttacking;
-
-    public AttackController(WorldClient client)
-    {
-        this.client = client;
-    }
-
-    public async Task StartAttacking(Creature unit)
-    {
-        if (this.isAttacking)
-        {
-            return;
-        }
-
-        this.isAttacking = true;
-
-        // TODO: Checks if can attack, range check etc.
-        await this.client.SendPacket(new SMSG_ATTACKSTART(this.client.CharacterId, unit.ID));
-
-        // TODO: CancellationToken???
-        _ = Task.Run(async () =>
-        {
-            this.client.Log("Attacking...", LogLevel.Information);
-            while (this.isAttacking)
-            {
-                uint damage = 10; // TODO: Calculate? :D
-                await this.client.SendPacket(new SMSG_ATTACKERSTATEUPDATE(this.client.CharacterId, unit.ID, damage));
-                unit.Life -= damage;
-                this.client.Log($"Unit {unit.ID} takes {damage} damage and has {unit.Life} hp remaining.");
-                await Task.Delay(500);
-            }
-        });
-    }
-
-    public void StopAttacking()
-    {
-        this.isAttacking = false;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Data;
 using Classic.World.Packets;
@@ -12,6 +13,25 @@ internal static class PacketHandlerContextExtensions
     public static Character GetCharacter(this PacketHandlerContext c) => c.World.CharacterService.GetCharacter(c.Client.CharacterId);
     public static Character GetCharacter(this PacketHandlerContext c, string name) => c.World.CharacterService.GetCharacter(name);
     public static Character GetCharacter(this PacketHandlerContext c, ulong id) => c.World.CharacterService.GetCharacter(id);
+    
+    public static bool TrySetTarget(this PacketHandlerContext c, ulong targetId)
+    {
+        if (targetId == 0)
+        {
+            return false;
+        }
+
+        var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == targetId);
+
+        if (unit is null)
+        {
+            c.Client.Log($"Could not find unit: {targetId}");
+            return false;
+        }
+
+        c.Client.Player.Target = unit;
+        return true;
+    }
 
 
     public static async Task SendPacket<T>(this PacketHandlerContext c) where T : ServerPacketBase<Opcode>, new()

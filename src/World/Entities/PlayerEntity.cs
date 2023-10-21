@@ -33,11 +33,12 @@ public class PlayerEntity : ObjectEntity
     };
 
     public ulong CharacterId { get; set; }
-    public ulong TargetId { get; set; }
+    public Creature Target { get; set; }
+    public SheathState SheathState { get; set; }
 
     private void SetUpdateField_Vanilla(Character character)
     {
-        this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_TARGET, (ulong)0);
+        this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_TARGET, (ulong)0); // TODO Use TargetId?
 
         this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_HEALTH, character.Stats.Life);
         this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_POWER1, character.Stats.Mana);
@@ -90,7 +91,13 @@ public class PlayerEntity : ObjectEntity
         this.SetUpdateField((int)PlayerFields_Vanilla.PLAYER_FLAGS, 8); // 8 = <GM> Flag
 
         this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_BYTES_1, (byte)character.StandState);
-        this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_BYTES_2, 0);
+        this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_BYTES_2, (byte)this.SheathState); // SHEATHED??
+
+        //this.SetUpdateField((int)UnitFields_Vanilla.UNIT_FIELD_BYTES_2, BitConverter.ToUInt16(new[]
+        //{
+        //    (byte)this.SheathState, // SheathState
+        //    (byte)0x01, // UnitBytes2_Flags
+        //}));
 
         this.SetUpdateField((int)PlayerFields_Vanilla.PLAYER_BYTES, BitConverter.ToUInt32(new[]
         {
