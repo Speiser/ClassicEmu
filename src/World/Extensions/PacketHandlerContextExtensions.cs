@@ -16,6 +16,11 @@ internal static class PacketHandlerContextExtensions
     
     public static bool TrySetTarget(this PacketHandlerContext c, ulong targetId)
     {
+        if (targetId == 0)
+        {
+            return false;
+        }
+
         var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == targetId);
 
         if (unit is null)
