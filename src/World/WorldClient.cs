@@ -34,9 +34,9 @@ public class WorldClient : ClientBase
 
     public override async Task Initialize(TcpClient client, int build)
     {
-        await base.Initialize(client);
-
         this.Build = build;
+
+        await base.Initialize(client);
 
         this.logger.LogDebug($"{this.ClientInfo} - connected, Build: {this.Build}");
 

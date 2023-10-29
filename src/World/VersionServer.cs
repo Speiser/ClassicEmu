@@ -25,11 +25,13 @@ public class VersionServer
     public void Stop()
     {
         this.server.Stop();
+        this.logger.LogInformation($"Stopped {((IPEndPoint)this.server.LocalEndpoint).Port}");
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         this.server.Start();
+        this.logger.LogInformation($"Started {((IPEndPoint)this.server.LocalEndpoint).Port}");
         while (!cancellationToken.IsCancellationRequested)
         {
             var client = await this.server.AcceptTcpClientAsync();

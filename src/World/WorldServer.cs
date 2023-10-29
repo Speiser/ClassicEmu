@@ -46,6 +46,10 @@ public class WorldServer : BackgroundService
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
+        this.serverVanilla.Stop();
+        this.serverTBC.Stop();
+        this.serverWotLK.Stop();
+
         this.cacheSaveTimer.Dispose();
         this.World.StopWorldLoop();
         this.SaveCache();
@@ -55,11 +59,11 @@ public class WorldServer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        this.realmlistService.AddRealm(this.realmInfo);
+        _ = this.serverVanilla.StartAsync(stoppingToken);
+        _ = this.serverTBC.StartAsync(stoppingToken);
+        _ = this.serverWotLK.StartAsync(stoppingToken);
 
-        await this.serverVanilla.StartAsync(stoppingToken);
-        await this.serverTBC.StartAsync(stoppingToken);
-        await this.serverWotLK.StartAsync(stoppingToken);
+        this.realmlistService.AddRealm(this.realmInfo);
 
         this.World.StartWorldLoop();
     }
