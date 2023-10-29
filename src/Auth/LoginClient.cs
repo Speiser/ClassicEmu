@@ -27,7 +27,7 @@ public class LoginClient : ClientBase
 
     public int Build { get; private set; }
 
-    public override async Task Initialize(TcpClient client)
+    public override async Task Initialize(TcpClient client, int build = 0)
     {
         await base.Initialize(client);
 
@@ -92,7 +92,6 @@ public class LoginClient : ClientBase
         this.Build = request.Build;
 
         this.srp = new SecureRemotePasswordProtocol(request.Identifier, request.Identifier); // TODO: Quick hack
-        this.accountService.AddClientBuildForAddress(this.Address, this.Port, this.Build);
 
         // Create and send a ServerLogonChallenge as response.
         await this.Send(ServerLoginChallenge.Success(this.srp));

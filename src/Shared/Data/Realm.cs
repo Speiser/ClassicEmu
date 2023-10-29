@@ -10,7 +10,9 @@ public class Realm
     public byte Lock { get; set; }
     public RealmFlag Flags { get; set; }
     public string Name { get; set; }
-    public string Address { get; set; }
+    public string AddressVanilla { get; set; }
+    public string AddressTBC { get; set; }
+    public string AddressWotLK { get; set; }
     public uint Population { get; set; }
     public byte TimeZone { get; set; }
 }

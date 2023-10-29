@@ -1,4 +1,5 @@
-﻿using Classic.Auth.Extensions;
+﻿using System;
+using Classic.Auth.Extensions;
 using Classic.Shared;
 using Classic.Shared.Data;
 
@@ -24,7 +25,13 @@ public class ServerRealmlist
             info
                 .WriteUInt8((byte)realm.Flags)
                 .WriteString(realm.Name)
-                .WriteString(realm.Address)
+                .WriteString(build switch
+                {
+                    ClientBuild.Vanilla => realm.AddressVanilla,
+                    ClientBuild.TBC => realm.AddressTBC,
+                    ClientBuild.WotLK => realm.AddressWotLK,
+                    _ => throw new NotImplementedException(),
+                })
                 .WriteUInt32(realm.Population)
                 .WriteUInt8( /* num_chars  */ 0)
                 .WriteUInt8(realm.TimeZone);

@@ -19,7 +19,6 @@ public class WorldClient : ClientBase
     private readonly WorldPacketHandler packetHandler;
     private readonly AccountService accountService;
     private readonly IWorldManager world;
-    private AddressToClientBuildMap addressToClientBuildMap;
 
     public WorldClient(
         WorldPacketHandler packetHandler,
@@ -33,23 +32,13 @@ public class WorldClient : ClientBase
         this.AttackController = new(this);
     }
 
-    public override async Task Initialize(TcpClient client)
+    public override async Task Initialize(TcpClient client, int build)
     {
+        this.Build = build;
+
         await base.Initialize(client);
 
-        this.addressToClientBuildMap = this.accountService.GetClientBuildFromAddress(this.Address, this.Port);
-
-        if (this.addressToClientBuildMap is null)
-        {
-            this.logger.LogWarning($"Could not find client build for {this.Address}:{this.Port - 1}.");
-            this.Build = ClientBuild.Vanilla;
-        }
-        else
-        {
-            this.Build = this.addressToClientBuildMap.ClientBuild;
-        }
-
-        this.logger.LogDebug($"{this.ClientInfo} - connected");
+        this.logger.LogDebug($"{this.ClientInfo} - connected, Build: {this.Build}");
 
         ServerPacketBase<Opcode> message = this.Build switch
         {
@@ -153,10 +142,7 @@ public class WorldClient : ClientBase
     protected override void OnDisconnected()
     {
         this.world.Connections.Remove(this);
-        if (this.addressToClientBuildMap is not null)
-        {
-            this.accountService.DeleteAddressToClientBuildMap(this.addressToClientBuildMap);
-        }
+
         if (!this.accountService.DeleteSession(this.Identifier))
         {
             this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
