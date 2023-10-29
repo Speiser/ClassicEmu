@@ -17,7 +17,8 @@ public abstract class ClientBase
         this.logger = logger;
     }
 
-    public virtual Task Initialize(TcpClient client)
+    // TODO: Non-virtual
+    public virtual Task Initialize(TcpClient client, int build = 0)
     {
         this.stream = client.GetStream();
         this.isConnected = true;
