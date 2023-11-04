@@ -13,3 +13,10 @@ public class Account
     // int is Build Version
     public Dictionary<int, AccountData> AccountData { get; init; } = new Dictionary<int, AccountData>();
 }
+
+public class PAccount
+{
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public byte[] SessionKey { get; set; } // TODO: To Base64 string?
+}

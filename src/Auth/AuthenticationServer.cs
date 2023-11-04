@@ -28,7 +28,7 @@ public class AuthenticationServer : BackgroundService
         this.server = new TcpListener(new IPEndPoint(IPAddress.Loopback, 3724));
         this.logger = logger;
 
-        realmlistService.Clear();
+        realmlistService.Clear(); // TODO: not needed
         this.services = services;
         this.accountService = accountService;
         this.authDatabase = authDatabase;
