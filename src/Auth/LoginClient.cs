@@ -127,15 +127,12 @@ public class LoginClient : ClientBase
             }
             else
             {
+                account.SessionKey = this.srp.SessionKey;
                 await this.accountService.PSetSessionKey(account);
             }
-
-
-            //var session = new AccountSession(this.srp.I, this.srp.SessionKey);
-            //this.accountService.AddSession(session);
         }
 
-        var realms = this.realmlistService.GetRealms();
+        var realms = await this.realmlistService.GetRealms();
         await this.Send(ServerRealmlist.Get(realms, this.Build));
     }
 

@@ -1,8 +1,9 @@
 ﻿using Classic.Shared;
-using Classic.World.Cryptography;
+using Classic.Shared.Services;
 using Classic.World.Packets;
 using Classic.World.Services;
 using LiteDB;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,6 +23,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton(prov => new CharacterService(db, prov.GetService<ILogger<CharacterService>>()))
             .AddTransient<WorldClient>()
             .AddSingleton<IWorldManager, WorldManager>()
+            .AddSingleton(s => new AuthDatabase(s.GetService<IConfiguration>().GetConnectionString("auth-db")))
+            .AddSingleton(s => new WorldDatabase(s.GetService<IConfiguration>().GetConnectionString("world-db")))
             .AddSingleton<WorldPacketHandler>()
             .AddSingleton<WorldServer>()
             .AddHostedService(prov => prov.GetService<WorldServer>());

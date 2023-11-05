@@ -16,6 +16,6 @@ public static class ServiceCollectionExtensions
 
         return services
             .AddSingleton(s => new AccountService(db, s.GetService<AuthDatabase>()))
-            .AddSingleton(_ => new RealmlistService(db));
+            .AddSingleton<RealmlistService>();
     }
 }

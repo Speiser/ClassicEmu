@@ -16,6 +16,7 @@ public class AuthenticationServer : BackgroundService
     private readonly ILogger<AuthenticationServer> logger;
     private readonly IServiceProvider services;
     private readonly AccountService accountService;
+    private readonly RealmlistService realmlistService;
     private readonly AuthDatabase authDatabase;
 
     public AuthenticationServer(
@@ -28,9 +29,9 @@ public class AuthenticationServer : BackgroundService
         this.server = new TcpListener(new IPEndPoint(IPAddress.Loopback, 3724));
         this.logger = logger;
 
-        realmlistService.Clear(); // TODO: not needed
         this.services = services;
         this.accountService = accountService;
+        this.realmlistService = realmlistService;
         this.authDatabase = authDatabase;
     }
 
@@ -44,6 +45,7 @@ public class AuthenticationServer : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         await this.authDatabase.Initialize();
+        await this.realmlistService.Clear(); // TODO: not needed (should be done via online/offline flag?)
         this.server.Start();
         while (!cancellationToken.IsCancellationRequested)
         {
