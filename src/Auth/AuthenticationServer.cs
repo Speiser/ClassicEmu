@@ -38,7 +38,6 @@ public class AuthenticationServer : BackgroundService
     public override Task StopAsync(CancellationToken cancellationToken)
     {
         this.server.Stop();
-        this.accountService.ClearAccountSessions();
         return base.StopAsync(cancellationToken);
     }
 

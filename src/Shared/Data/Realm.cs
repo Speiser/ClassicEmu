@@ -1,11 +1,9 @@
 ﻿using Classic.Shared.Data.Enums;
-using LiteDB;
 
 namespace Classic.Shared.Data;
 
 public class Realm
 {
-    public ObjectId Id { get; set; }
     public RealmType Type { get; set; }
     public byte Lock { get; set; }
     public RealmFlag Flags { get; set; }

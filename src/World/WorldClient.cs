@@ -142,12 +142,6 @@ public class WorldClient : ClientBase
     protected override void OnDisconnected()
     {
         this.world.Connections.Remove(this);
-
-        // Will be removed, think about a online/offline flag on accounts?
-        if (!this.accountService.DeleteSession(this.Identifier))
-        {
-            this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
-        }
     }
 
     private byte[] Encode(ServerPacketBase<Opcode> message)

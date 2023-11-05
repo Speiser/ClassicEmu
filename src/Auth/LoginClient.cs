@@ -122,7 +122,7 @@ public class LoginClient : ClientBase
             // for development, create new account if not found
             if (account is null)
             {
-                account = new PAccount { Username = this.srp.I, SessionKey = this.srp.SessionKey };
+                account = new Account { Username = this.srp.I, SessionKey = this.srp.SessionKey };
                 await this.accountService.AddAccount(account);
             }
             else
