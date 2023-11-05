@@ -18,15 +18,14 @@ public static class PlayerHandler
     public static async Task OnPlayerLogin(PacketHandlerContext c)
     {
         var request = new CMSG_PLAYER_LOGIN(c.Packet);
-        var character = c.GetCharacter(request.CharacterID);
-        var account = c.AccountService.GetAccount(c.Client.Identifier);
+        var character = await c.World.CharacterService.GetCharacter(request.CharacterID);
 
-        // Login with a deleted character or a character from another account. 
-        // TODO: Split for different log messages.
-        if (character is null || !account.Characters.Contains(character.Id))
+        // Login with a deleted character or a character from another account.
+        // TODO: Get account and check accountId != character.AccountId
+        if (character is null)
         {
             c.Client.Log(
-                $"{account.Identifier} tried to login with a deleted character or a character from another account.",
+                $"{c.Client.Identifier} tried to login with a deleted character or a character from another account.",
                 LogLevel.Warning);
             return;
         }
@@ -110,7 +109,7 @@ public static class PlayerHandler
         {
             await c.SendPacket<SMSG_TIME_SYNC_REQ>();
         }
-        
+
         // SMSG_ITEM_ENCHANT_TIME_UPDATE
         // SMSG_ITEM_TIME_UPDATE
         // SMSG_FRIEND_STATUS

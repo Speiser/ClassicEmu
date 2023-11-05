@@ -6,7 +6,7 @@ using Npgsql;
 
 namespace Classic.World.Services;
 
-internal class WorldDatabase
+public class WorldDatabase
 {
     private readonly NpgsqlDataSource dataSource;
 

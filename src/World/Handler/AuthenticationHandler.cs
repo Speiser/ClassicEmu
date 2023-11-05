@@ -25,7 +25,7 @@ public class AuthenticationHandler
             c.Client.Build = build;
         }
 
-        var account = await c.AccountService.PGetAccount(request.Identifier);
+        var account = await c.AccountService.GetAccount(request.Identifier);
 
         if (account is null || account.SessionKey is null)
         {

@@ -117,18 +117,18 @@ public class LoginClient : ClientBase
     {
         if (!this.isReconnect) // TODO: This should not be done in here?
         {
-            var account = await this.accountService.PGetAccount(this.srp.I);
+            var account = await this.accountService.GetAccount(this.srp.I);
 
             // for development, create new account if not found
             if (account is null)
             {
                 account = new PAccount { Username = this.srp.I, SessionKey = this.srp.SessionKey };
-                await this.accountService.PAddAccount(account);
+                await this.accountService.AddAccount(account);
             }
             else
             {
                 account.SessionKey = this.srp.SessionKey;
-                await this.accountService.PSetSessionKey(account);
+                await this.accountService.SetSessionKey(account);
             }
         }
 
