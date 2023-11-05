@@ -118,7 +118,8 @@ public static class PlayerHandler
     [OpcodeHandler(Opcode.CMSG_LOGOUT_REQUEST)]
     public static async Task OnPlayerLogoutRequested(PacketHandlerContext c)
     {
-        await c.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success());
+        await c.World.CharacterService.UpdateCharacterPosition(c.Client.CharacterId);
+        await c.Client.SendPacket(SMSG_LOGOUT_COMPLETE.Success()); // TODO Fail if UpdateCharacterPosition returns false
         c.Client.CharacterId = default;
         c.Client.Player = null;
 

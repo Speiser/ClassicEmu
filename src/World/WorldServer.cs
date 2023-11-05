@@ -116,6 +116,7 @@ public class WorldServer : BackgroundService
 
     private void SaveCache(object _ = null)
     {
-        this.World.CharacterService.Save();
+        // TODO: Rethink this
+        //this.World.CharacterService.Save();
     }
 }

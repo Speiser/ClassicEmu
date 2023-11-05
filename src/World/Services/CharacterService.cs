@@ -69,18 +69,18 @@ public class CharacterService
     {
         using var connection = this.worldDatabase.GetConnection();
         await connection.ExecuteAsync(@"
-INSERT INTO characters
-(
-    account_id, name, race, class, gender, skin, face, hair_style, hair_color,
-    facial_hair, outfit_id, position_x, position_y, position_z, position_o,
-    map_id, zone_id, flag, stand_state
-)
-VALUES
-(
-    @AccountId, @Name, @Race, @Class, @Gender, @Skin, @Face, @HairStyle, @HairColor,
-    @FacialHair, @OutfitId, @PositionX, @PositionY, @PositionZ, @PositionO,
-    @MapId, @ZoneId, @Flag, @StandState
-);",
+            INSERT INTO characters
+            (
+                account_id, name, race, class, gender, skin, face, hair_style, hair_color,
+                facial_hair, outfit_id, position_x, position_y, position_z, position_o,
+                map_id, zone_id, flag, stand_state
+            )
+            VALUES
+            (
+                @AccountId, @Name, @Race, @Class, @Gender, @Skin, @Face, @HairStyle, @HairColor,
+                @FacialHair, @OutfitId, @PositionX, @PositionY, @PositionZ, @PositionO,
+                @MapId, @ZoneId, @Flag, @StandState
+            );",
         new
         {
             character.AccountId,
@@ -113,13 +113,27 @@ VALUES
         return rowsAffected == 1;
     }
 
-    // I really need to find a better way to handle updating the db with the cache values..
-    public void Save()
+    // TODO: Also do this on server shutdown?
+    public async Task<bool> UpdateCharacterPosition(ulong characterId)
     {
-        // TODO: How to update all??
-        //this.logger.LogInformation("Writing character cache into db");
-        //this.characters.Upsert(this.cache.Values);
-        //this.cache.Clear();
-        //this.logger.LogInformation("Finished writing cache into db");
+        if (!this.cache.TryRemove(characterId, out var character))
+        {
+            return false;
+        }
+
+        using var connection = this.worldDatabase.GetConnection();
+        var rowsAffected = await connection.ExecuteAsync(@"
+            UPDATE characters
+            SET position_x = @PositionX, position_y = @PositionY, position_z = @PositionZ, position_o = @PositionO
+            WHERE id = @Id;", new
+        {
+            PositionX = character.Position.X,
+            PositionY = character.Position.Y,
+            PositionZ = character.Position.Z,
+            PositionO = character.Position.Orientation,
+            Id = (int)characterId,
+        });
+
+        return rowsAffected == 1;
     }
 }

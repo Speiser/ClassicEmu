@@ -139,9 +139,10 @@ public class WorldClient : ClientBase
         return (length, (Opcode)opcode);
     }
 
-    protected override void OnDisconnected()
+    protected override async Task OnDisconnected()
     {
         this.world.Connections.Remove(this);
+        await this.world.CharacterService.UpdateCharacterPosition(this.CharacterId);
     }
 
     private byte[] Encode(ServerPacketBase<Opcode> message)
