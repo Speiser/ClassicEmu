@@ -17,6 +17,7 @@ internal static class PacketHandlerContextExtensions
             return false;
         }
 
+        // TODO: Target could also be a character
         var unit = c.World.Creatures.SingleOrDefault(creature => creature.ID == targetId);
 
         if (unit is null)
