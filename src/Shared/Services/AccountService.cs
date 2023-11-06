@@ -1,43 +1,42 @@
-﻿using Classic.Shared.Data;
-using LiteDB;
+﻿using System.Threading.Tasks;
+using Classic.Shared.Data;
+using Dapper;
 
 namespace Classic.Shared.Services;
 
+// TODO: Maybe add a Delete and DeleteAll sessions?
 public class AccountService
 {
-    private readonly ILiteCollection<Account> accounts;
-    private readonly ILiteCollection<AccountSession> sessions;
+    private readonly AuthDatabase authDatabase;
 
-    public AccountService(ILiteDatabase db)
+    public AccountService(AuthDatabase authDatabase)
     {
-        this.accounts = db.GetCollection<Account>("accounts");
-        this.sessions = db.GetCollection<AccountSession>("accountSessions");
+        this.authDatabase = authDatabase;
     }
 
-    public Account GetAccount(string identifier) => this.accounts.FindOne(x => x.Identifier == identifier);
-
-    public void AddAccount(Account account)
+    public async Task<Account> GetAccount(string username)
     {
-        this.accounts.Insert(account);
-        this.accounts.EnsureIndex(x => x.Identifier);
+        using var connection = this.authDatabase.GetConnection();
+        return await connection.QueryFirstOrDefaultAsync<Account>("SELECT * FROM accounts WHERE username = @Username;", new { Username = username });
     }
 
-    public void UpdateAccount(Account account) => this.accounts.Update(account);
-
-    public AccountSession GetSession(string identifier) => this.sessions.FindOne(x => x.Identifier == identifier);
-
-    public void AddSession(AccountSession session)
+    public async Task AddAccount(Account account)
     {
-        this.DeleteSession(session.Identifier);
-        this.sessions.Insert(session);
-        this.sessions.EnsureIndex(x => x.Identifier);
+        using var connection = this.authDatabase.GetConnection();
+        await connection.ExecuteAsync("INSERT INTO accounts (username, session_key) VALUES (@Username, @SessionKey);", new
+        {
+            account.Username,
+            account.SessionKey,
+        });
     }
 
-    public bool DeleteSession(string identifier)
+    public async Task SetSessionKey(Account account)
     {
-        var session = this.GetSession(identifier);
-        return session is not null && this.sessions.Delete(session.Id);
+        using var connection = this.authDatabase.GetConnection();
+        await connection.ExecuteAsync("UPDATE accounts SET session_key = @SessionKey WHERE username = @Username;", new
+        {
+            account.SessionKey,
+            account.Username,
+        });
     }
-
-    public void ClearAccountSessions() => this.sessions.DeleteAll();
 }

@@ -8,31 +8,30 @@ namespace Classic.World;
 
 public class CharacterFactory
 {
-    public static Character Create(CMSG_CHAR_CREATE request)
+    public static PCharacter Create(CMSG_CHAR_CREATE request)
     {
         var position = GetStartingPosition(request.Race, request.Class);
-        // GetInitialItems
-        var spells = GetInitialSpells(request.Race, request.Class);
-        var skills = GetInitialSkills(request.Race, request.Class);
-        var actionBar = GetInitialActionBar(request.Race, request.Class);
 
-        return new Character
+        return new PCharacter
         {
-            ActionBar = actionBar,
-            Class = request.Class,
+            Class = (short)request.Class,
             Face = request.Face,
             FacialHair = request.FacialHair,
-            Gender = request.Gender,
+            Gender = (short)request.Gender,
             HairColor = request.HairColor,
             HairStyle = request.HairStyle,
-            Level = 1,
             Name = request.Name,
             OutfitId = request.OutfitId,
-            Position = position,
-            Race = request.Race,
-            Skills = skills,
+            PositionX = position.X,
+            PositionY = position.Y,
+            PositionZ = position.Z,
+            PositionO = position.Orientation,
+            MapId = (int)position.ID,
+            ZoneId = (int)position.Zone,
+            Race = (short)request.Race,
             Skin = request.Skin,
-            Spells = spells,
+            Flag = (int)CharacterFlag.None,
+            StandState = (byte)StandState.Stand,
         };
     }
 
@@ -43,17 +42,17 @@ public class CharacterFactory
             : Map.GetStartingPosition(race);
     }
 
-    private static List<Spell> GetInitialSpells(Race race, Classes _class)
+    public static List<Spell> GetInitialSpells(Race race, Classes _class)
     {
         return new List<Spell> { Spell.Fireball() };
     }
 
-    private static List<Skill> GetInitialSkills(Race race, Classes _class)
+    public static List<Skill> GetInitialSkills(Race race, Classes _class)
     {
         return new List<Skill> { Skill.Staves() };
     }
 
-    private static ActionBarItem[] GetInitialActionBar(Race race, Classes _class)
+    public static ActionBarItem[] GetInitialActionBar(Race race, Classes _class)
     {
         var actionBar = new ActionBarItem[120];
         actionBar[0] = ActionBarItem.Fireball();

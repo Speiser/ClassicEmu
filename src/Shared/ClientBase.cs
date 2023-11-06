@@ -59,6 +59,6 @@ public abstract class ClientBase
 
     protected ValueTask<int> ReadInto(byte[] buffer) => this.stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
 
-    protected virtual void OnDisconnected() { }
+    protected virtual Task OnDisconnected() => Task.CompletedTask;
     protected abstract Task HandleIncomingPacket();
 }

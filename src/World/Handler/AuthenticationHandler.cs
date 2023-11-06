@@ -25,9 +25,9 @@ public class AuthenticationHandler
             c.Client.Build = build;
         }
 
-        var session = c.AccountService.GetSession(request.Identifier);
+        var account = await c.AccountService.GetAccount(request.Identifier);
 
-        if (session is null)
+        if (account is null || account.SessionKey is null)
         {
             // return [SMSG_AUTH_RESPONSE, 21]
             throw new ArgumentException($"No user with name {request.Identifier} found in db.");
@@ -42,7 +42,7 @@ public class AuthenticationHandler
                 .Concat(new byte[] { 0, 0, 0, 0 })
                 .Concat(BitConverter.GetBytes(request.Seed))
                 .Concat(SMSG_AUTH_CHALLENGE.AuthSeed)
-                .Concat(session.SessionKey)
+                .Concat(account.SessionKey)
                 .ToArray());
 
         if (!calculatedDigest.SequenceEqual(request.Digest))
@@ -51,7 +51,7 @@ public class AuthenticationHandler
             throw new InvalidOperationException("Wrong digest SMSG_AUTH_RESPONSE");
         }
 
-        c.Client.HeaderCrypt = HeaderCryptFactory.Create(session.SessionKey, build);
+        c.Client.HeaderCrypt = HeaderCryptFactory.Create(account.SessionKey, build);
         c.Client.Identifier = request.Identifier;
         await c.Client.SendPacket(new SMSG_AUTH_RESPONSE(build));
     }

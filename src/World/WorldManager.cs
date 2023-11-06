@@ -38,7 +38,7 @@ public class WorldManager : IWorldManager
             if (!other.IsInWorld) continue;
             if (other.CharacterId == character.Id) continue;
 
-            var otherCharacter = this.CharacterService.GetCharacter(other.CharacterId);
+            var otherCharacter = await this.CharacterService.GetCharacter(other.CharacterId);
 
             if (!IsInRange(character, otherCharacter)) continue;
 
@@ -53,7 +53,7 @@ public class WorldManager : IWorldManager
 
         foreach (var connection in this.Connections)
         {
-            var character = this.CharacterService.GetCharacter(connection.CharacterId);
+            var character = await this.CharacterService.GetCharacter(connection.CharacterId);
             if (character is null) continue;
 
             if (!IsInRange(character, creature)) continue;

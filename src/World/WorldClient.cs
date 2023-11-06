@@ -55,7 +55,7 @@ public class WorldClient : ClientBase
     public int Build { get; internal set; }
     public bool IsInWorld => this.CharacterId != default;
 
-    public string Identifier { get; internal set; }
+    public string Identifier { get; internal set; } // TODO: Maybe add account_id here, so we dont have to query every time
     public ulong CharacterId { get; internal set; }
 
     public PlayerEntity Player { get; internal set; }
@@ -139,14 +139,10 @@ public class WorldClient : ClientBase
         return (length, (Opcode)opcode);
     }
 
-    protected override void OnDisconnected()
+    protected override async Task OnDisconnected()
     {
         this.world.Connections.Remove(this);
-
-        if (!this.accountService.DeleteSession(this.Identifier))
-        {
-            this.logger.LogError($"Could not remove session \"{this.Identifier}\"");
-        }
+        await this.world.CharacterService.UpdateCharacterPosition(this.CharacterId);
     }
 
     private byte[] Encode(ServerPacketBase<Opcode> message)

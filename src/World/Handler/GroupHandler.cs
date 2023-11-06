@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Classic.World.Extensions;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
 using Classic.World.Packets.Server;
@@ -14,7 +14,7 @@ public class GroupHandler
     public static async Task GroupInvite(PacketHandlerContext c)
     {
         var request = new CMSG_GROUP_INVITE(c.Packet);
-        var recipient = c.GetCharacter(request.Membername);
+        var recipient = await c.World.CharacterService.GetCharacter(request.Membername);
         if (recipient is null)
         {
             c.Client.Log($"Could not find player {request.Membername}", LogLevel.Warning);
@@ -29,7 +29,10 @@ public class GroupHandler
             return; // TODO Send response to sender
         }
 
-        await recipientClient.SendPacket(new SMSG_GROUP_INVITE(c.GetCharacter().Name));
+        var character = await c.World.CharacterService.GetCharacter(c.Client.CharacterId);
+        Debug.Assert(character is not null);
+
+        await recipientClient.SendPacket(new SMSG_GROUP_INVITE(character.Name));
     }
 
     // CMSG_GROUP_ACCEPT

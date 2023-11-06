@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Classic.World.Extensions;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Classic.World.Packets;
 using Classic.World.Packets.Shared;
 
@@ -20,10 +20,11 @@ public class PlayerMovementHandler
     [OpcodeHandler(Opcode.MSG_MOVE_STOP)]
     [OpcodeHandler(Opcode.MSG_MOVE_STOP_STRAFE)]
     [OpcodeHandler(Opcode.MSG_MOVE_STOP_TURN)]
-    public static Task OnPlayerMovePrototype(PacketHandlerContext c)
+    public static async Task OnPlayerMovePrototype(PacketHandlerContext c)
     {
         var request = new MSG_MOVE_GENERIC(c.Packet, c.Client.Build);
-        var character = c.GetCharacter();
+        var character = await c.World.CharacterService.GetCharacter(c.Client.CharacterId);
+        Debug.Assert(character is not null);
         // Always trust the client (for now..)
         character.Position.X = request.MapX;
         character.Position.Y = request.MapY;
@@ -32,7 +33,7 @@ public class PlayerMovementHandler
 
         if (c.Opcode == Opcode.MSG_MOVE_HEARTBEAT)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         foreach (var client in c.World.Connections)
@@ -43,7 +44,5 @@ public class PlayerMovementHandler
             // Put that in a queue and dont await it?
             _ = client.SendPacket(new MovementUpdate(character.Id, request, c.Opcode, client.Build));
         }
-
-        return Task.CompletedTask;
     }
 }

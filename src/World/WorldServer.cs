@@ -8,17 +8,21 @@ using Classic.Shared.Data.Enums;
 using Classic.Shared.Services;
 using Classic.World.Data;
 using Classic.World.Data.Enums.Character;
+using Classic.World.Services;
+using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Classic.World;
 
 public class WorldServer : BackgroundService
 {
     private readonly IServiceProvider services;
+    private readonly ILogger<WorldServer> logger;
     private readonly RealmlistService realmlistService;
-    private readonly Realm realmInfo;
+    private readonly PRealm realmInfo;
     private readonly Timer cacheSaveTimer;
 
     private readonly VersionServer serverVanilla;
@@ -32,6 +36,7 @@ public class WorldServer : BackgroundService
         this.serverWotLK = new VersionServer(new IPEndPoint(IPAddress.Loopback, 13252), ClientBuild.WotLK, this.ProcessClient, logger);
 
         this.services = services;
+        this.logger = logger;
         this.World = world;
 
         this.realmlistService = realmlistService;
@@ -53,7 +58,7 @@ public class WorldServer : BackgroundService
         this.cacheSaveTimer.Dispose();
         this.World.StopWorldLoop();
         this.SaveCache();
-        this.realmlistService.RemoveRealm(this.realmInfo);
+        await this.realmlistService.RemoveRealm(this.realmInfo.Name);
         await base.StopAsync(cancellationToken);
     }
 
@@ -63,7 +68,24 @@ public class WorldServer : BackgroundService
         _ = this.serverTBC.StartAsync(stoppingToken);
         _ = this.serverWotLK.StartAsync(stoppingToken);
 
-        this.realmlistService.AddRealm(this.realmInfo);
+        var authDb = this.services.GetService<AuthDatabase>();
+        using var connection = authDb.GetConnection();
+
+        try
+        {
+            // Has to match DB name from world connection string
+            await connection.ExecuteAsync($"CREATE DATABASE classicemu_world_dev;");
+            this.logger.LogInformation("Created database 'classicemu_world_dev'");
+        }
+        catch (PostgresException e) when (e.SqlState == "42P04")
+        {
+            // 42P04: database already exists
+            this.logger.LogInformation("Database 'classicemu_world_dev' already exists");
+        }
+
+        await this.services.GetService<WorldDatabase>().Initialize();
+
+        await this.realmlistService.AddRealm(this.realmInfo);
 
         this.World.StartWorldLoop();
     }
@@ -75,25 +97,26 @@ public class WorldServer : BackgroundService
         await worldClient.Initialize(client, build);
     }
 
-    private Realm GetRealmInfo()
+    private PRealm GetRealmInfo()
     {
         // TODO: From config
-        return new Realm
+        return new PRealm
         {
-            Type = RealmType.PVP,
-            Lock = 0,
-            Flags = RealmFlag.None,
-            Name = "TestServer",
-            AddressVanilla = "127.0.0.1:13250",
-            AddressTBC = "127.0.0.1:13251",
-            AddressWotLK = "127.0.0.1:13252",
+            Type = (byte)RealmType.PVP,
+            Flags = (byte)RealmFlag.None,
+            Name = "Hello World",
+            Address = "127.0.0.1",
+            PortVanilla = 13250,
+            PortTbc = 13251,
+            PortWotlk = 13252,
             Population = 0,
-            TimeZone = 1, // 1 seems to be needed for wotlk
+            Timezone = 1, // 1 seems to be needed for wotlk
         };
     }
 
     private void SaveCache(object _ = null)
     {
-        this.World.CharacterService.Save();
+        // TODO: Rethink this
+        //this.World.CharacterService.Save();
     }
 }

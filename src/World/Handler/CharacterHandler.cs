@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Classic.Shared.Data;
 using Classic.World.Data;
@@ -15,20 +16,8 @@ public class CharacterHandler
     [OpcodeHandler(Opcode.CMSG_CHAR_ENUM)]
     public static async Task OnCharacterEnum(PacketHandlerContext c)
     {
-        var account = c.AccountService.GetAccount(c.Client.Identifier);
-        var characters = new List<Character>();
-
-        foreach (var id in account.Characters)
-        {
-            var character = c.World.CharacterService.GetCharacter(id);
-            if (character is null)
-            {
-                c.Client.Log($"Could not find character with id {id} from player {account.Identifier}.", LogLevel.Warning);
-                continue;
-            }
-
-            characters.Add(character);
-        }
+        var account = await c.AccountService.GetAccount(c.Client.Identifier) ?? throw new Exception($"Could not find account {c.Client.Identifier}");
+        var characters = await c.World.CharacterService.GetAccountCharacters(account.Id);
 
         ServerPacketBase<Opcode> characterEnum = c.Client.Build switch
         {
@@ -44,10 +33,14 @@ public class CharacterHandler
     public static async Task OnCharacterCreate(PacketHandlerContext c)
     {
         byte status;
-        var character = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Packet));
-        if (!c.World.CharacterService.AddCharacter(character))
+        var pCharacter = CharacterFactory.Create(new CMSG_CHAR_CREATE(c.Packet));
+        var account = await c.AccountService.GetAccount(c.Client.Identifier);
+
+        pCharacter.AccountId = account.Id;
+
+        if (!await c.World.CharacterService.AddCharacter(pCharacter))
         {
-            c.Client.Log($"Could not add created character {character.Name} - {character.Id}.", LogLevel.Warning);
+            c.Client.Log($"Could not add created character {pCharacter.Name}.", LogLevel.Warning);
             status = c.Client.Build switch
             {
                 ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_ERROR,
@@ -57,10 +50,6 @@ public class CharacterHandler
         }
         else
         {
-            var account = c.AccountService.GetAccount(c.Client.Identifier);
-            account.Characters.Add(character.Id);
-            c.AccountService.UpdateAccount(account);
-
             status = c.Client.Build switch
             {
                 ClientBuild.Vanilla => (byte)CharacterHandlerCode_Vanilla.CHAR_CREATE_SUCCESS,
@@ -76,23 +65,22 @@ public class CharacterHandler
     public static async Task OnCharacterDelete(PacketHandlerContext c)
     {
         var request = new CMSG_CHAR_DELETE(c.Packet);
-        var account = c.AccountService.GetAccount(c.Client.Identifier);
+
+        var account = await c.AccountService.GetAccount(c.Client.Identifier) ?? throw new Exception($"Could not find account {c.Client.Identifier}");
+        var character = await c.World.CharacterService.GetCharacter(request.CharacterId);
 
         // Removing character of other account
-        if (!account.Characters.Contains(request.CharacterId))
+        if (character is null || character.AccountId != account.Id)
         {
             await c.Client.SendPacket(GetFailedPacket(c.Client.Build));
             return;
         }
 
-        if (!c.World.CharacterService.DeleteCharacter(request.CharacterId))
+        if (!await c.World.CharacterService.DeleteCharacter(request.CharacterId))
         {
             await c.Client.SendPacket(GetFailedPacket(c.Client.Build));
             return;
         }
-
-        account.Characters.Remove(request.CharacterId);
-        c.AccountService.UpdateAccount(account);
 
         var status = c.Client.Build switch
         {
