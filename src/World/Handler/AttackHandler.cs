@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Classic.World.Extensions;
 using Classic.World.Packets;
 using Classic.World.Packets.Client;
+using Classic.World.Packets.Server;
 
 namespace Classic.World.Handler;
 
@@ -55,6 +57,7 @@ public class AttackHandler
         if (unit is null)
         {
             c.Client.Log($"Could not find unit: {request.TargetId}");
+            // TODO: Could still be a cast without a target
             return;
         }
         else
@@ -62,15 +65,28 @@ public class AttackHandler
             c.Client.Log($"{unit.ID} - {unit.Model}");
         }
 
-        // ????
-        //await args.Client.SendPacket(SMSG_CAST_RESULT.Success(request.SpellId));
+        await c.Client.SendPacket(new SMSG_SPELL_START(c.Client.CharacterId, unit.ID, request.SpellId, 4000));
 
-        // Opcode.SMSG_SPELLLOGEXECUTE
-        //m_spellLogData.Initialize(SMSG_SPELLLOGEXECUTE);
-        //m_spellLogData << m_spell->GetCaster()->GetPackGUID();
-        //m_spellLogData << uint32(m_spell->m_spellInfo->Id);
-        //m_spellLogDataEffectsCounterPos = m_spellLogData.wpos();
-        //m_spellLogData << uint32(0);                            //placeholder
-        //m_spellLogDataEffectsCounter = 0;
+        // Simulate spell execution (instant cast)
+        await Task.Delay(4000);  // Simulate a slight delay before spell hits
+
+        // Send spell go (spell finished)
+        await c.Client.SendPacket(new SMSG_SPELL_GO(c.Client.CharacterId, unit.ID, request.SpellId));
+
+        await c.Client.SendPacket(SMSG_CAST_RESULT.Success(request.SpellId));
+
+        unit.Life -= 100;
+
+        var spellLog = new SMSG_SPELLLOGEXECUTE(c.Client.CharacterId, request.SpellId, SpellLogType.Damage,
+        [
+            new()
+            {
+                TargetGuid = unit.ID,
+                EffectData = 100,
+            }
+        ]);
+
+        // TODO: Send to all clients in player's range
+        await c.Client.SendPacket(spellLog);
     }
 }

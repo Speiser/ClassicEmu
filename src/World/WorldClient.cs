@@ -48,7 +48,12 @@ public class WorldClient : ClientBase
         };
 
         await this.Send(message.Get());
-        this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
+
+        if (message.Opcode != Opcode.SMSG_UPDATE_OBJECT)
+        {
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
+        }
+
         await this.HandleConnection();
     }
 
@@ -113,7 +118,12 @@ public class WorldClient : ClientBase
     {
         var data = this.Encode(message);
         await this.Send(data);
-        this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
+
+        if (message.Opcode != Opcode.SMSG_UPDATE_OBJECT)
+        {
+            this.logger.LogTrace($"{this.ClientInfo} - Sent {message.Opcode}");
+        }
+
         message.Dispose();
     }
 

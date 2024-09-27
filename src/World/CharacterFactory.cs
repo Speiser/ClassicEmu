@@ -44,18 +44,20 @@ public class CharacterFactory
 
     public static List<Spell> GetInitialSpells(Race race, Classes _class)
     {
-        return new List<Spell> { Spell.Fireball() };
+        return [Spell.Fireball(), Spell.Pyroblast(), Spell.ArcaneMissiles()];
     }
 
     public static List<Skill> GetInitialSkills(Race race, Classes _class)
     {
-        return new List<Skill> { Skill.Staves() };
+        return [Skill.Staves()];
     }
 
     public static ActionBarItem[] GetInitialActionBar(Race race, Classes _class)
     {
         var actionBar = new ActionBarItem[120];
         actionBar[0] = ActionBarItem.Fireball();
+        actionBar[1] = ActionBarItem.Pyroblast();
+        actionBar[2] = ActionBarItem.ArcaneMissiles();
         return actionBar;
     }
 }
